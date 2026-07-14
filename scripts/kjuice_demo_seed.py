@@ -77,9 +77,23 @@ def _server_proxy(endpoint):
 
 
 common = _server_proxy(f"{URL}/xmlrpc/2/common")
-uid = common.authenticate(DB, USER, KEY, {})
+try:
+    uid = common.authenticate(DB, USER, KEY, {})
+except xmlrpc.client.Fault as e:
+    sys.exit(f"Authentication error from server (db={DB!r}, user={USER!r}): {e.faultString}")
 if not uid:
-    sys.exit("Authentication failed. Check URL / DB / user / API key.")
+    print(f"Authentication failed (db={DB!r}, user={USER!r}).")
+    try:
+        print("Server version:", common.version().get("server_version"))
+    except Exception as e:
+        print("Could not read server version:", e)
+    try:
+        dbs = _server_proxy(f"{URL}/xmlrpc/2/db").list()
+        print("Databases visible on this server:", dbs)
+    except Exception:
+        print("Database listing is disabled on this server (normal for Odoo Online).")
+    sys.exit("Check that the login email matches the Odoo user the API key belongs to, "
+             "and that the key was created on this database.")
 models = _server_proxy(f"{URL}/xmlrpc/2/object")
 
 

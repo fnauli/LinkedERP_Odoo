@@ -28,11 +28,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Read the key from the event payload file rather than step env/inputs:
+      # anything in a step's env or rendered command is echoed to the log
+      # before ::add-mask:: can take effect.
       - name: Mask API key in logs
-        env:
-          KEY_INPUT: ${{ inputs.odoo_api_key }}
         run: |
-          if [ -n "$KEY_INPUT" ]; then echo "::add-mask::$KEY_INPUT"; fi
+          key=$(jq -r '.inputs.odoo_api_key // empty' "$GITHUB_EVENT_PATH")
+          if [ -n "$key" ]; then echo "::add-mask::$key"; fi
 
       - name: Run seeder
         env:
