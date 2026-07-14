@@ -22,10 +22,12 @@ The script is idempotent: it searches before creating, so it is safe to re-run.
 """
 
 import http.client
+import json
 import os
 import re
 import ssl
 import sys
+import urllib.request
 import xmlrpc.client
 from datetime import date, timedelta
 from urllib.parse import urlparse
@@ -96,6 +98,23 @@ if not uid:
     sys.exit("Check that the login email matches the Odoo user the API key belongs to, "
              "and that the key was created on this database.")
 models = _server_proxy(f"{URL}/xmlrpc/2/object")
+
+
+def jx(model, method, args=None):
+    """Like x() but over JSON-RPC: needed for methods that return None,
+    which XML-RPC refuses to marshal (e.g. stock.quant.action_apply_inventory)."""
+    cafile = (os.environ.get("SSL_CERT_FILE") or os.environ.get("REQUESTS_CA_BUNDLE")
+              or os.environ.get("CURL_CA_BUNDLE"))
+    payload = {"jsonrpc": "2.0", "method": "call", "id": 1,
+               "params": {"service": "object", "method": "execute_kw",
+                          "args": [DB, uid, KEY, model, method, args or []]}}
+    req = urllib.request.Request(f"{URL}/jsonrpc", data=json.dumps(payload).encode(),
+                                 headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, context=ssl.create_default_context(cafile=cafile)) as resp:
+        body = json.loads(resp.read())
+    if body.get("error"):
+        raise RuntimeError(body["error"].get("data", {}).get("message") or str(body["error"]))
+    return body.get("result")
 
 
 def x(model, method, args=None, **kw):
@@ -423,7 +442,7 @@ try:
                                              "expiration_date": exp}])
             q = x("stock.quant", "create", [{"product_id": pv, "location_id": stock_loc,
                                              "lot_id": lot, "inventory_quantity": qty}])
-            x("stock.quant", "action_apply_inventory", [[q]])
+            jx("stock.quant", "action_apply_inventory", [[q]])
             log(f"created: {qty} kg {fruit} in {lot_name} (expires in {days_left}d)")
     for pack, qty in [("Cup 16oz (K-Juice branded)", 2500), ("Dome Lid", 2500), ("Paper Straw", 3000)]:
         pv = variant_of(pack_ids[pack])
@@ -433,7 +452,7 @@ try:
             continue
         q = x("stock.quant", "create", [{"product_id": pv, "location_id": stock_loc,
                                          "inventory_quantity": qty}])
-        x("stock.quant", "action_apply_inventory", [[q]])
+        jx("stock.quant", "action_apply_inventory", [[q]])
         log(f"created: {qty} pcs {pack}")
 except Exception as e:
     log(f"skipped stock: {e}")
@@ -545,19 +564,23 @@ except Exception as e:
 if HAS_MRP:
     print("\n14. Manufacturing orders (production cost demo)")
     try:
-        mo = x("mrp.production", "search",
-               [[("origin", "=", "KJ-DEMO"), ("state", "in", ["draft", "confirmed"])]], limit=1)
-        if mo:
+        mo_rec = x("mrp.production", "search_read",
+                   [[("origin", "=", "KJ-DEMO"),
+                     ("state", "in", ["draft", "confirmed", "progress", "to_close"])]],
+                   fields=["state"], limit=1)
+        if mo_rec:
+            mo = [mo_rec[0]["id"]]
             try:
                 x("mrp.production", "write", [mo, {"analytic_distribution": {str(kjuice_aa): 100}}])
             except Exception:
                 pass
-            x("mrp.production", "action_confirm", [mo])
-            x("mrp.production", "action_assign", [mo])
+            if mo_rec[0]["state"] == "draft":
+                jx("mrp.production", "action_confirm", [mo])
+            jx("mrp.production", "action_assign", [mo])
             x("mrp.production", "write", [mo, {"qty_producing": 100}])
-            res = x("mrp.production", "button_mark_done", [mo])
+            res = jx("mrp.production", "button_mark_done", [mo])
             if isinstance(res, dict):
-                log("MO confirmed & reserved - finish it live in the demo (wizard pending)")
+                log(f"MO reserved but needs a click to finish live in the demo ({res.get('res_model', 'wizard')})")
             else:
                 log("done   : 100x Orange Booster produced (see MO > Cost Analysis)")
         else:
