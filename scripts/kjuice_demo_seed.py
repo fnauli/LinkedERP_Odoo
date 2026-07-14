@@ -97,8 +97,10 @@ if not uid:
 models = _server_proxy(f"{URL}/xmlrpc/2/object")
 
 
-def x(model, method, *args, **kw):
-    return models.execute_kw(DB, uid, KEY, model, method, list(args), kw)
+def x(model, method, args=None, **kw):
+    # callers pass the positional-args list directly (Odoo execute_kw convention);
+    # wrapping it again would double-nest search domains, which Odoo 19 rejects
+    return models.execute_kw(DB, uid, KEY, model, method, args or [], kw)
 
 
 def module_installed(name):
