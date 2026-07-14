@@ -100,10 +100,19 @@ safe("invoicing", invoices)
 
 # ---- brand analytics ---------------------------------------------------------
 def brands():
-    lines = x("account.analytic.line", "search_read", [[]], fields=["account_id", "amount"])
+    # custom analytic plans store the account in auto_account_id; the plain
+    # account_id column only covers the default plan
+    try:
+        lines = x("account.analytic.line", "search_read", [[]],
+                  fields=["auto_account_id", "amount"])
+        key = "auto_account_id"
+    except Exception:
+        lines = x("account.analytic.line", "search_read", [[]],
+                  fields=["account_id", "amount"])
+        key = "account_id"
     out = {}
     for l in lines:
-        name = l["account_id"][1] if l["account_id"] else "?"
+        name = l[key][1] if l[key] else "?"
         b = out.setdefault(name, {"revenue": 0.0, "cost": 0.0})
         if l["amount"] >= 0:
             b["revenue"] += l["amount"]
