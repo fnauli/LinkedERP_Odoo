@@ -1,0 +1,43 @@
+name: Seed Odoo Demo Database
+
+on:
+  workflow_dispatch:
+    inputs:
+      odoo_url:
+        description: "Odoo base URL"
+        required: true
+        default: "https://demo-skr.odoo.com"
+      odoo_user:
+        description: "Odoo login email"
+        required: true
+      odoo_api_key:
+        description: "Odoo API key (leave blank to use the ODOO_API_KEY repository secret instead)"
+        required: false
+        default: ""
+      odoo_db:
+        description: "Database name (blank = derived from the *.odoo.com subdomain)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Mask API key in logs
+        env:
+          KEY_INPUT: ${{ inputs.odoo_api_key }}
+        run: |
+          if [ -n "$KEY_INPUT" ]; then echo "::add-mask::$KEY_INPUT"; fi
+
+      - name: Run seeder
+        env:
+          ODOO_URL: ${{ inputs.odoo_url }}
+          ODOO_DB: ${{ inputs.odoo_db }}
+          ODOO_USER: ${{ inputs.odoo_user }}
+          ODOO_API_KEY: ${{ inputs.odoo_api_key != '' && inputs.odoo_api_key || secrets.ODOO_API_KEY }}
+        run: python3 scripts/kjuice_demo_seed.py
