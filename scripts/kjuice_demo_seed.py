@@ -603,6 +603,74 @@ if HAS_MRP:
     except Exception as e:
         log(f"skipped manufacturing: {e}")
 
+# ---------------------------------------------------------------- 15. POS outlet sessions
+if HAS_POS:
+    print("\n15. POS outlet sessions & today's sales")
+    juice_price = {n: p for n, p, _ in juices}
+    baskets = [
+        [("Orange Booster 16oz", 2)],
+        [("Mango Booster 16oz", 1), ("Green Detox 16oz", 1)],
+        [("Watermelon Fresh 16oz", 3)],
+        [("Berry Blast 16oz", 2), ("Orange Booster 16oz", 1)],
+        [("Green Detox 16oz", 2)],
+        [("Orange Booster 16oz", 1), ("Mango Booster 16oz", 2)],
+        [("Berry Blast 16oz", 1)],
+    ]
+    # different volumes per outlet so the performance ranking is visible
+    for outlet_name, n_orders, close in [("K-Juice Neo Soho", 16, True),
+                                         ("K-Juice Kelapa Gading 3", 11, True),
+                                         ("K-Juice Central Park", 7, False)]:
+        try:
+            cfg, created = get_or_create("pos.config", [("name", "=", outlet_name)],
+                                         {"name": outlet_name})
+            log(f"{'created' if created else 'exists '}: POS shop {outlet_name}")
+            if x("pos.order", "search", [[("session_id.config_id", "=", cfg)]], limit=1):
+                log(f"exists : orders for {outlet_name}")
+                continue
+            sess = x("pos.session", "search",
+                     [[("config_id", "=", cfg), ("state", "!=", "closed")]], limit=1)
+            sid = sess[0] if sess else x("pos.session", "create", [{"config_id": cfg}])
+            try:
+                jx("pos.session", "action_pos_session_open", [[sid]])
+            except Exception:
+                pass
+            pms = x("pos.config", "read", [[cfg], ["payment_method_ids"]])[0]["payment_method_ids"]
+            pm = pms[0] if pms else x("pos.payment.method", "search", [[]], limit=1)[0]
+            for i in range(n_orders):
+                basket = baskets[i % len(baskets)]
+                lines, total = [], 0
+                for jname, q in basket:
+                    pu = juice_price[jname]
+                    total += pu * q
+                    lines.append((0, 0, {"product_id": variant_of(juice_ids[jname][0]),
+                                         "qty": q, "price_unit": pu,
+                                         "price_subtotal": pu * q,
+                                         "price_subtotal_incl": pu * q}))
+                oid = x("pos.order", "create", [{
+                    "session_id": sid, "lines": lines,
+                    "pos_reference": f"KJPOS-{cfg:03d}-{i:04d}",
+                    "date_order": f"{today} {2 + (i * 37) % 10:02d}:{(i * 17) % 60:02d}:00",
+                    "amount_tax": 0, "amount_total": total,
+                    "amount_paid": total, "amount_return": 0}])
+                x("pos.payment", "create", [{"pos_order_id": oid, "amount": total,
+                                             "payment_method_id": pm}])
+                try:
+                    jx("pos.order", "action_pos_order_paid", [[oid]])
+                except Exception:
+                    x("pos.order", "write", [[oid], {"state": "paid"}])
+            log(f"created: {n_orders} paid orders in session for {outlet_name}")
+            if close:
+                try:
+                    jx("pos.session", "action_pos_session_closing_control", [[sid]])
+                    st = x("pos.session", "read", [[sid], ["state"]])[0]["state"]
+                    log(f"session for {outlet_name}: {st}")
+                except Exception as e:
+                    log(f"session left open for {outlet_name} (close it live): {e}")
+            else:
+                log(f"session left OPEN for {outlet_name} (live operations view)")
+        except Exception as e:
+            log(f"skipped POS for {outlet_name}: {e}")
+
 print("\nDone. Demo tour suggestions:")
 print(" - Inventory > Products / Lots: fruit lots with expiry alerts")
 print(" - Manufacturing > Orders: completed Orange MO (Cost Analysis) + Mango MO in progress")
@@ -610,3 +678,5 @@ print(" - Accounting > Customer Invoices / Vendor Bills: 2 months of posted hist
 print(" - Accounting > Reporting > Analytic Report (or P&L filtered by plan 'Brand'):")
 print("   K-Juice Booster vs Bakmie Booster revenue & costs")
 print(" - CRM: franchise pipeline from the ICE BSD expo")
+print(" - Point of Sale > Reporting > Orders: today's sales per outlet shop;")
+print("   Neo Soho vs Kelapa Gading vs Central Park performance, one session still live")
