@@ -23,6 +23,7 @@ The script is idempotent: it searches before creating, so it is safe to re-run.
 
 import http.client
 import os
+import re
 import ssl
 import sys
 import xmlrpc.client
@@ -112,7 +113,20 @@ def get_or_create(model, domain, vals):
     ids = x(model, "search", [domain], limit=1)
     if ids:
         return ids[0], False
-    return x(model, "create", [vals]), True
+    # fields differ between Odoo versions/installed apps: drop any field the
+    # server rejects as invalid and retry, instead of failing the whole seed
+    vals = dict(vals)
+    for _ in range(10):
+        try:
+            return x(model, "create", [vals]), True
+        except xmlrpc.client.Fault as e:
+            m = re.search(r"Invalid field '([^']+)'", e.faultString)
+            if m and m.group(1) in vals:
+                print(f"    note: field {m.group(1)!r} not available on {model}, skipped")
+                del vals[m.group(1)]
+                continue
+            raise
+    raise RuntimeError(f"could not create {model} record after dropping invalid fields")
 
 
 def log(msg):
@@ -134,8 +148,21 @@ uom_kg = uom_kg[0] if uom_kg else False
 uom_unit = x("uom.uom", "search", [[("name", "in", ["Units", "Unit(s)", "Unit"])]], limit=1)
 uom_unit = uom_unit[0] if uom_unit else False
 
+# ---------------------------------------------------------------- 0. Inventory settings
+print("0. Inventory settings (lots & expiration dates)")
+try:
+    if module_installed("product_expiry"):
+        log("exists : Expiration Dates already enabled")
+    else:
+        sid = x("res.config.settings", "create",
+                [{"group_stock_production_lot": True, "module_product_expiry": True}])
+        x("res.config.settings", "execute", [[sid]])
+        log("enabled: Lots & Serial Numbers + Expiration Dates (installed product_expiry)")
+except Exception as e:
+    log(f"skipped inventory settings (enable 'Expiration Dates' manually if needed): {e}")
+
 # ---------------------------------------------------------------- 1. Product categories
-print("1. Product categories")
+print("\n1. Product categories")
 cat_ids = {}
 for cat in ["Fresh Fruit", "Packaging", "Finished Juice"]:
     cid, created = get_or_create("product.category", [("name", "=", cat)], {"name": cat})
