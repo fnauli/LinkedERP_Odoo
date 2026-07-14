@@ -100,14 +100,14 @@ if not uid:
 models = _server_proxy(f"{URL}/xmlrpc/2/object")
 
 
-def jx(model, method, args=None):
+def jx(model, method, args=None, kw=None):
     """Like x() but over JSON-RPC: needed for methods that return None,
     which XML-RPC refuses to marshal (e.g. stock.quant.action_apply_inventory)."""
     cafile = (os.environ.get("SSL_CERT_FILE") or os.environ.get("REQUESTS_CA_BUNDLE")
               or os.environ.get("CURL_CA_BUNDLE"))
     payload = {"jsonrpc": "2.0", "method": "call", "id": 1,
                "params": {"service": "object", "method": "execute_kw",
-                          "args": [DB, uid, KEY, model, method, args or []]}}
+                          "args": [DB, uid, KEY, model, method, args or [], kw or {}]}}
     req = urllib.request.Request(f"{URL}/jsonrpc", data=json.dumps(payload).encode(),
                                  headers={"Content-Type": "application/json"})
     with urllib.request.urlopen(req, context=ssl.create_default_context(cafile=cafile)) as resp:
@@ -579,10 +579,15 @@ if HAS_MRP:
             jx("mrp.production", "action_assign", [mo])
             x("mrp.production", "write", [mo, {"qty_producing": 100}])
             res = jx("mrp.production", "button_mark_done", [mo])
-            if isinstance(res, dict):
-                log(f"MO reserved but needs a click to finish live in the demo ({res.get('res_model', 'wizard')})")
-            else:
+            if isinstance(res, dict) and res.get("res_model") == "mrp.consumption.warning":
+                ctx = res.get("context") or {}
+                wiz = x("mrp.consumption.warning", "create", [{}], context=ctx)
+                jx("mrp.consumption.warning", "action_confirm", [[wiz]], {"context": ctx})
+            state = x("mrp.production", "read", [mo, ["state"]])[0]["state"]
+            if state == "done":
                 log("done   : 100x Orange Booster produced (see MO > Cost Analysis)")
+            else:
+                log(f"MO left in state {state!r} - finish it with one click live in the demo")
         else:
             log("exists : Orange Booster MO already processed")
         # a second MO left in progress for the pipeline view
