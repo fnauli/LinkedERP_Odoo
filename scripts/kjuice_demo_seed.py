@@ -135,6 +135,18 @@ def log(msg):
 
 print(f"Connected to {URL} as uid {uid}\n")
 
+# Install apps the demo story needs (safe to re-run; skips installed ones)
+for app in ("crm",):
+    try:
+        if not module_installed(app):
+            mid = x("ir.module.module", "search", [[("name", "=", app)]], limit=1)
+            if mid:
+                print(f"Installing app: {app} (takes a moment)...")
+                x("ir.module.module", "button_immediate_install", [mid])
+                print(f"  installed: {app}")
+    except Exception as e:
+        print(f"  could not install {app}: {e}")
+
 HAS_MRP = module_installed("mrp")
 HAS_CRM = module_installed("crm")
 HAS_POS = module_installed("point_of_sale")
@@ -148,18 +160,17 @@ uom_kg = uom_kg[0] if uom_kg else False
 uom_unit = x("uom.uom", "search", [[("name", "in", ["Units", "Unit(s)", "Unit"])]], limit=1)
 uom_unit = uom_unit[0] if uom_unit else False
 
-# ---------------------------------------------------------------- 0. Inventory settings
-print("0. Inventory settings (lots & expiration dates)")
+# ---------------------------------------------------------------- 0. Settings
+print("0. Settings (lots, expiration dates, analytic accounting)")
 try:
-    if module_installed("product_expiry"):
-        log("exists : Expiration Dates already enabled")
-    else:
-        sid = x("res.config.settings", "create",
-                [{"group_stock_production_lot": True, "module_product_expiry": True}])
-        x("res.config.settings", "execute", [[sid]])
-        log("enabled: Lots & Serial Numbers + Expiration Dates (installed product_expiry)")
+    vals = {"group_stock_production_lot": True, "group_analytic_accounting": True}
+    if not module_installed("product_expiry"):
+        vals["module_product_expiry"] = True
+    sid = x("res.config.settings", "create", [vals])
+    x("res.config.settings", "execute", [[sid]])
+    log("enabled: Lots & Serial Numbers, Expiration Dates, Analytic Accounting")
 except Exception as e:
-    log(f"skipped inventory settings (enable 'Expiration Dates' manually if needed): {e}")
+    log(f"skipped settings (enable 'Expiration Dates' / 'Analytic Accounting' manually): {e}")
 
 # ---------------------------------------------------------------- 1. Product categories
 print("\n1. Product categories")
@@ -373,5 +384,201 @@ if HAS_MRP:
     except Exception as e:
         log(f"skipped MO: {e}")
 
-print("\nDone. Open Odoo and review: Products, BoMs, Contacts, CRM pipeline,")
-print("draft PO/SO/MO tagged KJ-DEMO. Confirm them live during the demo to show the flow.")
+# ---------------------------------------------------------------- helpers (phase 2)
+def variant_of(tmpl_id):
+    v = x("product.product", "search", [[("product_tmpl_id", "=", tmpl_id)]], limit=1)
+    return v[0] if v else False
+
+
+def analytic_id(name):
+    ids = x("account.analytic.account", "search", [[("name", "=", name)]], limit=1)
+    return ids[0] if ids else False
+
+
+# ---------------------------------------------------------------- 10. Stock on hand (lots + expiry)
+print("\n10. Stock on hand with lots & expiry dates")
+try:
+    wh = x("stock.warehouse", "search_read", [[]], fields=["lot_stock_id"], limit=1)
+    stock_loc = wh[0]["lot_stock_id"][0]
+    lot_plans = {
+        "Orange (Sunkist)": [("LOT-ORG-A", 40, 6), ("LOT-ORG-B", 15, 2)],
+        "Mango (Harum Manis)": [("LOT-MGO-A", 35, 5), ("LOT-MGO-B", 10, 1)],
+        "Watermelon": [("LOT-WML-A", 60, 6)],
+        "Strawberry": [("LOT-STB-A", 20, 4), ("LOT-STB-B", 8, 2)],
+        "Pineapple": [("LOT-PNA-A", 30, 5)],
+        "Green Apple": [("LOT-APL-A", 25, 7)],
+        "Carrot": [("LOT-CRT-A", 30, 7)],
+        "Celery": [("LOT-CLY-A", 12, 3)],
+        "Dragon Fruit": [("LOT-DGF-A", 18, 5)],
+        "Banana (Cavendish)": [("LOT-BNN-A", 25, 4)],
+    }
+    for fruit, lots in lot_plans.items():
+        pv = variant_of(fruit_ids[fruit])
+        for lot_name, qty, days_left in lots:
+            if x("stock.lot", "search", [[("name", "=", lot_name)]], limit=1):
+                log(f"exists : lot {lot_name}")
+                continue
+            exp = (today + timedelta(days=days_left)).strftime("%Y-%m-%d 12:00:00")
+            lot = x("stock.lot", "create", [{"name": lot_name, "product_id": pv,
+                                             "expiration_date": exp}])
+            q = x("stock.quant", "create", [{"product_id": pv, "location_id": stock_loc,
+                                             "lot_id": lot, "inventory_quantity": qty}])
+            x("stock.quant", "action_apply_inventory", [[q]])
+            log(f"created: {qty} kg {fruit} in {lot_name} (expires in {days_left}d)")
+    for pack, qty in [("Cup 16oz (K-Juice branded)", 2500), ("Dome Lid", 2500), ("Paper Straw", 3000)]:
+        pv = variant_of(pack_ids[pack])
+        if x("stock.quant", "search",
+             [[("product_id", "=", pv), ("location_id", "=", stock_loc), ("quantity", ">", 0)]], limit=1):
+            log(f"exists : stock for {pack}")
+            continue
+        q = x("stock.quant", "create", [{"product_id": pv, "location_id": stock_loc,
+                                         "inventory_quantity": qty}])
+        x("stock.quant", "action_apply_inventory", [[q]])
+        log(f"created: {qty} pcs {pack}")
+except Exception as e:
+    log(f"skipped stock: {e}")
+
+# ---------------------------------------------------------------- 11. Juice standard costs (from BoM)
+print("\n11. Juice production costs (standard price from recipe + packaging)")
+fruit_cost = dict(fruits)
+pack_cost = sum(c for _, c in packaging)
+for name, price, recipe in juices:
+    try:
+        cost = round(sum(fruit_cost[f] * q for f, q in recipe) + pack_cost)
+        x("product.template", "write", [[juice_ids[name][0]], {"standard_price": cost}])
+        log(f"set    : {name} cost Rp {cost:,} (sale Rp {price:,}, margin Rp {price - cost:,})")
+    except Exception as e:
+        log(f"skipped cost for {name}: {e}")
+
+# ---------------------------------------------------------------- 12. Posted bills & invoices per brand
+print("\n12. Posted vendor bills & customer invoices with brand analytics")
+kjuice_aa = analytic_id("K-Juice Booster")
+bakmie_aa = analytic_id("Bakmie Booster")
+
+
+def make_move(ref, move_type, partner_id, inv_date, lines):
+    if x("account.move", "search", [[("ref", "=", ref)]], limit=1):
+        log(f"exists : {ref}")
+        return
+    mid = x("account.move", "create", [{
+        "move_type": move_type, "partner_id": partner_id, "ref": ref,
+        "invoice_date": inv_date.strftime("%Y-%m-%d"),
+        "invoice_line_ids": [(0, 0, l) for l in lines]}])
+    x("account.move", "action_post", [[mid]])
+    log(f"posted : {ref}")
+
+
+def acct(acct_type):
+    ids = x("account.account", "search", [[("account_type", "=", acct_type)]], limit=1)
+    return ids[0] if ids else False
+
+
+try:
+    dist_kj = {str(kjuice_aa): 100} if kjuice_aa else False
+    dist_bb = {str(bakmie_aa): 100} if bakmie_aa else False
+
+    # K-Juice: fruit & packaging purchases (COGS side of the brand report)
+    for i, (days_ago, flines) in enumerate([
+        (60, [("Orange (Sunkist)", 120, 28000), ("Mango (Harum Manis)", 90, 32000)]),
+        (30, [("Strawberry", 40, 65000), ("Pineapple", 80, 15000), ("Watermelon", 100, 12000)]),
+        (7,  [("Orange (Sunkist)", 100, 28500), ("Green Apple", 50, 42000), ("Celery", 20, 25000)]),
+    ], 1):
+        lines = [{"product_id": variant_of(fruit_ids[f]), "quantity": q, "price_unit": p,
+                  "analytic_distribution": dist_kj} for f, q, p in flines]
+        make_move(f"KJ-DEMO-BILL-{i}", "in_invoice",
+                  vendor_ids["CV Segar Buah Nusantara"], today - timedelta(days=days_ago), lines)
+    lines = [{"product_id": variant_of(pack_ids[p]), "quantity": q, "price_unit": pu,
+              "analytic_distribution": dist_kj}
+             for p, q, pu in [("Cup 16oz (K-Juice branded)", 5000, 900),
+                              ("Dome Lid", 5000, 300), ("Paper Straw", 5000, 150)]]
+    make_move("KJ-DEMO-BILL-4", "in_invoice",
+              vendor_ids["UD Tani Makmur (packaging)"], today - timedelta(days=20), lines)
+
+    # K-Juice: weekly juice sales invoices to franchisee outlets
+    inv_no = 1
+    for days_ago in (56, 42, 28, 14, 7, 2):
+        for outlet in ["K-Juice Neo Soho Mall", "K-Juice Mall Kelapa Gading 3", "K-Juice Central Park"]:
+            lines = [{"product_id": variant_of(juice_ids[j][0]), "quantity": qty, "price_unit": pr,
+                      "analytic_distribution": dist_kj}
+                     for j, qty, pr in [("Orange Booster 16oz", 60, 35000),
+                                        ("Mango Booster 16oz", 45, 38000),
+                                        ("Green Detox 16oz", 30, 42000)]]
+            make_move(f"KJ-DEMO-INV-{inv_no}", "out_invoice",
+                      outlet_ids[outlet], today - timedelta(days=days_ago), lines)
+            inv_no += 1
+
+    # Bakmie Booster: second brand so per-brand comparison has data
+    bb_vendor, _ = get_or_create("res.partner", [("name", "=", "CV Mie Sejahtera")],
+                                 {"name": "CV Mie Sejahtera", "is_company": True, "supplier_rank": 1})
+    bb_customer, _ = get_or_create("res.partner", [("name", "=", "Bakmie Booster PIK Outlet")],
+                                   {"name": "Bakmie Booster PIK Outlet", "is_company": True,
+                                    "customer_rank": 1})
+    exp_acc, inc_acc = acct("expense"), acct("income")
+    for i, (days_ago, amount) in enumerate([(45, 4000000), (15, 3500000)], 1):
+        make_move(f"BB-DEMO-BILL-{i}", "in_invoice", bb_vendor, today - timedelta(days=days_ago),
+                  [{"name": "Noodle & ingredient supplies", "quantity": 1, "price_unit": amount,
+                    "account_id": exp_acc, "analytic_distribution": dist_bb}])
+    for i, (days_ago, amount) in enumerate([(40, 6500000), (10, 7200000)], 1):
+        make_move(f"BB-DEMO-INV-{i}", "out_invoice", bb_customer, today - timedelta(days=days_ago),
+                  [{"name": "Weekly bakmie sales", "quantity": 1, "price_unit": amount,
+                    "account_id": inc_acc, "analytic_distribution": dist_bb}])
+except Exception as e:
+    log(f"skipped bills/invoices: {e}")
+
+# ---------------------------------------------------------------- 13. Confirm demo documents
+print("\n13. Confirm demo PO / SO")
+try:
+    po = x("purchase.order", "search", [[("origin", "=", "KJ-DEMO"), ("state", "=", "draft")]])
+    if po:
+        x("purchase.order", "button_confirm", [po])
+        log("confirmed: fruit PO (receipt now waiting in Inventory)")
+    so = x("sale.order", "search", [[("origin", "=", "KJ-DEMO"), ("state", "=", "draft")]])
+    if so:
+        x("sale.order", "action_confirm", [so])
+        log(f"confirmed: {len(so)} outlet SO(s) (deliveries now waiting)")
+    if not po and not so:
+        log("exists : documents already confirmed")
+except Exception as e:
+    log(f"skipped confirmations: {e}")
+
+# ---------------------------------------------------------------- 14. Manufacturing with cost data
+if HAS_MRP:
+    print("\n14. Manufacturing orders (production cost demo)")
+    try:
+        mo = x("mrp.production", "search",
+               [[("origin", "=", "KJ-DEMO"), ("state", "in", ["draft", "confirmed"])]], limit=1)
+        if mo:
+            try:
+                x("mrp.production", "write", [mo, {"analytic_distribution": {str(kjuice_aa): 100}}])
+            except Exception:
+                pass
+            x("mrp.production", "action_confirm", [mo])
+            x("mrp.production", "action_assign", [mo])
+            x("mrp.production", "write", [mo, {"qty_producing": 100}])
+            res = x("mrp.production", "button_mark_done", [mo])
+            if isinstance(res, dict):
+                log("MO confirmed & reserved - finish it live in the demo (wizard pending)")
+            else:
+                log("done   : 100x Orange Booster produced (see MO > Cost Analysis)")
+        else:
+            log("exists : Orange Booster MO already processed")
+        # a second MO left in progress for the pipeline view
+        if not x("mrp.production", "search", [[("origin", "=", "KJ-DEMO-2")]], limit=1):
+            jv = variant_of(juice_ids["Mango Booster 16oz"][0])
+            bom = x("mrp.bom", "search", [[("product_tmpl_id", "=", juice_ids["Mango Booster 16oz"][0])]], limit=1)
+            mo2 = x("mrp.production", "create", [{"product_id": jv, "product_qty": 80,
+                                                  "bom_id": bom[0], "origin": "KJ-DEMO-2"}])
+            x("mrp.production", "action_confirm", [[mo2]])
+            log("created: 80x Mango Booster MO (confirmed, in progress)")
+        else:
+            log("exists : Mango Booster MO")
+    except Exception as e:
+        log(f"skipped manufacturing: {e}")
+
+print("\nDone. Demo tour suggestions:")
+print(" - Inventory > Products / Lots: fruit lots with expiry alerts")
+print(" - Manufacturing > Orders: completed Orange MO (Cost Analysis) + Mango MO in progress")
+print(" - Accounting > Customer Invoices / Vendor Bills: 2 months of posted history")
+print(" - Accounting > Reporting > Analytic Report (or P&L filtered by plan 'Brand'):")
+print("   K-Juice Booster vs Bakmie Booster revenue & costs")
+print(" - CRM: franchise pipeline from the ICE BSD expo")
