@@ -1,0 +1,45 @@
+name: Extract CEO Dashboard Data
+
+on:
+  workflow_dispatch:
+    inputs:
+      odoo_url:
+        description: "Odoo base URL"
+        required: true
+        default: "https://demo-skr.odoo.com"
+      odoo_user:
+        description: "Odoo login email"
+        required: true
+      odoo_api_key:
+        description: "Odoo API key (leave blank to use the ODOO_API_KEY repository secret instead)"
+        required: false
+        default: ""
+      odoo_db:
+        description: "Database name (blank = derived from the *.odoo.com subdomain)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Read the key from the event payload file rather than step env/inputs:
+      # anything in a step's env or rendered command is echoed to the log
+      # before ::add-mask:: can take effect.
+      - name: Mask API key in logs
+        run: |
+          key=$(jq -r '.inputs.odoo_api_key // empty' "$GITHUB_EVENT_PATH")
+          if [ -n "$key" ]; then echo "::add-mask::$key"; fi
+
+      - name: Extract KPIs
+        env:
+          ODOO_URL: ${{ inputs.odoo_url }}
+          ODOO_DB: ${{ inputs.odoo_db }}
+          ODOO_USER: ${{ inputs.odoo_user }}
+          ODOO_API_KEY: ${{ inputs.odoo_api_key != '' && inputs.odoo_api_key || secrets.ODOO_API_KEY }}
+        run: python3 scripts/ceo_dashboard_data.py
