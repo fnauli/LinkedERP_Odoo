@@ -155,7 +155,7 @@ def log(msg):
 print(f"Connected to {URL} as uid {uid}\n")
 
 # Install apps the demo story needs (safe to re-run; skips installed ones)
-for app in ("crm",):
+for app in ("crm", "planning"):
     try:
         if not module_installed(app):
             mid = x("ir.module.module", "search", [[("name", "=", app)]], limit=1)
@@ -171,7 +171,9 @@ HAS_CRM = module_installed("crm")
 HAS_POS = module_installed("point_of_sale")
 HAS_ACC = module_installed("account")
 HAS_ANALYTIC = module_installed("analytic")
-print(f"Apps -> mrp:{HAS_MRP} crm:{HAS_CRM} pos:{HAS_POS} account:{HAS_ACC} analytic:{HAS_ANALYTIC}\n")
+HAS_PLANNING = module_installed("planning")
+print(f"Apps -> mrp:{HAS_MRP} crm:{HAS_CRM} pos:{HAS_POS} account:{HAS_ACC} "
+      f"analytic:{HAS_ANALYTIC} planning:{HAS_PLANNING}\n")
 
 # ---------------------------------------------------------------- UoM refs
 uom_kg = x("uom.uom", "search", [[("name", "in", ["kg", "Kg", "KG"])]], limit=1)
@@ -671,6 +673,89 @@ if HAS_POS:
         except Exception as e:
             log(f"skipped POS for {outlet_name}: {e}")
 
+# ---------------------------------------------------------------- 16. Crew planning per outlet
+if HAS_PLANNING:
+    print("\n16. Crew planning (Planning app) per outlet")
+    try:
+        roles = {}
+        for r in ["Shift Leader", "Barista", "Cashier", "Kitchen Crew"]:
+            rid, c = get_or_create("planning.role", [("name", "=", r)], {"name": r})
+            roles[r] = rid
+        log(f"roles  : {', '.join(roles)}")
+
+        depts = {}
+        for d in ["Central Kitchen", "Outlet - Neo Soho",
+                  "Outlet - Kelapa Gading 3", "Outlet - Central Park"]:
+            did, c = get_or_create("hr.department", [("name", "=", d)], {"name": d})
+            depts[d] = did
+
+        crew = [
+            ("Dewi Lestari", "Shift Leader", "Outlet - Neo Soho"),
+            ("Andi Pratama", "Barista", "Outlet - Neo Soho"),
+            ("Siti Rahma", "Cashier", "Outlet - Neo Soho"),
+            ("Budi Santoso", "Shift Leader", "Outlet - Kelapa Gading 3"),
+            ("Rina Wijaya", "Barista", "Outlet - Kelapa Gading 3"),
+            ("Joko Susilo", "Cashier", "Outlet - Kelapa Gading 3"),
+            ("Putri Amelia", "Shift Leader", "Outlet - Central Park"),
+            ("Agus Halim", "Barista", "Outlet - Central Park"),
+            ("Maya Sari", "Kitchen Crew", "Central Kitchen"),
+            ("Rudi Hartono", "Kitchen Crew", "Central Kitchen"),
+        ]
+        emp_role, emp_dept, emp_ids = {}, {}, {}
+        for name, title, dept in crew:
+            eid, c = get_or_create("hr.employee", [("name", "=", name)],
+                                   {"name": name, "job_title": title,
+                                    "department_id": depts[dept]})
+            emp_ids[name] = eid
+            emp_role[name], emp_dept[name] = title, dept
+        log(f"crew   : {len(crew)} employees across 3 outlets + central kitchen")
+
+        resource = {e["id"]: e["resource_id"][0] for e in
+                    x("hr.employee", "read", [list(emp_ids.values()), ["resource_id"]])}
+
+        monday = today - timedelta(days=today.weekday())
+        if x("planning.slot", "search",
+             [[("start_datetime", ">=", f"{monday} 00:00:00")]], limit=1):
+            log("exists : shifts already planned for this week")
+        else:
+            # shift windows in WIB (UTC+7), stored as UTC
+            shift_utc = {"Shift Leader": ("01:00:00", "09:00:00"),   # 08:00-16:00 WIB
+                         "Barista": ("03:00:00", "11:00:00"),        # 10:00-18:00 WIB
+                         "Cashier": ("07:00:00", "15:00:00"),        # 14:00-22:00 WIB
+                         "Kitchen Crew": ("00:00:00", "08:00:00")}   # 07:00-15:00 WIB
+            slots = []
+            for d in range(6):  # Monday..Saturday
+                day = monday + timedelta(days=d)
+                for name in emp_ids:
+                    start, end = shift_utc[emp_role[name]]
+                    slots.append({
+                        "resource_id": resource[emp_ids[name]],
+                        "role_id": roles[emp_role[name]],
+                        "start_datetime": f"{day} {start}",
+                        "end_datetime": f"{day} {end}",
+                        "state": "published",
+                        "name": emp_dept[name],
+                    })
+            # open weekend shifts crew can self-assign
+            saturday = monday + timedelta(days=5)
+            for outlet in ["Outlet - Neo Soho", "Outlet - Kelapa Gading 3",
+                           "Outlet - Central Park"]:
+                slots.append({"role_id": roles["Barista"],
+                              "start_datetime": f"{saturday} 03:00:00",
+                              "end_datetime": f"{saturday} 11:00:00",
+                              "state": "published",
+                              "name": f"{outlet} - OPEN weekend shift"})
+            try:
+                x("planning.slot", "create", [slots])
+            except xmlrpc.client.Fault:
+                for s in slots:
+                    s.pop("state", None)
+                x("planning.slot", "create", [slots])
+            log(f"created: {len(slots)} published shifts for week of {monday} "
+                f"(incl. 3 open weekend shifts)")
+    except Exception as e:
+        log(f"skipped planning: {e}")
+
 print("\nDone. Demo tour suggestions:")
 print(" - Inventory > Products / Lots: fruit lots with expiry alerts")
 print(" - Manufacturing > Orders: completed Orange MO (Cost Analysis) + Mango MO in progress")
@@ -680,3 +765,5 @@ print("   K-Juice Booster vs Bakmie Booster revenue & costs")
 print(" - CRM: franchise pipeline from the ICE BSD expo")
 print(" - Point of Sale > Reporting > Orders: today's sales per outlet shop;")
 print("   Neo Soho vs Kelapa Gading vs Central Park performance, one session still live")
+print(" - Planning > Schedule: this week's crew shifts grouped by role/department,")
+print("   with 3 open Saturday shifts crew can self-assign")
