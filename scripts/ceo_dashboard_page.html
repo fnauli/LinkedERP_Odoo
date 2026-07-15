@@ -1,0 +1,451 @@
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f7f9f5;
+    --surface: #fcfdfb;
+    --ink: #131a15;
+    --ink-2: #4e5850;
+    --ink-3: #84887e;
+    --grid: #e2e5dd;
+    --ring: rgba(19, 26, 21, 0.10);
+    --accent: #d95926;
+    --rev: #2a78d6;      /* series 1: revenue */
+    --spend: #1baf7a;    /* series 2: spend / cost */
+    --good: #0ca30c;
+    --warning: #fab219;
+    --serious: #ec835a;
+    --critical: #d03b3b;
+    --good-text: #006300;
+    --chip: #eef1ea;
+    --track: #edf0e9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --page: #0e120f;
+      --surface: #171d18;
+      --ink: #e9efe9;
+      --ink-2: #b4bcb2;
+      --ink-3: #7f877e;
+      --grid: #262d27;
+      --ring: rgba(233, 239, 233, 0.10);
+      --accent: #eb6834;
+      --rev: #3987e5;
+      --spend: #199e70;
+      --good-text: #0ca30c;
+      --chip: #202721;
+      --track: #20261f;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0e120f;
+    --surface: #171d18;
+    --ink: #e9efe9;
+    --ink-2: #b4bcb2;
+    --ink-3: #7f877e;
+    --grid: #262d27;
+    --ring: rgba(233, 239, 233, 0.10);
+    --accent: #eb6834;
+    --rev: #3987e5;
+    --spend: #199e70;
+    --good-text: #0ca30c;
+    --chip: #202721;
+    --track: #20261f;
+  }
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --page: #f7f9f5;
+    --surface: #fcfdfb;
+    --ink: #131a15;
+    --ink-2: #4e5850;
+    --ink-3: #84887e;
+    --grid: #e2e5dd;
+    --ring: rgba(19, 26, 21, 0.10);
+    --accent: #d95926;
+    --rev: #2a78d6;
+    --spend: #1baf7a;
+    --good-text: #006300;
+    --chip: #eef1ea;
+    --track: #edf0e9;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 20px 20px 48px; }
+
+  /* ---------- header ---------- */
+  header {
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px;
+    padding: 6px 2px 18px;
+  }
+  .brandline { display: flex; align-items: center; gap: 10px; }
+  .branddot { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); flex: none; }
+  .eyebrow { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; }
+  h1 { font-size: 22px; font-weight: 700; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+  .meta { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+  .badge {
+    font-size: 12px; color: var(--ink-2); background: var(--chip);
+    border: 1px solid var(--ring); border-radius: 999px; padding: 3px 10px;
+    white-space: nowrap;
+  }
+
+  /* ---------- layout ---------- */
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 12px; margin-top: 12px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--ring); border-radius: 10px;
+    padding: 16px 18px; min-width: 0;
+  }
+  .card h2 {
+    font-size: 12px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--ink-3); font-weight: 650; margin: 0 0 2px;
+  }
+  .card .sub { font-size: 12.5px; color: var(--ink-2); margin: 0 0 14px; }
+
+  /* ---------- KPI tiles ---------- */
+  .kpi { font-size: 30px; font-weight: 750; letter-spacing: -0.02em; line-height: 1.15; margin: 6px 0 2px; }
+  .kpi small { font-size: 15px; font-weight: 600; color: var(--ink-2); }
+  .kpinote { font-size: 12.5px; color: var(--ink-2); }
+  .up { color: var(--good-text); font-weight: 650; }
+  .chipline { margin-top: 8px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11.5px; font-weight: 650; border-radius: 999px; padding: 2px 9px;
+    border: 1px solid var(--ring); background: var(--chip); color: var(--ink-2);
+  }
+  .chip.crit { color: var(--critical); border-color: var(--critical); background: transparent; }
+  .chip.live { color: var(--good-text); border-color: var(--good); background: transparent; }
+  .pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--good); animation: pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: .3; } }
+  @media (prefers-reduced-motion: reduce) { .pulse { animation: none; } }
+
+  .spark { display: flex; align-items: flex-end; gap: 4px; height: 34px; margin-top: 10px; }
+  .spark i { flex: 1; background: var(--rev); border-radius: 3px 3px 0 0; opacity: .55; }
+  .spark i:last-child { opacity: 1; }
+
+  /* ---------- grouped column chart ---------- */
+  .colchart { display: flex; gap: 18px; align-items: stretch; height: 210px; padding-top: 18px; }
+  .colgroup { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .colpair { flex: 1; display: flex; align-items: flex-end; justify-content: center; gap: 2px; border-bottom: 1px solid var(--grid); }
+  .col { width: 34%; max-width: 46px; border-radius: 4px 4px 0 0; position: relative; cursor: default; }
+  .col.rev { background: var(--rev); }
+  .col.spend { background: var(--spend); }
+  .col b {
+    position: absolute; top: -19px; left: 50%; transform: translateX(-50%);
+    font-size: 10.5px; font-weight: 650; color: var(--ink-2); white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .collabel { text-align: center; font-size: 12px; color: var(--ink-3); padding-top: 7px; }
+  .legend { display: flex; gap: 16px; font-size: 12px; color: var(--ink-2); margin-top: 4px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+
+  /* ---------- horizontal bar lists ---------- */
+  .bars { display: grid; grid-template-columns: minmax(110px, max-content) 1fr max-content; gap: 8px 12px; align-items: center; }
+  .bars .lbl { font-size: 13px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bars .track { background: var(--track); border-radius: 4px; height: 18px; min-width: 40px; }
+  .bars .fill { height: 100%; border-radius: 4px; background: var(--rev); }
+  .bars .val { font-size: 12.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  /* ---------- alert rows ---------- */
+  .alerts { display: flex; flex-direction: column; gap: 8px; }
+  .alert {
+    display: flex; align-items: center; gap: 10px;
+    border: 1px solid var(--ring); border-left-width: 4px; border-radius: 8px;
+    padding: 8px 12px; font-size: 13px;
+  }
+  .alert .who { font-weight: 650; }
+  .alert .why { color: var(--ink-2); margin-left: auto; text-align: right; font-variant-numeric: tabular-nums; }
+  .alert.critical { border-left-color: var(--critical); }
+  .alert.serious  { border-left-color: var(--serious); }
+  .alert.warning  { border-left-color: var(--warning); }
+  .sev { font-size: 11px; font-weight: 700; letter-spacing: .06em; }
+  .alert.critical .sev { color: var(--critical); }
+  .alert.serious  .sev { color: var(--serious); }
+  .alert.warning  .sev { color: #9a6d00; }
+  :root[data-theme="dark"] .alert.warning .sev { color: var(--warning); }
+  @media (prefers-color-scheme: dark) { :root:where(:not([data-theme="light"])) .alert.warning .sev { color: var(--warning); } }
+
+  /* ---------- ops list ---------- */
+  .ops { display: flex; flex-direction: column; gap: 10px; font-size: 13.5px; }
+  .ops .row { display: flex; gap: 10px; align-items: baseline; }
+  .ops .k { color: var(--ink-3); min-width: 118px; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; font-weight: 650; }
+  .ops .v { color: var(--ink); }
+  .ops .v .dim { color: var(--ink-2); }
+
+  /* ---------- brand net chips ---------- */
+  .netline { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+  /* ---------- data tables ---------- */
+  details { margin-top: 12px; font-size: 12.5px; color: var(--ink-2); }
+  details summary { cursor: pointer; }
+  table { border-collapse: collapse; margin-top: 8px; width: 100%; }
+  th, td { text-align: right; padding: 4px 10px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: var(--ink-3); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+
+  /* ---------- tooltip ---------- */
+  #tip {
+    position: fixed; z-index: 10; pointer-events: none; display: none;
+    background: var(--ink); color: var(--page); font-size: 12px; line-height: 1.35;
+    padding: 6px 9px; border-radius: 6px; max-width: 240px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  footer { margin-top: 22px; font-size: 12px; color: var(--ink-3); }
+  footer code { background: var(--chip); border-radius: 4px; padding: 1px 5px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brandline">
+      <span class="branddot"></span>
+      <div>
+        <div class="eyebrow">PT Sajindo Kimura Raya · Booster Group</div>
+        <h1>CEO Performance Console</h1>
+      </div>
+    </div>
+    <div class="meta">
+      <span class="badge">Data as of 14 Jul 2026, 23:09 WIB</span>
+      <span class="badge">Source: demo-skr.odoo.com (live ERP)</span>
+    </div>
+  </header>
+
+  <!-- ================= KPI TILES ================= -->
+  <section class="tiles">
+    <div class="card">
+      <h2>Invoiced revenue · May–Jul</h2>
+      <div class="kpi">Rp 115.0 <small>jt</small></div>
+      <div class="kpinote"><span class="up">Jun Rp 57.1 jt</span> — best month · Jul is month-to-date</div>
+      <div class="spark" aria-hidden="true">
+        <i style="height:30%" data-tip="May: Rp 16,883,100"></i>
+        <i style="height:100%" data-tip="Jun: Rp 57,149,300"></i>
+        <i style="height:72%" data-tip="Jul (MTD): Rp 40,966,200"></i>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Brand net contribution</h2>
+      <div class="kpi">Rp 74.0 <small>jt</small></div>
+      <div class="kpinote">70.5% of analytic revenue · K-Juice drives <b>92%</b> of net</div>
+      <div class="chipline"><span class="chip">K-Juice Rp 67.8 jt</span> <span class="chip">Bakmie Rp 6.2 jt</span></div>
+    </div>
+    <div class="card">
+      <h2>Receivables outstanding</h2>
+      <div class="kpi">Rp 115.0 <small>jt</small></div>
+      <div class="kpinote">No customer payments recorded yet</div>
+      <div class="chipline"><span class="chip crit">⚠ 100% uncollected — start collections</span></div>
+    </div>
+    <div class="card">
+      <h2>Franchise pipeline</h2>
+      <div class="kpi">Rp 1.00 <small>miliar</small></div>
+      <div class="kpinote">3 opportunities from ICE BSD expo · all in <b>New</b></div>
+      <div class="chipline"><span class="chip">Medan 2-outlet deal = Rp 500 jt</span></div>
+    </div>
+  </section>
+
+  <!-- ================= CHARTS ROW 1 ================= -->
+  <section class="grid2">
+    <div class="card">
+      <h2>Revenue vs spend by month</h2>
+      <p class="sub">Posted invoices and vendor bills, tax included · Jul is month-to-date</p>
+      <div class="colchart" role="img" aria-label="Grouped column chart of monthly revenue and spend">
+        <div class="colgroup">
+          <div class="colpair">
+            <div class="col rev" style="height:30%" data-tip="May revenue: Rp 16,883,100"><b>16.9</b></div>
+            <div class="col spend" style="height:19%" data-tip="May spend: Rp 10,926,400"><b>10.9</b></div>
+          </div>
+          <div class="collabel">May</div>
+        </div>
+        <div class="colgroup">
+          <div class="colpair">
+            <div class="col rev" style="height:100%" data-tip="Jun revenue: Rp 57,149,300"><b>57.1</b></div>
+            <div class="col spend" style="height:29%" data-tip="Jun spend: Rp 16,542,500"><b>16.5</b></div>
+          </div>
+          <div class="collabel">Jun</div>
+        </div>
+        <div class="colgroup">
+          <div class="colpair">
+            <div class="col rev" style="height:72%" data-tip="Jul (MTD) revenue: Rp 40,966,200"><b>41.0</b></div>
+            <div class="col spend" style="height:11%" data-tip="Jul (MTD) spend: Rp 6,049,500"><b>6.0</b></div>
+          </div>
+          <div class="collabel">Jul (MTD)</div>
+        </div>
+      </div>
+      <div class="legend">
+        <span><i style="background:var(--rev)"></i>Revenue (Rp jt)</span>
+        <span><i style="background:var(--spend)"></i>Spend (Rp jt)</span>
+      </div>
+      <details>
+        <summary>Data table</summary>
+        <table>
+          <tr><th>Month</th><th>Revenue</th><th>Spend</th></tr>
+          <tr><td>May 2026</td><td>16,883,100</td><td>10,926,400</td></tr>
+          <tr><td>Jun 2026</td><td>57,149,300</td><td>16,542,500</td></tr>
+          <tr><td>Jul 2026 (MTD)</td><td>40,966,200</td><td>6,049,500</td></tr>
+        </table>
+      </details>
+    </div>
+
+    <div class="card">
+      <h2>Brand performance</h2>
+      <p class="sub">Analytic plan “Brand”, tax excluded · Dimsum &amp; Takoyaki: no activity yet</p>
+      <div class="colchart" role="img" aria-label="Grouped column chart of revenue and cost per brand">
+        <div class="colgroup">
+          <div class="colpair">
+            <div class="col rev" style="height:100%" data-tip="K-Juice revenue: Rp 91,260,000"><b>91.3</b></div>
+            <div class="col spend" style="height:26%" data-tip="K-Juice cost: Rp 23,440,000"><b>23.4</b></div>
+          </div>
+          <div class="collabel">K-Juice Booster</div>
+        </div>
+        <div class="colgroup">
+          <div class="colpair">
+            <div class="col rev" style="height:15%" data-tip="Bakmie revenue: Rp 13,700,000"><b>13.7</b></div>
+            <div class="col spend" style="height:8%" data-tip="Bakmie cost: Rp 7,500,000"><b>7.5</b></div>
+          </div>
+          <div class="collabel">Bakmie Booster</div>
+        </div>
+      </div>
+      <div class="legend">
+        <span><i style="background:var(--rev)"></i>Revenue (Rp jt)</span>
+        <span><i style="background:var(--spend)"></i>Cost (Rp jt)</span>
+      </div>
+      <div class="netline">
+        <span class="chip">K-Juice net <b>&#160;Rp 67.8 jt · 74% margin</b></span>
+        <span class="chip">Bakmie net <b>&#160;Rp 6.2 jt · 45% margin</b></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ROW 2: OUTLETS + ALERTS ================= -->
+  <section class="grid2">
+    <div class="card">
+      <h2>Outlet retail — today’s POS sessions</h2>
+      <p class="sub">34 tickets · Rp 2.94 jt retail revenue · avg ticket ≈ Rp 86,300</p>
+      <div class="bars">
+        <span class="lbl">Neo Soho</span>
+        <span class="track"><span class="fill" style="width:100%" data-tip="Neo Soho: Rp 1,360,000 · 16 orders · avg Rp 85,000"></span></span>
+        <span class="val">Rp 1.36 jt · 16 orders</span>
+
+        <span class="lbl">Kelapa Gading 3</span>
+        <span class="track"><span class="fill" style="width:71%" data-tip="Kelapa Gading 3: Rp 970,000 · 11 orders · avg Rp 88,182"></span></span>
+        <span class="val">Rp 0.97 jt · 11 orders</span>
+
+        <span class="lbl">Central Park</span>
+        <span class="track"><span class="fill" style="width:44%" data-tip="Central Park: Rp 605,000 · 7 orders · avg Rp 86,429"></span></span>
+        <span class="val">Rp 0.61 jt · 7 orders</span>
+      </div>
+      <div class="chipline" style="margin-top:14px">
+        <span class="chip">Neo Soho — session closed</span>
+        <span class="chip">Kelapa Gading — session closed</span>
+        <span class="chip live"><span class="pulse"></span> Central Park — LIVE</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Risk &amp; alerts</h2>
+      <p class="sub">What needs the CEO’s attention right now</p>
+      <div class="alerts">
+        <div class="alert critical">
+          <span class="sev">CRITICAL</span>
+          <span class="who">Receivables Rp 115.0 jt fully uncollected</span>
+          <span class="why">0 payments</span>
+        </div>
+        <div class="alert critical">
+          <span class="sev">CRITICAL</span>
+          <span class="who">Mango lot LOT-MGO-B expires tomorrow</span>
+          <span class="why">10 kg at risk</span>
+        </div>
+        <div class="alert serious">
+          <span class="sev">SERIOUS</span>
+          <span class="who">Orange LOT-ORG-B · Strawberry LOT-STB-B expire in 2 days</span>
+          <span class="why">23 kg at risk</span>
+        </div>
+        <div class="alert warning">
+          <span class="sev">WARNING</span>
+          <span class="who">Celery LOT-CLY-A expires in 3 days</span>
+          <span class="why">12 kg</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ROW 3: PRODUCTS + OPERATIONS ================= -->
+  <section class="grid2">
+    <div class="card">
+      <h2>Best sellers — wholesale to outlets (3 mo)</h2>
+      <p class="sub">From posted customer invoices, tax excluded</p>
+      <div class="bars">
+        <span class="lbl">Orange Booster</span>
+        <span class="track"><span class="fill" style="width:100%" data-tip="Orange Booster 16oz: Rp 37,800,000 · 1,080 cups"></span></span>
+        <span class="val">Rp 37.8 jt · 1,080 cups</span>
+
+        <span class="lbl">Mango Booster</span>
+        <span class="track"><span class="fill" style="width:81%" data-tip="Mango Booster 16oz: Rp 30,780,000 · 810 cups"></span></span>
+        <span class="val">Rp 30.8 jt · 810 cups</span>
+
+        <span class="lbl">Green Detox</span>
+        <span class="track"><span class="fill" style="width:60%" data-tip="Green Detox 16oz: Rp 22,680,000 · 540 cups"></span></span>
+        <span class="val">Rp 22.7 jt · 540 cups</span>
+      </div>
+      <details>
+        <summary>Today’s retail mix (POS)</summary>
+        <table>
+          <tr><th>Product</th><th>Cups</th><th>Revenue</th></tr>
+          <tr><td>Orange Booster 16oz</td><td>21</td><td>735,000</td></tr>
+          <tr><td>Berry Blast 16oz</td><td>14</td><td>630,000</td></tr>
+          <tr><td>Green Detox 16oz</td><td>14</td><td>588,000</td></tr>
+          <tr><td>Mango Booster 16oz</td><td>14</td><td>532,000</td></tr>
+          <tr><td>Watermelon Fresh 16oz</td><td>15</td><td>450,000</td></tr>
+        </table>
+      </details>
+    </div>
+
+    <div class="card">
+      <h2>Operations now</h2>
+      <p class="sub">Central kitchen, supply and fulfillment at a glance</p>
+      <div class="ops">
+        <div class="row"><span class="k">Production</span>
+          <span class="v">1 batch done <span class="dim">(100× Orange Booster)</span> · 1 in progress <span class="dim">(80× Mango)</span></span></div>
+        <div class="row"><span class="k">Unit economics</span>
+          <span class="v">Orange Booster cost Rp 13,950 → sells Rp 35,000 <span class="dim">(60% margin)</span></span></div>
+        <div class="row"><span class="k">Sales orders</span>
+          <span class="v">2 confirmed · Rp 10.2 jt <span class="dim">— deliveries waiting</span></span></div>
+        <div class="row"><span class="k">Purchasing</span>
+          <span class="v">1 PO confirmed · Rp 2.6 jt <span class="dim">— fruit receipt incoming</span></span></div>
+        <div class="row"><span class="k">Inventory</span>
+          <span class="v">Rp 13.4 jt on hand · 13 tracked lots <span class="dim">— FEFO enforced</span></span></div>
+        <div class="row"><span class="k">Retail today</span>
+          <span class="v">Rp 2.94 jt · 34 tickets across 3 outlets</span></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Snapshot generated from the Odoo database via the <code>Extract CEO Dashboard Data</code> GitHub Action.
+    Re-run the action and ask Claude to refresh this page for up-to-date numbers.
+  </footer>
+</div>
+
+<div id="tip" role="tooltip"></div>
+<script>
+  (function () {
+    var tip = document.getElementById("tip");
+    document.addEventListener("mousemove", function (e) {
+      var t = e.target.closest("[data-tip]");
+      if (!t) { tip.style.display = "none"; return; }
+      tip.textContent = t.getAttribute("data-tip");
+      tip.style.display = "block";
+      var x = Math.min(e.clientX + 12, window.innerWidth - tip.offsetWidth - 8);
+      var y = Math.max(e.clientY - tip.offsetHeight - 10, 8);
+      tip.style.left = x + "px";
+      tip.style.top = y + "px";
+    });
+    document.addEventListener("mouseleave", function () { tip.style.display = "none"; });
+  })();
+</script>
