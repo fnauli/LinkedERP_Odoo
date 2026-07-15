@@ -713,6 +713,18 @@ if HAS_PLANNING:
         resource = {e["id"]: e["resource_id"][0] for e in
                     x("hr.employee", "read", [list(emp_ids.values()), ["resource_id"]])}
 
+        # the assignee field on planning.slot differs across Odoo versions:
+        # ask the server which one this build has
+        slot_fields = x("planning.slot", "fields_get", [], attributes=["type"])
+        def assign(emp_id):
+            if "resource_id" in slot_fields:
+                return {"resource_id": resource[emp_id]}
+            if "resource_ids" in slot_fields:
+                return {"resource_ids": [(6, 0, [resource[emp_id]])]}
+            if "employee_id" in slot_fields:
+                return {"employee_id": emp_id}
+            return {}
+
         monday = today - timedelta(days=today.weekday())
         if x("planning.slot", "search",
              [[("start_datetime", ">=", f"{monday} 00:00:00")]], limit=1):
@@ -729,7 +741,7 @@ if HAS_PLANNING:
                 for name in emp_ids:
                     start, end = shift_utc[emp_role[name]]
                     slots.append({
-                        "resource_id": resource[emp_ids[name]],
+                        **assign(emp_ids[name]),
                         "role_id": roles[emp_role[name]],
                         "start_datetime": f"{day} {start}",
                         "end_datetime": f"{day} {end}",
