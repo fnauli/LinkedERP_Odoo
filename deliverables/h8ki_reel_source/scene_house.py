@@ -51,7 +51,10 @@ def build_house(lit):
         d.rectangle(s(a, y0 + 40, b, y0 + 300), outline=night((20, 70, 45)), width=5 * S)
         d.rectangle(s(a, y0 + 360, b, y1 - 40), outline=night((20, 70, 45)), width=5 * S)
     d.ellipse(s(mid - 38, 1250, mid - 18, 1270), fill=(200, 170, 90) if lit else night((200, 170, 90)))
-    d.text(s(x0 - 80, y0 + 40), "No. 7", font=font("b", 30 * S), fill=night((40, 40, 50)), anchor="mm")
+    # house number plate: No. 8
+    d.rounded_rectangle(s(x0 - 160, y0 + 10, x0 - 30, y0 + 74), 10 * S, fill=night((245, 245, 235), 1.3),
+                        outline=night((40, 40, 50)), width=3 * S)
+    d.text(s(x0 - 95, y0 + 43), "No. 8", font=font("xb", 34 * S), fill=night((25, 25, 35), 1.0), anchor="mm")
     # window with teralis + curtain
     wx0, wy0, wx1, wy1 = 70, 930, 330, 1250
     d.rectangle(s(wx0 - 16, wy0 - 16, wx1 + 16, wy1 + 16), fill=night((235, 235, 220), 0.9))
@@ -249,6 +252,8 @@ def courier_side(x, phi, walk, bend, reach, carry, warm):
     band = [(hip[0] - 0.14 * m, hip[1] - 0.3 * m), (hip[0] - 0.14 * m, hip[1] - 0.38 * m),
             (hip[0] - 0.55 * m, hip[1] - 0.38 * m), (hip[0] - 0.55 * m, hip[1] - 0.3 * m)]
     d.polygon([P(*rot(px, py, lean, hip[0], hip[1])) for px, py in band], fill=green)
+    bl = rot(hip[0] - 0.345 * m, hip[1] - 0.46 * m, lean, hip[0], hip[1])
+    d.text(P(*bl), "H8KI", font=font("xb", 64), fill=(255, 255, 255, 255), anchor="mm")
     # near leg
     k, a = lg[1]
     limb(hip, k, 46, pants)
@@ -265,6 +270,7 @@ def courier_side(x, phi, walk, bend, reach, carry, warm):
     d.chord((*P(hx - 46, hy - 60), *P(hx + 44, hy + 16)), 180, 360, fill=red)
     d.polygon([P(hx + 30, hy - 24), P(hx + 78, hy - 16), P(hx + 72, hy - 8), P(hx + 30, hy - 12)], fill=redd)
     d.rectangle((*P(hx - 46, hy - 26), *P(hx + 38, hy - 18)), fill=green)
+    d.text(P(hx - 2, hy - 38), "H8KI", font=font("xb", 22), fill=(255, 255, 255, 255), anchor="mm")
     # parcel
     pc = None
     if tgt:
@@ -273,16 +279,21 @@ def courier_side(x, phi, walk, bend, reach, carry, warm):
         if carry == "place":
             cy = PKG_POS[1] - ph_ / 2
         d.rounded_rectangle((*P(cx - pw / 2, cy - ph_ / 2), *P(cx + pw / 2, cy + ph_ / 2)), 8 * S, fill=(255, 70, 58, 255))
-        d.rectangle((*P(cx - 8, cy - ph_ / 2), *P(cx + 8, cy + ph_ / 2)), fill=(255, 205, 170, 255))
+        d.rectangle((*P(cx - pw / 2, cy + ph_ * 0.22), *P(cx + pw / 2, cy + ph_ * 0.32)), fill=(0, 150, 72, 255))
+        d.text(P(cx, cy - ph_ * 0.08), "H8KI", font=font("xb", 50), fill=(255, 255, 255, 255), anchor="mm")
         pc = (cx, cy)
     # near arm
     if reach > 0:
         rt = (sh[0] + (BELL[0] - sh[0]) * reach, sh[1] + 0.5 * m * (1 - reach) + (BELL[1] - sh[1]) * reach)
     else:
-        rt = (tgt[0] + 14, tgt[1]) if tgt else (sh[0] + 0.1 * m, sh[1] + 0.56 * m)
+        rt = ((pc[0] - 0.12 * m, pc[1] + 0.1 * m) if pc else (tgt[0] + 14, tgt[1])) if tgt else (sh[0] + 0.1 * m, sh[1] + 0.56 * m)
     e, h = ik(sh[0], sh[1] + 6, rt[0], rt[1], 0.3 * m, 0.3 * m, bend=1)
     limb((sh[0], sh[1] + 6), e, 38, navy)
     limb(e, h, 34, navy)
+    # H8KI sleeve patch on the uniform
+    pt = P(sh[0] + (e[0] - sh[0]) * 0.38, sh[1] + 6 + (e[1] - sh[1] - 6) * 0.38)
+    d.rounded_rectangle((pt[0] - 34, pt[1] - 20, pt[0] + 34, pt[1] + 20), 8, fill=red, outline=(255, 255, 255, 255), width=3)
+    d.text(pt, "H8KI", font=font("xb", 24), fill=(255, 255, 255, 255), anchor="mm")
     q = P(*h)
     d.ellipse((q[0] - 17 * S, q[1] - 17 * S, q[0] + 17 * S, q[1] + 17 * S), fill=skin)
     out = im.resize((900, 800), Image.LANCZOS)
@@ -332,7 +343,8 @@ def scene4(t, raw=False):
         pw, ph = 0.3 * PPM, 0.24 * PPM
         cx = PKG_POS[0]
         d.rounded_rectangle((cx - pw / 2, PKG_POS[1] - ph, cx + pw / 2, PKG_POS[1]), 5, fill=(240, 62, 52))
-        d.rectangle((cx - 4, PKG_POS[1] - ph, cx + 4, PKG_POS[1]), fill=(255, 205, 170))
+        d.rectangle((cx - pw / 2, PKG_POS[1] - ph * 0.28, cx + pw / 2, PKG_POS[1] - ph * 0.18), fill=(0, 150, 72))
+        d.text((cx, PKG_POS[1] - ph * 0.58), "H8KI", font=font("xb", 26), fill=(255, 255, 255), anchor="mm")
         arr = to_arr(img)
     img = to_img(arr)
     spr, (ox, oy), pc = courier_side(x, phi, warm=L, **pose)

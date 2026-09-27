@@ -428,7 +428,7 @@ def render_world(t):
 
 # ------------------------------------------------------------------ courier (from behind, 3/4)
 def courier_back(phi, t):
-    Wc, Hc = 820, 1440
+    Wc, Hc = 940, 1440
     fx, fy = 400, 1400
     im = Image.new("RGBA", (Wc, Hc), (0, 0, 0, 0))
     d = ImageDraw.Draw(im)
@@ -464,14 +464,18 @@ def courier_back(phi, t):
         else:
             d.rectangle((lx - 64, foot_y - 26, lx + 64, foot_y - 12), fill=(110, 116, 130, 255))
     # package in right hand (partly behind the bag)
-    px0, py0 = ox + 190, oy - 910
-    d.rounded_rectangle((px0, py0, px0 + 190, py0 + 170), 14, fill=(255, 70, 58, 255))
-    d.polygon([(px0 + 190, py0 + 6), (px0 + 222, py0 - 16), (px0 + 222, py0 + 150), (px0 + 190, py0 + 170)], fill=(200, 40, 40, 255))
-    d.rectangle((px0 + 80, py0, px0 + 108, py0 + 170), fill=(255, 205, 170, 255))
+    px0, py0 = ox + 240, oy - 910
+    d.rounded_rectangle((px0, py0, px0 + 200, py0 + 170), 14, fill=(255, 70, 58, 255))
+    d.polygon([(px0 + 200, py0 + 6), (px0 + 232, py0 - 16), (px0 + 232, py0 + 150), (px0 + 200, py0 + 170)], fill=(200, 40, 40, 255))
+    d.polygon([(px0 + 10, py0), (px0 + 200, py0), (px0 + 232, py0 - 16), (px0 + 42, py0 - 16)], fill=(255, 120, 100, 255))
+    # branded parcel: H8KI mark on the visible face
+    d.rectangle((px0 + 60, py0 + 112, px0 + 200, py0 + 128), fill=(0, 150, 72, 255))
+    d.text((px0 + 128, py0 + 70), "H8KI", font=font("xb", 50), fill=(255, 255, 255, 255), anchor="mm")
     # jacket
     rim_poly([(ox - 175, oy - 600), (ox + 175, oy - 600), (ox + 200, oy - 1110), (ox - 200, oy - 1110)], navy)
     d.rectangle((ox - 175, oy - 640, ox + 175, oy - 600), fill=red)
     d.rectangle((ox - 175, oy - 656, ox + 175, oy - 644), fill=green)
+    d.text((ox, oy - 620), "H8KI  LOGISTIK LIONINDO", font=font("xb", 30), fill=(255, 255, 255, 255), anchor="mm")
     # arms
     swing = 14 * math.sin(phi)
     rim_poly([(ox - 205, oy - 1100), (ox - 150, oy - 1100), (ox - 170 + swing, oy - 720), (ox - 230 + swing, oy - 720)], navy)
@@ -490,6 +494,7 @@ def courier_back(phi, t):
     d.rectangle((hx - 108, hy - 34, hx + 110, hy - 14), fill=green)
     d.polygon([(hx + 96, hy - 30), (hx + 150, hy - 18), (hx + 104, hy - 12)], fill=redd)
     d.ellipse((hx - 12, hy - 128, hx + 12, hy - 106), fill=green)
+    d.text((hx, hy - 70), "H8KI", font=font("xb", 46), fill=(255, 255, 255, 255), anchor="mm")
     # big delivery bag (the weight of responsibility)
     bx0, by0, bx1, by1 = ox - 225, oy - 1190, ox + 240, oy - 690
     d.polygon([(bx1, by0 + 10), (bx1 + 46, by0 - 20), (bx1 + 46, by1 - 36), (bx1, by1)], fill=redd)
@@ -504,9 +509,9 @@ def courier_back(phi, t):
     for sx in (ox - 150, ox + 150):
         d.rounded_rectangle((sx - 22, oy - 1200, sx + 22, oy - 1150), 10, fill=(20, 22, 30, 255))
     # right hand gripping the parcel
-    d.ellipse((px0 + 150, py0 + 110, px0 + 214, py0 + 170), fill=skin)
+    d.ellipse((px0 + 170, py0 + 110, px0 + 234, py0 + 170), fill=skin)
     out = im.resize((Wc // 2, Hc // 2), Image.LANCZOS)
-    return out, (fx // 2, fy // 2), ((px0 + 110) / 2, (py0 + 85) / 2)
+    return out, (fx // 2, fy // 2), ((px0 + 120) / 2, (py0 + 85) / 2)
 
 
 # ------------------------------------------------------------------ fog overlay
