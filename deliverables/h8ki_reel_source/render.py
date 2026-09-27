@@ -12,7 +12,10 @@ import scene_house as SH
 
 
 def frame(i):
-    t = i / FPS
+    hf = int(HOOK * FPS)
+    if i < hf:
+        return np.asarray(to_img(SD.hook(i / FPS)), np.uint8).tobytes()
+    t = (i - hf) / FPS
     if t < S1_END:
         arr = SD.scene1(t)
     elif t < NIGHT_START:
@@ -38,11 +41,11 @@ def frame(i):
 
 if __name__ == "__main__":
     out = sys.argv[1] if len(sys.argv) > 1 else "reel.mp4"
-    n = int(DUR * FPS)
+    n = int((DUR + HOOK) * FPS)
     ff = imageio_ffmpeg.get_ffmpeg_exe()
     cmd = [ff, "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS),
-           "-i", "-", "-i", "audio.wav", "-c:v", "libx264", "-preset", "slow", "-crf", "17", "-pix_fmt", "yuv420p",
-           "-profile:v", "high", "-c:a", "aac", "-b:a", "256k", "-movflags", "+faststart", "-shortest", out]
+           "-i", "-", "-i", "audio.wav", "-c:v", "libx264", "-preset", "slow", "-b:v", "6.5M", "-maxrate", "8M", "-bufsize", "14M", "-pix_fmt", "yuv420p",
+           "-profile:v", "high", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", "-shortest", out]
     p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     with Pool(4) as pool:
         for k, b in enumerate(pool.imap(frame, range(n), chunksize=4)):

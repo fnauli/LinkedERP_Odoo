@@ -314,3 +314,32 @@ def scene2(t):
         cx = x0 + d.textlength(txt, font=f) + 8
         d.rectangle((cx, 918, cx + 10, 1004), fill=(245, 245, 245))
     return to_arr(img)
+
+
+def hook(t):
+    """0.5 s cold open: full-size red error, provocation first."""
+    arr = np.zeros((H, W, 3), np.float32) + np.array([222, 24, 40], np.float32)
+    glow_add(arr, 540, 880, 700, (60, 10, 10), 0.8)
+    arr *= VIG_SOFT
+    img = to_img(arr)
+    r = np.random.default_rng(int(t * 60) + 5)
+    shake = math.exp(-t / 0.12) * 26 + (18 if t > 0.40 else 0)
+    jx, jy = r.uniform(-1, 1, 2) * shake
+    s = 1.0 + 0.10 * math.exp(-t / 0.06)
+    d = ImageDraw.Draw(img)
+    tx, ty = 540 + jx, 520 + jy
+    k = 150 * s
+    d.polygon([(tx, ty - k * 0.9), (tx + k, ty + k * 0.8), (tx - k, ty + k * 0.8)], fill=(255, 255, 255))
+    d.text((tx, ty + k * 0.22), "!", font=font("xb", int(190 * s)), fill=(222, 24, 40), anchor="mm")
+    for txt, y, sz in [("ALAMAT", 900, 190), ("TIDAK", 1090, 190), ("DITEMUKAN", 1270, 150)]:
+        draw_text(img, txt, font("xb", sz), 540 + jx, y + jy, (255, 255, 255), 1.0, s, shadow=0.35, blur=18)
+    d = ImageDraw.Draw(img)
+    rrect(d, (130 + jx, 1440 + jy, 950 + jx, 1530 + jy), 45, fill=(120, 8, 20))
+    d.text((540 + jx, 1485 + jy), "Rumah cat hijau, sebelah warung Bu Ani", font=font("mono", 30),
+           fill=(255, 205, 205), anchor="mm")
+    arr = to_arr(img)
+    arr = rgb_split(arr, 4 + 10 * math.exp(-t / 0.05))
+    if t > 0.40:  # glitch cut into the sequence
+        arr = glitch_blocks(arr, 0.9, int(t * 100))
+        arr = rgb_split(arr, 24)
+    return arr

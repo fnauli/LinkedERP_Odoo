@@ -419,6 +419,21 @@ mix[-fo:] *= np.linspace(1, 0, fo)[:, None] ** 1.5
 peak = np.max(np.abs(mix))
 mix = mix / peak * 1.25
 mix = np.tanh(mix) * 0.89
+# cold-open hook: the error hits on frame one
+hn = int(HOOK * SR)
+tt = np.arange(hn) / SR
+bz = square(98, tt) + 0.8 * square(104.5, tt) + 0.5 * square(196, tt) + 0.3 * saw(311, tt)
+bz = fft_filter(np.tanh(2.5 * bz) * np.exp(-tt / 0.7), 60, 3500)
+impact = np.sin(2 * np.pi * (38 + 90 * np.exp(-tt * 25)) * tt) * np.exp(-tt * 4)
+beep = fft_filter(square(880, tt) * ((tt < 0.1) | ((tt > 0.18) & (tt < 0.28))), None, 4000)
+crack = fft_filter(rng.standard_normal(hn), 2000, None) * np.exp(-tt / 0.03)
+gl = np.zeros(hn)
+g0 = int(0.40 * SR)
+gl[g0:] = np.round(rng.standard_normal(hn - g0) * 3) / 3 * 0.25
+h = bz * 0.55 + impact * 0.8 + beep * 0.12 + crack * 0.3 + gl
+h = h / np.max(np.abs(h)) * 0.85
+h[-300:] *= np.linspace(1, 0.3, 300)
+mix = np.concatenate([np.stack([h, h], 1), mix])
 pcm = (mix * 32767).astype(np.int16)
 with wave.open("audio.wav", "wb") as w:
     w.setnchannels(2)
