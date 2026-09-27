@@ -475,7 +475,6 @@ def courier_back(phi, t):
     rim_poly([(ox - 175, oy - 600), (ox + 175, oy - 600), (ox + 200, oy - 1110), (ox - 200, oy - 1110)], navy)
     d.rectangle((ox - 175, oy - 640, ox + 175, oy - 600), fill=red)
     d.rectangle((ox - 175, oy - 656, ox + 175, oy - 644), fill=green)
-    d.text((ox, oy - 620), "H8KI  LOGISTIK LIONINDO", font=font("xb", 30), fill=(255, 255, 255, 255), anchor="mm")
     # arms
     swing = 14 * math.sin(phi)
     rim_poly([(ox - 205, oy - 1100), (ox - 150, oy - 1100), (ox - 170 + swing, oy - 720), (ox - 230 + swing, oy - 720)], navy)

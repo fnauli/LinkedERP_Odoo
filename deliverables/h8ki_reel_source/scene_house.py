@@ -51,10 +51,6 @@ def build_house(lit):
         d.rectangle(s(a, y0 + 40, b, y0 + 300), outline=night((20, 70, 45)), width=5 * S)
         d.rectangle(s(a, y0 + 360, b, y1 - 40), outline=night((20, 70, 45)), width=5 * S)
     d.ellipse(s(mid - 38, 1250, mid - 18, 1270), fill=(200, 170, 90) if lit else night((200, 170, 90)))
-    # house number plate: No. 8
-    d.rounded_rectangle(s(x0 - 160, y0 + 10, x0 - 30, y0 + 74), 10 * S, fill=night((245, 245, 235), 1.3),
-                        outline=night((40, 40, 50)), width=3 * S)
-    d.text(s(x0 - 95, y0 + 43), "No. 8", font=font("xb", 34 * S), fill=night((25, 25, 35), 1.0), anchor="mm")
     # window with teralis + curtain
     wx0, wy0, wx1, wy1 = 70, 930, 330, 1250
     d.rectangle(s(wx0 - 16, wy0 - 16, wx1 + 16, wy1 + 16), fill=night((235, 235, 220), 0.9))
@@ -67,6 +63,10 @@ def build_house(lit):
     for k in range(1, 4):
         yy = wy0 + (wy1 - wy0) * k / 4
         d.line(s(wx0, yy, wx1, yy), fill=(22, 22, 28), width=4 * S)
+    # house number plate: No. 8
+    d.rounded_rectangle(s(x0 - 160, y0 - 76, x0 - 30, y0 - 12), 10 * S, fill=night((245, 245, 235), 1.3),
+                        outline=night((40, 40, 50)), width=3 * S)
+    d.text(s(x0 - 95, y0 - 43), "No. 8", font=font("xb", 34 * S), fill=night((25, 25, 35), 1.0), anchor="mm")
     # porch lamp
     lx, ly = LAMP
     d.rectangle(s(lx - 6, ly - 50, lx + 6, ly - 20), fill=(30, 30, 36))

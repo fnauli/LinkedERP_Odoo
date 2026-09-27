@@ -3,7 +3,7 @@ import math
 
 W, H, FPS = 1080, 1920, 30
 DUR = 32.0
-HOOK = 0.5                         # cold open prepended before the timeline
+HOOK = 1.0                         # cold open prepended before the timeline
 
 # Scene 1 - digital breakdown
 QUERIES = [

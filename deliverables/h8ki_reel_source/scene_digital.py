@@ -323,7 +323,7 @@ def hook(t):
     arr *= VIG_SOFT
     img = to_img(arr)
     r = np.random.default_rng(int(t * 60) + 5)
-    shake = math.exp(-t / 0.12) * 26 + (18 if t > 0.40 else 0)
+    shake = math.exp(-t / 0.12) * 26 + (18 if t > HOOK - 0.12 else 0)
     jx, jy = r.uniform(-1, 1, 2) * shake
     s = 1.0 + 0.10 * math.exp(-t / 0.06)
     d = ImageDraw.Draw(img)
@@ -339,7 +339,7 @@ def hook(t):
            fill=(255, 205, 205), anchor="mm")
     arr = to_arr(img)
     arr = rgb_split(arr, 4 + 10 * math.exp(-t / 0.05))
-    if t > 0.40:  # glitch cut into the sequence
+    if t > HOOK - 0.12:  # glitch cut into the sequence
         arr = glitch_blocks(arr, 0.9, int(t * 100))
         arr = rgb_split(arr, 24)
     return arr
