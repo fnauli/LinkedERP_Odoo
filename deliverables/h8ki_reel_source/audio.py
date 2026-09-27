@@ -286,6 +286,12 @@ for i, m in enumerate([76, 72]):
     b = (np.sin(2 * np.pi * f * tt) + 0.35 * np.sin(2 * np.pi * 2.76 * f * tt) * np.exp(-tt * 6)) * env_exp(d, 0.5, 0.003)
     place(fx_bright, b * 0.10, BELL_T + i * 0.38, pan=0.25)
 
+# door latch as the recipient opens up
+d = 0.03
+place(night, fft_filter(noise(d), 800, 5000) * env_exp(d, 0.006) * 0.3, DOOR_OPEN_T, pan=0.25)
+tt = T(0.25)
+place(night, np.sin(2 * np.pi * 95 * tt) * env_exp(0.25, 0.05) * 0.12, DOOR_OPEN_T + 0.05, pan=0.25)
+
 # light switch click
 d = 0.02
 place(night, fft_filter(noise(d), 1500, 8000) * env_exp(d, 0.003) * 0.35, LIGHT_T - 0.05, pan=0.2)

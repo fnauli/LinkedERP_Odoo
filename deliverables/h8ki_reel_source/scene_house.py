@@ -301,6 +301,61 @@ def courier_side(x, phi, walk, bend, reach, carry, warm):
     return out, (ox, oy), pc
 
 
+def open_door(img, t):
+    """Double door swings open; the recipient stands backlit in the doorway."""
+    o = ease_io(lin(t, DOOR_OPEN_T, DOOR_OPEN_T + 0.55))
+    x0, y0, x1, y1 = DOOR
+    mid = (x0 + x1) / 2
+    gap = (x1 - x0) * 0.86 * o
+    if gap < 2:
+        return img
+    k = 2
+    ww, hh = int((x1 - x0) * k), int((y1 - y0) * k)
+    lay = Image.new("RGBA", (ww, hh), (0, 0, 0, 0))
+    d = ImageDraw.Draw(lay)
+    # warm interior with a soft vertical falloff
+    for yy in range(0, hh, 4):
+        f = yy / hh
+        c = (int(255 - 20 * f), int(214 - 50 * f), int(150 - 70 * f), 255)
+        d.rectangle((0, yy, ww, yy + 4), fill=c)
+    # recipient silhouette (hijab, long dress), rim-lit
+    cx = ww / 2 + 6 * k
+    base = hh
+    fig = (58, 34, 30, 255)
+    rim = (255, 196, 120, 255)
+    wave = max(0.0, lin(t, DOOR_OPEN_T + 0.7, DOOR_OPEN_T + 1.0))
+    wv = math.sin((t - DOOR_OPEN_T) * 9) * 0.35 * wave
+    kf = k * 0.88
+    def figure(dx, col):
+        d.polygon([(cx - 88 * kf + dx, base), (cx + 88 * kf + dx, base), (cx + 62 * kf + dx, base - 330 * kf),
+                   (cx + 70 * kf + dx, base - 420 * kf), (cx - 70 * kf + dx, base - 420 * kf), (cx - 62 * kf + dx, base - 330 * kf)], fill=col)
+        d.ellipse((cx - 64 * kf + dx, base - 540 * kf, cx + 64 * kf + dx, base - 400 * kf), fill=col)   # hijab
+        d.ellipse((cx - 44 * kf + dx, base - 520 * kf, cx + 44 * kf + dx, base - 426 * kf), fill=col)
+        if wave > 0:
+            sx, sy = cx + 52 * kf + dx, base - 405 * kf
+            ex, ey = sx + 42 * kf, sy - 75 * kf
+            hx, hy = ex + math.sin(wv) * 40 * kf, ey - math.cos(wv) * 80 * kf
+            d.line([(sx, sy), (ex, ey), (hx, hy)], fill=col, width=int(30 * kf), joint="curve")
+            d.ellipse((hx - 20 * kf, hy - 20 * kf, hx + 20 * kf, hy + 20 * kf), fill=col)
+    figure(-4 * k, rim)
+    figure(0, fig)
+    lay = lay.resize(((x1 - x0), (y1 - y0)), Image.LANCZOS)
+    # clip to the opening, then draw the door leaves swung inward at the edges
+    mask = Image.new("L", lay.size, 0)
+    ImageDraw.Draw(mask).rectangle((mid - gap / 2 - x0, 0, mid + gap / 2 - x0, lay.height), fill=255)
+    img = img.copy()
+    img.paste(lay.convert("RGB"), (x0, y0), mask)
+    d = ImageDraw.Draw(img)
+    leaf = (x1 - x0) / 2 - gap / 2
+    for side in (-1, 1):
+        edge = mid + side * gap / 2
+        d.rectangle((min(edge, edge + side * leaf), y0, max(edge, edge + side * leaf), y1), fill=(52, 120, 84))
+        d.line([(edge, y0), (edge, y1)], fill=(30, 70, 50), width=3)
+    arr = to_arr(img)
+    glow_add(arr, mid, y1 - 280, 260, (255, 170, 90), 0.35 * o)
+    return to_img(arr)
+
+
 def light_level(t):
     if t < LIGHT_T:
         return 0.0
@@ -316,6 +371,8 @@ def scene4(t, raw=False):
     L = light_level(t)
     arr = HOUSE_DARK * (1 - L) + HOUSE_LIT * L
     img = to_img(arr)
+    if t >= DOOR_OPEN_T:
+        img = open_door(img, t)
     # courier choreography
     walk_end_x = 300
     if t < WALKIN_END:
@@ -411,7 +468,7 @@ def badge():
         im.alpha_composite(check_icon(104, (0, 160, 72)), (40 + 30, 40 + 33))
         d = ImageDraw.Draw(im)
         d.text((40 + 158, 40 + 70), "PAKET DITERIMA", font=font("xb", 56), fill=(0, 140, 64), anchor="lm")
-        d.text((40 + 160, 40 + 128), "5 dari 5 alamat ditemukan", font=font("m", 28), fill=(90, 100, 110), anchor="lm")
+        d.text((40 + 160, 40 + 128), "Diterima  ·  23:48  ·  H8KI Logistik Lionindo", font=font("m", 26), fill=(90, 100, 110), anchor="lm")
         _badge = im
     return _badge
 
@@ -454,55 +511,73 @@ ICON_X = x_badge(64)
 ICON_OK = check_icon(64, (0, 160, 72))
 
 
+def recap_bg():
+    """Night delivery scene, darkened (no blur) as the recap backdrop."""
+    global _rbg
+    if _rbg is None:
+        a = np.asarray(scene4(S4_END - 0.001, raw=True), np.float32)
+        g = a.mean(axis=2, keepdims=True)
+        a = (a * 0.5 + g * 0.5) * 0.28 + np.array([4, 6, 16], np.float32)
+        _rbg = a
+    return _rbg
+
+
+_rbg = None
+
+
 def recap_frame(t):
-    """Five addresses: red X flips to green check, one by one (about 2s)."""
-    img = to_img(WHITE_BG)
-    d = ImageDraw.Draw(img)
-    out = ease_in(lin(t, LOGO_T - 0.15, LOGO_T))
-    dy = -60 * out
-    alpha = 1 - out
-    ok = t >= RECAP_OK
-    draw_text(img, "5 dari 5 alamat", font("xb", 66), 540, 430 + dy, (30, 36, 48), alpha, shadow=0.1, blur=10)
-    if not ok:
-        draw_text(img, "TIDAK DITEMUKAN", font("xb", 78), 540, 530 + dy, (228, 28, 44), alpha, shadow=0.1, blur=10)
-    else:
-        pop = 0.7 + 0.3 * back_out((t - RECAP_OK) / 0.25, 2.4)
-        draw_text(img, "DITEMUKAN", font("xb", 92), 540, 530 + dy, (0, 150, 70), alpha, pop, shadow=0.12, blur=10)
+    """A-style recap: search-history panel, red X flip to green check, then big 'KETEMU.'"""
+    arr = recap_bg().copy()
+    img = to_img(arr)
+    out = ease_in(lin(t, LOGO_T - 0.12, LOGO_T))
+    enter = ease_out(lin(t, RECAP_T, RECAP_T + 0.3))
+    dy = 70 * (1 - enter) - 40 * out
+    alpha = enter * (1 - out)
+    # panel
+    px0, py0, px1, py1 = 80, 470 + dy, 1000, 1020 + dy
+    panel = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(panel)
+    d.rounded_rectangle((px0, py0, px1, py1), 28, fill=(14, 20, 36, int(235 * alpha)),
+                        outline=(52, 70, 110, int(255 * alpha)), width=3)
+    d.text((px0 + 44, py0 + 58), "RIWAYAT PENCARIAN", font=font("mono", 28), fill=(110, 140, 200, int(255 * alpha)), anchor="lm")
+    img.paste(panel, (0, 0), panel)
     d = ImageDraw.Draw(img, "RGBA")
     for k, q in enumerate(QUERIES):
-        y = 690 + k * 128 + dy
-        enter = ease_out(lin(t, RECAP_T + 0.12 + k * 0.05, RECAP_T + 0.42 + k * 0.05))
-        x_off = (1 - enter) * 700
+        y = py0 + 150 + k * 82
         fk = FLIP_TS[k]
         flipped = t >= fk + 0.07
-        fill = (232, 247, 238, int(255 * alpha)) if flipped else (245, 246, 248, int(255 * alpha))
-        line = (0, 160, 72, int(255 * alpha)) if flipped else (228, 28, 44, int(90 * alpha))
-        d.rounded_rectangle((80 + x_off, y - 52, 1000 + x_off, y + 52), 52, fill=fill, outline=line, width=3)
         p = lin(t, fk, fk + 0.14)
         sx = abs(math.cos(math.pi * p)) if 0 < p < 1 else 1.0
         icon = ICON_OK if flipped else ICON_X
         if sx > 0.04:
-            ic = icon.resize((max(1, int(64 * sx)), 64), Image.LANCZOS)
-            paste_layer(img, ic, 142 + x_off, y, alpha * enter)
-        f = font("sb", 34 if len(q) < 32 else 31)
-        col = (30, 36, 48) if flipped else (110, 116, 128)
-        d.text((196 + x_off, y), q, font=f, fill=col + (int(255 * alpha * enter),), anchor="lm")
+            ic = icon.resize((max(1, int(54 * sx)), 54), Image.LANCZOS)
+            paste_layer(img, ic, px0 + 72, y, alpha)
+        f = font("sb", 36 if len(q) < 32 else 33)
+        col = (238, 242, 250) if flipped else (150, 90, 100)
+        d.text((px0 + 118, y), q, font=f, fill=col + (int(255 * alpha),), anchor="lm")
+        if not flipped:  # struck through while still 'not found'
+            tw = d.textlength(q, font=f)
+            d.line([(px0 + 118, y + 2), (px0 + 118 + tw, y + 2)], fill=(228, 60, 72, int(230 * alpha)), width=4)
+    # verdict
+    draw_text(img, "5 dari 5 alamat", font("b", 64), 540, 1120 + dy, (240, 244, 250), alpha, blur=14)
+    if t >= RECAP_OK:
+        q = t - RECAP_OK
+        pop = 0.6 + 0.4 * back_out(q / 0.28, 2.2)
+        a2 = lin(q, 0, 0.08) * (1 - out)
+        glow = Image.new("RGBA", (1, 1))
+        draw_text(img, "KETEMU.", font("xb", 200), 540, 1300 + dy, (70, 220, 120), a2, pop, blur=24, glow=(0, 170, 80))
     return img
 
 
 def scene5(t):
     if t < LOGO_T:
         rec = recap_frame(t)
-        p = ease_io(lin(t, RECAP_T, RECAP_T + 0.24))
+        p = ease_io(lin(t, RECAP_T, RECAP_T + 0.18))
         if p >= 1:
             return rec
-        # crisp wipe: white panel rises over the live night scene (no blur)
+        # quick dip: the night scene dims into the recap (no blur)
         under = np.asarray(scene4(t), np.float32)
-        top = int(H * (1 - p))
-        arr = under.copy()
-        arr[top:] = np.asarray(rec, np.float32)[top:]
-        arr[max(0, top - 10):top] = np.array([0, 150, 70], np.float32)
-        return to_img(arr)
+        return to_img(under * (1 - p) + np.asarray(rec, np.float32) * p)
     img = to_img(WHITE_BG)
     p = lin(t, LOGO_T, LOGO_T + 0.45)
     lg = LOGO
