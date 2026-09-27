@@ -9,6 +9,7 @@ import scene_night as SN
 S = 2
 GROUND = 1660      # street level (feet)
 TERRACE = 1604     # terrace floor
+LIFT = 200
 PPM = 365          # px per metre (1x)
 PKG_POS = (560, TERRACE)   # where the parcel is set down (bottom centre)
 BELL = (392, 1318)
@@ -366,6 +367,8 @@ def scene4(t, raw=False):
     z = 1 + 0.06 * ease_io(lin(t, S4_START, S4_END))
     arr = arr * (VIG * (1 - 0.5 * L) + VIG_SOFT * 0.5 * L + (1 - VIG) * 0 )
     grain(arr, 3.5, int(t * FPS) + 999)
+    # lift the whole stage 200px so nothing sits in the Reels caption zone (y > 1500)
+    arr = np.concatenate([arr[LIFT:], np.repeat(arr[-1:], LIFT, 0)], 0)
     img = to_img(arr)
     if z > 1.001:
         cw, ch = W / z, H / z
@@ -373,16 +376,20 @@ def scene4(t, raw=False):
         img = img.crop((int(x0), int(y0), int(x0 + cw), int(y0 + ch))).resize((W, H), Image.BICUBIC)
     if raw:
         return img
-    draw_chip(img, "Rumah cat hijau", 330, 760, t, 21.75, 1.5)
-    draw_chip(img, "Warung Bu Ani", 1050, 1080, t, 22.15, 1.5, anchor="r")
-    draw_chip(img, "Pagar hitam", 180, 1420, t, 22.55, 1.5)
+    draw_chip(img, "Rumah cat hijau", 330, 560, t, 21.75, 1.5)
+    draw_chip(img, "Warung Bu Ani", 1050, 880, t, 22.15, 1.5, anchor="r")
+    draw_chip(img, "Pagar hitam", 180, 1220, t, 22.55, 1.5)
     if t >= BADGE_T:
         p = t - BADGE_T
         paste_layer(img, badge(), 540, 250, lin(p, 0, 0.1), 0.55 + 0.45 * back_out(p / 0.3))
     a1 = ease_out(lin(t, LINE1_T, LINE1_T + 0.4))
+    if a1 > 0:  # soft scrim so the lines read over the lit wall
+        sa = to_arr(img)
+        glow_add(sa, 540, 485, 600, (-190, -185, -170), 0.9 * a1, squash=0.24)
+        img = to_img(sa)
     draw_text(img, "Alamatnya ketemu.", font("xb", 70), 540, 440 - 14 * (1 - a1), (255, 255, 255), a1, blur=16)
     a2 = ease_out(lin(t, LINE2_T, LINE2_T + 0.45))
-    draw_text(img, "Sejauh apa pun alamatnya.", font("sb", 50), 540, 520 - 14 * (1 - a2), (255, 214, 150), a2, blur=14)
+    draw_text(img, "Sejauh apa pun alamatnya.", font("xb", 52), 540, 522 - 14 * (1 - a2), (255, 56, 64), a2, blur=16)
     return img
 
 
@@ -431,41 +438,93 @@ WHITE_BG = (255 - 12 * np.clip(np.sqrt(((xx - 540) / 900.0) ** 2 + ((yy - 900) /
 WHITE_BG[..., 2] += 2
 
 
-def scene5(t):
-    if t < WHITE_T:
-        p = ease_io(lin(t, S4_END, WHITE_T))
-        img = scene4(min(t, S4_END - 0.001) if t < S4_END else t)
-        img = img.filter(ImageFilter.GaussianBlur(2 + 40 * p))
-        arr = to_arr(img)
-        arr = arr * (1 - p) + WHITE_BG * p
-        img = to_img(arr)
+def x_badge(size):
+    k = 4
+    im = Image.new("RGBA", (size * k, size * k), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    S_ = size * k
+    d.ellipse((0, 0, S_ - 1, S_ - 1), fill=(228, 28, 44))
+    w = int(S_ * 0.11)
+    d.line([(S_ * .32, S_ * .32), (S_ * .68, S_ * .68)], fill=(255, 255, 255), width=w)
+    d.line([(S_ * .68, S_ * .32), (S_ * .32, S_ * .68)], fill=(255, 255, 255), width=w)
+    return im.resize((size, size), Image.LANCZOS)
+
+
+ICON_X = x_badge(64)
+ICON_OK = check_icon(64, (0, 160, 72))
+
+
+def recap_frame(t):
+    """Five addresses: red X flips to green check, one by one (about 2s)."""
+    img = to_img(WHITE_BG)
+    d = ImageDraw.Draw(img)
+    out = ease_in(lin(t, LOGO_T - 0.15, LOGO_T))
+    dy = -60 * out
+    alpha = 1 - out
+    ok = t >= RECAP_OK
+    draw_text(img, "5 dari 5 alamat", font("xb", 66), 540, 430 + dy, (30, 36, 48), alpha, shadow=0.1, blur=10)
+    if not ok:
+        draw_text(img, "TIDAK DITEMUKAN", font("xb", 78), 540, 530 + dy, (228, 28, 44), alpha, shadow=0.1, blur=10)
     else:
-        img = to_img(WHITE_BG)
-    p = lin(t, LOGO_T, LOGO_T + 0.7)
-    if p > 0:
-        lg = LOGO
-        # light sweep across the logo
-        sp = lin(t, 29.4, 30.3)
-        if 0 < sp < 1:
-            lg = LOGO.copy()
-            band = np.zeros((lg.height, lg.width), np.float32)
-            gx = np.arange(lg.width)[None, :] + np.arange(lg.height)[:, None] * 0.4
-            c = -200 + sp * (lg.width + 400)
-            band = np.exp(-((gx - c) / 60) ** 2) * 0.55
-            arr = np.asarray(lg, np.float32)
-            arr[..., :3] = arr[..., :3] + (255 - arr[..., :3]) * band[..., None]
-            lg = Image.fromarray(arr.astype(np.uint8), "RGBA")
-        paste_layer(img, lg, 540, 800, ease_out(p), 0.9 + 0.1 * back_out(p, 1.4))
-    q = lin(t, TAG_T, TAG_T + 0.5)
+        pop = 0.7 + 0.3 * back_out((t - RECAP_OK) / 0.25, 2.4)
+        draw_text(img, "DITEMUKAN", font("xb", 92), 540, 530 + dy, (0, 150, 70), alpha, pop, shadow=0.12, blur=10)
+    d = ImageDraw.Draw(img, "RGBA")
+    for k, q in enumerate(QUERIES):
+        y = 690 + k * 128 + dy
+        enter = ease_out(lin(t, RECAP_T + 0.12 + k * 0.05, RECAP_T + 0.42 + k * 0.05))
+        x_off = (1 - enter) * 700
+        fk = FLIP_TS[k]
+        flipped = t >= fk + 0.07
+        fill = (232, 247, 238, int(255 * alpha)) if flipped else (245, 246, 248, int(255 * alpha))
+        line = (0, 160, 72, int(255 * alpha)) if flipped else (228, 28, 44, int(90 * alpha))
+        d.rounded_rectangle((80 + x_off, y - 52, 1000 + x_off, y + 52), 52, fill=fill, outline=line, width=3)
+        p = lin(t, fk, fk + 0.14)
+        sx = abs(math.cos(math.pi * p)) if 0 < p < 1 else 1.0
+        icon = ICON_OK if flipped else ICON_X
+        if sx > 0.04:
+            ic = icon.resize((max(1, int(64 * sx)), 64), Image.LANCZOS)
+            paste_layer(img, ic, 142 + x_off, y, alpha * enter)
+        f = font("sb", 34 if len(q) < 32 else 31)
+        col = (30, 36, 48) if flipped else (110, 116, 128)
+        d.text((196 + x_off, y), q, font=f, fill=col + (int(255 * alpha * enter),), anchor="lm")
+    return img
+
+
+def scene5(t):
+    if t < LOGO_T:
+        rec = recap_frame(t)
+        p = ease_io(lin(t, RECAP_T, RECAP_T + 0.24))
+        if p >= 1:
+            return rec
+        # crisp wipe: white panel rises over the live night scene (no blur)
+        under = np.asarray(scene4(t), np.float32)
+        top = int(H * (1 - p))
+        arr = under.copy()
+        arr[top:] = np.asarray(rec, np.float32)[top:]
+        arr[max(0, top - 10):top] = np.array([0, 150, 70], np.float32)
+        return to_img(arr)
+    img = to_img(WHITE_BG)
+    p = lin(t, LOGO_T, LOGO_T + 0.45)
+    lg = LOGO
+    sp = lin(t, LOGO_T + 0.7, LOGO_T + 1.4)
+    if 0 < sp < 1:  # light sweep across the logo
+        lg = LOGO.copy()
+        gx = np.arange(lg.width)[None, :] + np.arange(lg.height)[:, None] * 0.4
+        c = -200 + sp * (lg.width + 400)
+        band = np.exp(-((gx - c) / 60) ** 2) * 0.55
+        arr = np.asarray(lg, np.float32).copy()
+        arr[..., :3] = arr[..., :3] + (255 - arr[..., :3]) * band[..., None]
+        lg = Image.fromarray(arr.astype(np.uint8), "RGBA")
+    paste_layer(img, lg, 540, 800, ease_out(p), 0.9 + 0.1 * back_out(p, 1.4))
+    q = lin(t, TAG_T, TAG_T + 0.4)
     if q > 0:
         draw_text(img, "Kurir yang", font("xb", 92), 540, 1180 + 20 * (1 - ease_out(q)), (30, 36, 48), ease_out(q), shadow=0.12, blur=12)
-    q2 = lin(t, TAG_T + 0.3, TAG_T + 0.8)
+    q2 = lin(t, TAG_T + 0.2, TAG_T + 0.6)
     if q2 > 0:
         draw_text(img, "nggak nyerah.", font("xb", 104), 540, 1295 + 20 * (1 - ease_out(q2)), (228, 20, 30), ease_out(q2),
                   0.94 + 0.06 * back_out(q2), shadow=0.15, blur=12)
-        u = ease_out(lin(t, TAG_T + 0.8, TAG_T + 1.3))
-        d = ImageDraw.Draw(img)
+        u = ease_out(lin(t, TAG_T + 0.6, TAG_T + 1.0))
         if u > 0:
             half = 330 * u
-            d.rounded_rectangle((540 - half, 1378, 540 + half, 1390), 6, fill=(0, 150, 70))
+            ImageDraw.Draw(img).rounded_rectangle((540 - half, 1378, 540 + half, 1390), 6, fill=(0, 150, 70))
     return img

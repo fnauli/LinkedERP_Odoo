@@ -348,7 +348,7 @@ for tm, m, _ in mel:
     place(music, pluck(m, 3.5, 0.7), tm, 0.16, 0.1)
 
 # scene 4: strums + strings swell
-prog4 = [("G", 21.35), ("A", 22.85), ("D", LIGHT_T - 0.1), ("Bm", 26.1), ("G", 27.1), ("D", CHIME_T - 0.05)]
+prog4 = [("G", 21.35), ("A", 22.85), ("D", LIGHT_T - 0.1), ("Bm", 26.1), ("G", 27.1), ("A", 28.45), ("D", CHIME_T - 0.05)]
 for idx, (ch, ts) in enumerate(prog4):
     nxt = prog4[idx + 1][1] if idx + 1 < len(prog4) else DUR
     b = ts
@@ -388,6 +388,13 @@ while t < CHIME_T - 0.2:
     place(music, sh * 0.04, t + e8 / 2, pan=0.3)
     t += e8
     k += 1
+
+# recap: each X->check flip gets a rising pluck + tick, then a success ding
+for k, tf in enumerate(FLIP_TS):
+    place(fx_bright, pluck([74, 76, 78, 81, 83][k], 2.0, 0.8) * 0.22, tf, pan=-0.4 + 0.2 * k)
+    d = 0.02
+    place(night, fft_filter(noise(d), 2500, 9000) * env_exp(d, 0.004) * 0.25, tf)
+place(fx_bright, ding * 0.12, RECAP_OK)
 
 # brand chime: two-note harmonic (A5 -> E6), bell-clean
 for i, m in enumerate([81, 88]):

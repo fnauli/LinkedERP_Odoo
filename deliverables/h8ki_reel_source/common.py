@@ -2,7 +2,7 @@
 import math
 
 W, H, FPS = 1080, 1920, 30
-DUR = 32.0
+DUR = 31.8
 HOOK = 1.0                         # cold open prepended before the timeline
 
 # Scene 1 - digital breakdown
@@ -60,11 +60,13 @@ BADGE_T = 25.05
 LINE1_T, LINE2_T = 25.75, 26.35
 S4_END = 27.6
 
-# Scene 5 - brand promise
-WHITE_T = 28.3
-LOGO_T = 28.3
-CHIME_T = 28.5
-TAG_T = 29.3
+# Scene 5 - recap (x -> check) then brand promise
+RECAP_T = 27.6                     # crisp wipe to white
+FLIP_TS = [28.0 + 0.2 * k for k in range(5)]
+RECAP_OK = 29.05                   # "TIDAK DITEMUKAN" -> "DITEMUKAN"
+LOGO_T = 29.6
+CHIME_T = 29.7
+TAG_T = 30.15
 
 
 def footsteps_s3():

@@ -542,7 +542,7 @@ def scene3(t):
     k = 1.28
     spr = spr.resize((int(spr.width * k), int(spr.height * k)), Image.LANCZOS)
     ax, ay, pk = ax * k, ay * k, (pk[0] * k, pk[1] * k)
-    cx, feet = 420, 1850 + yoff
+    cx, feet = 420, 1650 + yoff   # kept above the Reels caption zone
     # soft contact shadow
     arr = to_arr(img)
     glow_add(arr, cx + 10, feet - 8, 190, (-60, -60, -50), 1.0, squash=0.16)
@@ -575,12 +575,12 @@ def scene3(t):
     a2 = ease_io(lin(t, T2[0], T2[0] + 0.5)) * (1 - lin(t, T2[1] - 0.4, T2[1]))
     draw_text(img, "Buat yang kirim, ini order", font("sb", 54), 540, 390, (255, 255, 255), a2, blur=14)
     a2b = ease_io(lin(t, T2[0] + 0.5, T2[0] + 1.0)) * (1 - lin(t, T2[1] - 0.4, T2[1]))
-    draw_text(img, "yang sudah lama ditunggu.", font("sb", 54), 540, 462, (255, 222, 160), a2b, blur=14)
+    draw_text(img, "yang sudah lama ditunggu.", font("xb", 58), 540, 466, (255, 56, 64), a2b, blur=16)
     for k, (txt, y, dt) in enumerate([("Satu paket,", 390, 0.05), ("satu penghasilan.", 480, 1.25)]):
         tt = T3[0] + dt
         a = ease_out(lin(t, tt, tt + 0.25)) * (1 - lin(t, T3[1] - 0.4, T3[1]))
         pulse = 1 + 0.10 * math.exp(-max(0, t - tt) * 6) * (t >= tt)
-        draw_text(img, txt, font("xb", 80), 540, y, (255, 255, 255) if k == 0 else (255, 212, 140), a, pulse, blur=16)
+        draw_text(img, txt, font("xb", 80), 540, y, (255, 255, 255) if k == 0 else (255, 56, 64), a, pulse, blur=18)
     return to_arr(img)
 
 

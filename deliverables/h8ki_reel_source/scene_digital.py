@@ -193,12 +193,12 @@ def scene1(t, glitch=0.0, overlay_final=False):
         d.text((158, 360), "Cari alamat tujuan...", font=font("mono", 33), fill=(90, 105, 135), anchor="lm")
 
     # log
-    d.text((70, 1330), "RIWAYAT PENCARIAN", font=font("mono", 24), fill=(100, 118, 150), anchor="lm")
-    d.line([(70, 1360), (1010, 1360)], fill=(40, 52, 78), width=2)
+    d.text((70, 1180), "RIWAYAT PENCARIAN", font=font("mono", 24), fill=(100, 118, 150), anchor="lm")
+    d.line([(70, 1208), (1010, 1208)], fill=(40, 52, 78), width=2)
     row = 0
     for qq in QW:
         if t >= qq["err"]:
-            y = 1400 + row * 58
+            y = 1244 + row * 57
             a = lin(t, qq["err"], qq["err"] + 0.12)
             img.paste(X_SMALL.convert("RGB"), (70, y - 15), X_SMALL.getchannel("A").point(lambda v: int(v * a)))
             tx = qq["text"] if len(qq["text"]) <= 30 else qq["text"][:29] + "…"
@@ -211,7 +211,7 @@ def scene1(t, glitch=0.0, overlay_final=False):
         p = t - q["err"]
         s = 0.55 + 0.45 * back_out(p / 0.16)
         ban = banner()
-        paste_layer(img, ban, 540, 1110, 1.0, s)
+        paste_layer(img, ban, 540, 1050, 1.0, s)
 
     arr = to_arr(img)
     # red flash vignette
@@ -334,8 +334,8 @@ def hook(t):
     for txt, y, sz in [("ALAMAT", 900, 190), ("TIDAK", 1090, 190), ("DITEMUKAN", 1270, 150)]:
         draw_text(img, txt, font("xb", sz), 540 + jx, y + jy, (255, 255, 255), 1.0, s, shadow=0.35, blur=18)
     d = ImageDraw.Draw(img)
-    rrect(d, (130 + jx, 1440 + jy, 950 + jx, 1530 + jy), 45, fill=(120, 8, 20))
-    d.text((540 + jx, 1485 + jy), "Rumah cat hijau, sebelah warung Bu Ani", font=font("mono", 30),
+    rrect(d, (130 + jx, 1380 + jy, 950 + jx, 1466 + jy), 43, fill=(120, 8, 20))
+    d.text((540 + jx, 1423 + jy), "Rumah cat hijau, sebelah warung Bu Ani", font=font("mono", 30),
            fill=(255, 205, 205), anchor="mm")
     arr = to_arr(img)
     arr = rgb_split(arr, 4 + 10 * math.exp(-t / 0.05))
