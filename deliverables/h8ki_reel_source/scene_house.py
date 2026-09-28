@@ -21,6 +21,33 @@ def night(c, k=1.0):
     return tuple(int(v) for v in SN.night_col(c, k))
 
 
+def make_branch():
+    """Mango branch framing top-left, drawn as its own foreground layer (defocused)."""
+    im = Image.new("RGBA", (W * S, H * S), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    s = lambda *v: [x * S for x in v]
+    # mango branch framing top-left
+    r = np.random.default_rng(9)
+    d.line(s(-40, 250, 260, 330), fill=(28, 22, 22, 255), width=22 * S)
+    d.line(s(120, 290, 330, 470), fill=(28, 22, 22, 255), width=12 * S)
+    for _ in range(220):
+        cx, cy = r.uniform(-40, 380), r.uniform(180, 520) - max(0, r.uniform(-40, 380) - 250) * 0.3
+        a = r.uniform(0, math.pi)
+        L = r.uniform(40, 80)
+        c = int(r.uniform(22, 55))
+        ca, sa = math.cos(a), math.sin(a)
+        wv = L * 0.28
+        pts = [(cx, cy), (cx + L * 0.5 * ca - wv * sa, cy + L * 0.5 * sa + wv * ca), (cx + L * ca, cy + L * sa),
+               (cx + L * 0.5 * ca + wv * sa, cy + L * 0.5 * sa - wv * ca)]
+        rim = r.random() < 0.3
+        col = (c // 2 + 30, c + 50, c + 60) if rim else (c // 2, c + 5, c + 8)
+        d.polygon([(px * S, py * S) for px, py in pts], fill=col)
+    for (mx, my) in [(170, 470), (250, 520), (90, 430)]:
+        d.ellipse(s(mx - 16, my - 12, mx + 16, my + 32), fill=night((180, 200, 90), 1.2))
+    lay = im.resize((W, H), Image.LANCZOS).crop((0, 0, 520, 640))
+    return lay.filter(ImageFilter.GaussianBlur(4.5))
+
+
 def build_house(lit):
     im = Image.new("RGB", (W * S, H * S))
     # sky: bottom of the night sky, moon upper right
@@ -116,24 +143,6 @@ def build_house(lit):
     bx, by = BELL
     d.rounded_rectangle(s(bx - 14, by - 20, bx + 14, by + 20), 5 * S, fill=night((240, 240, 240)))
     d.ellipse(s(bx - 7, by - 7, bx + 7, by + 7), fill=(220, 40, 40))
-    # mango branch framing top-left
-    r = np.random.default_rng(9)
-    d.line(s(-40, 250, 260, 330), fill=(28, 22, 22), width=22 * S)
-    d.line(s(120, 290, 330, 470), fill=(28, 22, 22), width=12 * S)
-    for _ in range(220):
-        cx, cy = r.uniform(-40, 380), r.uniform(180, 520) - max(0, r.uniform(-40, 380) - 250) * 0.3
-        a = r.uniform(0, math.pi)
-        L = r.uniform(40, 80)
-        c = int(r.uniform(22, 55))
-        ca, sa = math.cos(a), math.sin(a)
-        wv = L * 0.28
-        pts = [(cx, cy), (cx + L * 0.5 * ca - wv * sa, cy + L * 0.5 * sa + wv * ca), (cx + L * ca, cy + L * sa),
-               (cx + L * 0.5 * ca + wv * sa, cy + L * 0.5 * sa - wv * ca)]
-        rim = r.random() < 0.3
-        col = (c // 2 + 30, c + 50, c + 60) if rim else (c // 2, c + 5, c + 8)
-        d.polygon([(px * S, py * S) for px, py in pts], fill=col)
-    for (mx, my) in [(170, 470), (250, 520), (90, 430)]:
-        d.ellipse(s(mx - 16, my - 12, mx + 16, my + 32), fill=night((180, 200, 90), 1.2))
     img = im.resize((W, H), Image.LANCZOS)
     arr = to_arr(img)
     if lit:
@@ -159,6 +168,24 @@ def build_house(lit):
 
 HOUSE_DARK = build_house(False)
 HOUSE_LIT = build_house(True)
+BRANCH = make_branch()
+_dr = np.random.default_rng(44)
+DUST = [(_dr.uniform(430, 760), _dr.uniform(0, 720), _dr.uniform(8, 22), _dr.uniform(0, 6.28)) for _ in range(28)]
+
+
+def _soften_sky(a):
+    b = to_arr(to_img(a).filter(ImageFilter.GaussianBlur(2.2)))
+    m = np.clip((470 - np.arange(H)) / 50.0, 0, 1)[:, None, None].astype(np.float32)
+    return a * (1 - m) + b * m
+
+
+HOUSE_DARK, HOUSE_LIT = _soften_sky(HOUSE_DARK), _soften_sky(HOUSE_LIT)
+try:
+    from scene_night import BUSH as _BUSH
+except Exception:
+    _BUSH = None
+FG_L = _BUSH.resize((560, 560)).filter(ImageFilter.GaussianBlur(16)) if _BUSH else None
+FG_R = FG_L.transpose(Image.FLIP_LEFT_RIGHT) if FG_L else None
 
 
 def draw_parcel(d, P, c, m, k=S):
@@ -171,7 +198,7 @@ def draw_parcel(d, P, c, m, k=S):
     return c
 
 
-def recipient(img, x, feet, hand_tgts, warm, alpha=1.0, bob=0.0):
+def recipient(img, x, feet, hand_tgts, warm, alpha=1.0, bob=0.0, sway=0.0, breath=0.0, nod=0.0):
     """Recipient (hijab, long dress) facing left, backlit gold from the doorway."""
     m = PPM
     ox, oy = x - 260, feet - 700
@@ -187,9 +214,9 @@ def recipient(img, x, feet, hand_tgts, warm, alpha=1.0, bob=0.0):
         o = lambda p: (p[0] + off[0], p[1] + off[1])
         d.polygon([P(*o((x - 0.24 * m, fy))), P(*o((x + 0.24 * m, fy))), P(*o((x + 0.17 * m, fy - 1.28 * m))),
                    P(*o((x - 0.17 * m, fy - 1.28 * m)))], fill=cd)
-        d.polygon([P(*o((x - 0.21 * m, fy - 1.12 * m))), P(*o((x + 0.21 * m, fy - 1.12 * m))),
+        d.polygon([P(*o((x - 0.21 * m + sway, fy - 1.12 * m - breath))), P(*o((x + 0.21 * m + sway * 0.7, fy - 1.12 * m - breath))),
                    P(*o((x + 0.11 * m, fy - 1.42 * m))), P(*o((x - 0.11 * m, fy - 1.42 * m)))], fill=ch)
-        hc = o((x, fy - 1.45 * m))
+        hc = o((x - 3 * nod, fy - 1.45 * m + 6 * nod - breath))
         d.ellipse((*P(hc[0] - 0.125 * m, hc[1] - 0.14 * m), *P(hc[0] + 0.125 * m, hc[1] + 0.12 * m)), fill=ch)
         if cs:
             d.ellipse((*P(hc[0] - 0.105 * m, hc[1] - 0.075 * m), *P(hc[0] + 0.01 * m, hc[1] + 0.085 * m)), fill=cs)
@@ -263,7 +290,7 @@ def courier_side(x, phi, walk, bend, reach, carry, warm, pbox=None, hands=None, 
             q = P(*p)
             d.ellipse((q[0] - w * S / 2, q[1] - w * S / 2, q[0] + w * S / 2, q[1] + w * S / 2), fill=col)
 
-    lean = math.radians(6 + 60 * bend + 8 * nod)
+    lean = math.radians(6 + 60 * bend + 8 * nod) + walk * math.radians(2.5) * math.sin(2 * phi - 0.6)
     tl = 0.55 * m
     sh = (hip[0] + tl * math.sin(lean), hip[1] - tl * math.cos(lean))
     head = (sh[0] + 0.2 * m * math.sin(lean) + 8, sh[1] - 0.2 * m * math.cos(lean))
@@ -277,7 +304,7 @@ def courier_side(x, phi, walk, bend, reach, carry, warm, pbox=None, hands=None, 
         d.rounded_rectangle((*P(a[0] - 18, a[1] - 14), *P(a[0] + 52, a[1] + 24)), 10 * S, fill=(20, 20, 26, 255))
     # parcel target
     if carry == "carry":
-        tgt = (sh[0] + 0.36 * m, sh[1] + 0.42 * m)
+        tgt = (sh[0] + 0.36 * m, sh[1] + 0.42 * m + walk * 7 * math.sin(2 * phi - 1.2))
     elif carry == "place":
         tgt = (PKG_POS[0] - 20, PKG_POS[1] - 60)
     else:
@@ -304,13 +331,15 @@ def courier_side(x, phi, walk, bend, reach, carry, warm, pbox=None, hands=None, 
     # bag on back
     bag = [(hip[0] - 0.14 * m, hip[1] - 0.12 * m), (hip[0] - 0.14 * m, hip[1] - tl - 0.05 * m),
            (hip[0] - 0.55 * m, hip[1] - tl - 0.05 * m), (hip[0] - 0.55 * m, hip[1] - 0.12 * m)]
-    bag = [rot(px, py, lean, hip[0], hip[1]) for px, py in bag]
+    # the bag lags the torso: extra swing a few frames behind the step
+    bag_ang = lean + walk * math.radians(4) * math.sin(2 * phi - 1.1) - math.radians(3) * nod
+    bag = [rot(px, py, bag_ang, hip[0], hip[1]) for px, py in bag]
     d.polygon([P(px + 4, py - 5) for px, py in bag], fill=(236, 120, 130, 255))
     d.polygon([P(*p) for p in bag], fill=red)
     band = [(hip[0] - 0.14 * m, hip[1] - 0.3 * m), (hip[0] - 0.14 * m, hip[1] - 0.38 * m),
             (hip[0] - 0.55 * m, hip[1] - 0.38 * m), (hip[0] - 0.55 * m, hip[1] - 0.3 * m)]
-    d.polygon([P(*rot(px, py, lean, hip[0], hip[1])) for px, py in band], fill=green)
-    bl = rot(hip[0] - 0.345 * m, hip[1] - 0.46 * m, lean, hip[0], hip[1])
+    d.polygon([P(*rot(px, py, bag_ang, hip[0], hip[1])) for px, py in band], fill=green)
+    bl = rot(hip[0] - 0.345 * m, hip[1] - 0.46 * m, bag_ang, hip[0], hip[1])
     d.text(P(*bl), "H8KI", font=font("xb", 64), fill=(255, 255, 255, 255), anchor="mm")
     # near leg
     k, a = lg[1]
@@ -320,13 +349,15 @@ def courier_side(x, phi, walk, bend, reach, carry, warm, pbox=None, hands=None, 
     d.rectangle((*P(a[0] - 18, a[1] + 14), *P(a[0] + 56, a[1] + 24)), fill=(120, 124, 140, 255))
     # head + cap
     hx, hy = head
+    hy += walk * 6 * math.sin(2 * phi - 1.3)            # head settles a beat late
+    brim = walk * 5 * math.sin(2 * phi - 1.8) + 4 * nod
     d.ellipse((*P(hx - 42 + 4, hy - 44 - 3), *P(hx + 42 + 4, hy + 44 - 3)), fill=rimc)
     d.ellipse((*P(hx - 42, hy - 44), *P(hx + 42, hy + 44)), fill=skin)
     d.pieslice((*P(hx - 44, hy - 46), *P(hx + 40, hy + 44)), 110, 260, fill=(24, 20, 22, 255))
     d.ellipse((*P(hx - 8, hy - 6), *P(hx + 10, hy + 14)), fill=(140, 96, 78, 255))
     d.ellipse((*P(hx + 22, hy - 12), *P(hx + 30, hy - 4)), fill=(20, 20, 20, 255))
     d.chord((*P(hx - 46, hy - 60), *P(hx + 44, hy + 16)), 180, 360, fill=red)
-    d.polygon([P(hx + 30, hy - 24), P(hx + 78, hy - 16), P(hx + 72, hy - 8), P(hx + 30, hy - 12)], fill=redd)
+    d.polygon([P(hx + 30, hy - 24), P(hx + 78, hy - 16 + brim), P(hx + 72, hy - 8 + brim), P(hx + 30, hy - 12)], fill=redd)
     d.rectangle((*P(hx - 46, hy - 26), *P(hx + 38, hy - 18)), fill=green)
     d.text(P(hx - 2, hy - 38), "H8KI", font=font("xb", 22), fill=(255, 255, 255, 255), anchor="mm")
     # parcel
@@ -416,14 +447,15 @@ def open_door(img, t):
 
 
 def light_level(t):
+    """Porch bulb: a stutter, then it warms up and the glow grows and spills."""
     if t < LIGHT_T:
         return 0.0
     dt = t - LIGHT_T
-    if dt < 0.05:
-        return 0.8
-    if dt < 0.11:
-        return 0.2
-    return min(1.0, 0.85 + dt * 0.6)
+    if dt < 0.06:
+        return 0.3
+    if dt < 0.12:
+        return 0.06
+    return ease_out((dt - 0.12) / 0.9) * (1 + 0.025 * math.sin(t * 29) + 0.015 * math.sin(t * 53))
 
 
 def scene4(t, raw=False):
@@ -438,9 +470,24 @@ def scene4(t, raw=False):
     M = (452, 1188)                                # hand-over point, chest height
     carry_c = lambda cx: (cx + 172, 1259)
     nod = 0.0
+
+    def x_walk(tt):
+        p = lin(tt, S4_START, WALKIN_END)
+        return -160 + (walk_end_x + 160) * (1 - (1 - p) ** 1.6)
+
+    def rx_of(tt):
+        return 585 - 37 * ease_io(lin(tt, *REC_OUT)) + 26 * ease_io(lin(tt, GIVE_T, GIVE_T + 0.5))
+
+    def box_at(tt, x_):
+        off_ = back_in_out(lin(tt, *OFFER), 0.9)            # tiny pull-back, reach, overshoot, settle
+        pull_ = ease_io(lin(tt, GIVE_T, GIVE_T + 0.4))
+        cc = carry_c(x_)
+        b = (cc[0] + (M[0] - cc[0]) * off_, cc[1] + (M[1] - cc[1]) * off_)
+        ch_ = (rx_of(tt) - 0.14 * m, 1222)
+        return (b[0] + (ch_[0] - b[0]) * pull_, b[1] + (ch_[1] - b[1]) * pull_)
+
     if t < WALKIN_END:
-        p = lin(t, S4_START, WALKIN_END)
-        x = -160 + (walk_end_x + 160) * (1 - (1 - p) ** 1.6)
+        x = x_walk(t)
         phi = math.pi * (t - S4_START - 0.12) / S4_STEP
         pose = dict(walk=1.0 - 0.6 * lin(t, WALKIN_END - 0.35, WALKIN_END), bend=0, reach=0, carry="carry")
     else:
@@ -448,40 +495,57 @@ def scene4(t, raw=False):
         back = ease_io(lin(t, GIVE_T + 0.05, NOD[0] + 0.2))
         x = walk_end_x + 45 * sf - 34 * back
         phi = math.pi * 0.5 * sf
-        r = ease_io(lin(t, BELL_REACH, BELL_T)) * (1 - ease_io(lin(t, BELL_T + 0.2, BELL_T + 0.5)))
-        off = ease_io(lin(t, *OFFER))
+        r = back_in_out(lin(t, BELL_REACH, BELL_T), 0.8) * (1 - ease_io(lin(t, BELL_T + 0.2, BELL_T + 0.5)))
         pull = ease_io(lin(t, GIVE_T, GIVE_T + 0.4))
         nod = math.sin(math.pi * lin(t, *NOD)) if NOD[0] < t < NOD[1] else 0.0
         pose = dict(walk=0.4 * math.sin(math.pi * sf), bend=0, reach=r, carry="none")
-    rx = 585 - 37 * ease_io(lin(t, *REC_OUT)) + 26 * ease_io(lin(t, GIVE_T, GIVE_T + 0.5))
+    rx = rx_of(t)
     rec_on = t >= DOOR_OPEN_T + 0.2
     if t >= WALKIN_END:
-        cc = carry_c(x)
-        box = (cc[0] + (M[0] - cc[0]) * off, cc[1] + (M[1] - cc[1]) * off)
-        chest = (rx - 0.14 * m, 1222)
-        box = (box[0] + (chest[0] - box[0]) * pull, box[1] + (chest[1] - box[1]) * pull)
-        left = [(box[0] - 0.13 * m, box[1] + 0.05 * m), (box[0] - 0.12 * m, box[1] - 0.06 * m)]
+        box = box_at(t, x)
+        box_late = box_at(t - 0.08, x)                       # far hand trails by ~2-3 frames
+        left = [(box[0] - 0.13 * m, box[1] + 0.05 * m), (box_late[0] - 0.12 * m, box_late[1] - 0.06 * m)]
         rest = [(x + 0.1 * m, 1320), (x + 0.04 * m, 1320)]
-        wd = ease_io(lin(t, GIVE_T + 0.05, GIVE_T + 0.45))
-        hands = [(a[0] + (b[0] - a[0]) * wd, a[1] + (b[1] - a[1]) * wd) for a, b in zip(left, rest)]
+        wd0 = ease_io(lin(t, GIVE_T + 0.05, GIVE_T + 0.45))
+        wd1 = ease_io(lin(t, GIVE_T + 0.13, GIVE_T + 0.53))
+        hands = [(a[0] + (b[0] - a[0]) * w_, a[1] + (b[1] - a[1]) * w_) for a, b, w_ in zip(left, rest, (wd0, wd1))]
         pose.update(pbox=None if pull > 0 else box, hands=hands, nod=nod)
-        if r > 0:
-            pose["hands"] = [hands[0], hands[1]]
     arr = to_arr(img)
     glow_add(arr, x + 10, GROUND + 6, 110, (-50, -50, -40), 1.0, squash=0.18)
     img = to_img(arr)
     rhands = None
     if t >= WALKIN_END:
-        tk = ease_io(lin(t, *TAKE))
-        restr = [(rx - 0.08 * m, 1300), (rx - 0.02 * m, 1300)]
-        onbox = [(box[0] + 0.13 * m, box[1] - 0.05 * m), (box[0] + 0.12 * m, box[1] + 0.06 * m)]
-        rhands = [(a[0] + (b[0] - a[0]) * tk, a[1] + (b[1] - a[1]) * tk) for a, b in zip(restr, onbox)]
         hold = [(box[0] - 0.08 * m, box[1] + 0.11 * m), (box[0] + 0.1 * m, box[1] + 0.1 * m)]
-        rhands = [(a[0] + (b[0] - a[0]) * pull, a[1] + (b[1] - a[1]) * pull) for a, b in zip(rhands, hold)]
+        rhands = []
+        for i_, lagt in enumerate((0.0, 0.08)):
+            tk = ease_io(lin(t - lagt, *TAKE))
+            b_ = box_at(t - lagt, x)
+            rest_ = (rx - 0.08 * m + 0.06 * m * i_, 1300)
+            on_ = (b_[0] + 0.13 * m - 0.01 * m * i_, b_[1] - 0.05 * m + 0.11 * m * i_)
+            h_ = (rest_[0] + (on_[0] - rest_[0]) * tk, rest_[1] + (on_[1] - rest_[1]) * tk)
+            h_ = (h_[0] + (hold[i_][0] - h_[0]) * pull, h_[1] + (hold[i_][1] - h_[1]) * pull)
+            rhands.append(h_)
     if rec_on:
         rbob = 8 * abs(math.sin(math.pi * 2 * lin(t, *REC_OUT))) if REC_OUT[0] < t < REC_OUT[1] else 0
-        recipient(img, rx, TERRACE, rhands, L, ease_io(lin(t, DOOR_OPEN_T + 0.2, DOOR_OPEN_T + 0.5)), rbob)
-    spr, (ox, oy), pc = courier_side(x, phi, warm=L, **pose)
+        vel = (rx_of(t - 0.1) - rx_of(t - 0.2)) * 10         # hijab trails her movement
+        rnod = math.sin(math.pi * lin(t, GIVE_T + 0.25, GIVE_T + 0.85)) if GIVE_T + 0.25 < t < GIVE_T + 0.85 else 0
+        recipient(img, rx, TERRACE, rhands, L, ease_io(lin(t, DOOR_OPEN_T + 0.2, DOOR_OPEN_T + 0.5)), rbob,
+                  sway=-vel * 0.35 + 3 * math.sin(t * 1.7), breath=2.5 * math.sin(t * 2.4), nod=rnod)
+    # courier with motion blur while walking (3 sub-frames)
+    if t < WALKIN_END + 0.05:
+        subs = []
+        for dt_ in (-1 / 120, 0.0, 1 / 120):
+            tt = min(t + dt_, WALKIN_END)
+            ph_ = math.pi * (tt - S4_START - 0.12) / S4_STEP
+            sp_, (ox, oy), pc = courier_side(x_walk(tt), ph_, warm=L, **pose)
+            subs.append(np.asarray(sp_, np.float32))
+        st = np.stack(subs)
+        al = st[..., 3:4] / 255.0
+        rgb = (st[..., :3] * al).sum(0) / np.maximum(al.sum(0), 1e-4)
+        spr = Image.fromarray(np.dstack([rgb, al.mean(0)[..., 0] * 255]).clip(0, 255).astype(np.uint8), "RGBA")
+        ox, oy = x - 450, 900
+    else:
+        spr, (ox, oy), pc = courier_side(x, phi, warm=L, **pose)
     img.paste(spr, (int(ox), int(oy)), spr)
     if t >= WALKIN_END and pose.get("pbox") is None:
         # after the hand-over the recipient holds the parcel at her chest
@@ -495,25 +559,50 @@ def scene4(t, raw=False):
     arr = to_arr(img)
     if pc:
         glow_add(arr, pc[0], pc[1], 110, (255, 60, 40), 0.45 * (1 - 0.4 * L))
-    # warm bloom when the light comes on
+    # living light: the glow grows and spills out rather than switching on
     if L > 0:
-        glow_add(arr, LAMP[0], LAMP[1], 70, (255, 230, 170), 1.3 * L)
-        glow_add(arr, LAMP[0], LAMP[1] + 200, 520, (255, 160, 80), 0.22 * L)
-        glow_add(arr, 200, 1090, 240, (255, 170, 90), 0.18 * L)
+        grow = 0.5 + 0.5 * L
+        glow_add(arr, LAMP[0], LAMP[1], 70 * grow, (255, 230, 170), 1.3 * L)
+        glow_add(arr, LAMP[0], LAMP[1] + 200, 520 * grow, (255, 160, 80), 0.22 * L)
+        glow_add(arr, 200, 1090, 240 * grow, (255, 170, 90), 0.18 * L)
+        o_ = ease_io(lin(t, DOOR_OPEN_T, DOOR_OPEN_T + 0.9))
+        glow_add(arr, 585, 1560, 420 * (0.4 + 0.6 * o_), (255, 175, 95), 0.22 * o_, squash=0.35)
+        if L > 0.4:  # moths around the porch bulb
+            for k_ in range(6):
+                a1 = t * (2.3 + 0.41 * k_) + k_ * 1.9
+                rr = 38 + 22 * math.sin(t * 1.4 + k_ * 2.3)
+                glow_add(arr, LAMP[0] + rr * math.cos(a1) + 5 * math.sin(t * 19 + k_),
+                         LAMP[1] + 0.6 * rr * math.sin(a1 * 1.3) + 5 * math.cos(t * 15 + k_), 2.2, (255, 240, 210), 0.9 * L)
+        # dust drifting through the doorway light
+        o_ = ease_io(lin(t, DOOR_OPEN_T, DOOR_OPEN_T + 0.6))
+        for (mx_, my_, sp_, ph_) in DUST:
+            yy = 880 + ((my_ - t * sp_) % 720)
+            xx = mx_ + 14 * math.sin(t * 0.8 + ph_)
+            glow_add(arr, xx, yy, 2.0, (255, 225, 170), 0.45 * o_ * L)
     # bell press flash
     if BELL_T <= t < BELL_T + 0.3:
         glow_add(arr, BELL[0], BELL[1], 30, (255, 80, 80), 1.2 * (1 - lin(t, BELL_T, BELL_T + 0.3)))
-    # gentle push-in
-    z = 1 + 0.06 * ease_io(lin(t, S4_START, S4_END))
-    arr = arr * (VIG * (1 - 0.5 * L) + VIG_SOFT * 0.5 * L + (1 - VIG) * 0 )
+    img = to_img(arr)
+    # foreground branch, defocused, with parallax against the camera drift
+    drift = 16 * math.sin(0.55 * (t - S4_START))
+    img.paste(BRANCH, (int(-12 - 1.8 * drift), int(-8 - 0.6 * drift)), BRANCH)
+    arr = to_arr(img)
+    # camera: slow push-in + lateral drift (never static)
+    z = 1 + 0.05 * ease_io(lin(t, S4_START, S4_END + 0.4))
+    arr = arr * (VIG * (1 - 0.5 * L) + VIG_SOFT * 0.5 * L)
     grain(arr, 3.5, int(t * FPS) + 999)
     # lift the whole stage 200px so nothing sits in the Reels caption zone (y > 1500)
     arr = np.concatenate([arr[LIFT:], np.repeat(arr[-1:], LIFT, 0)], 0)
     img = to_img(arr)
-    if z > 1.001:
-        cw, ch = W / z, H / z
-        x0, y0 = (W - cw) / 2, (H - ch) * 0.62
-        img = img.crop((int(x0), int(y0), int(x0 + cw), int(y0 + ch))).resize((W, H), Image.BICUBIC)
+    cw, ch = W / z, H / z
+    x0 = (W - cw) / 2 + drift * 0.8
+    y0 = (H - ch) * 0.62
+    x0 = min(max(0, x0), W - cw)
+    img = img.crop((int(x0), int(y0), int(x0 + cw), int(y0 + ch))).resize((W, H), Image.BICUBIC)
+    # blurred foreground plants in the bottom corners, moving faster than the stage
+    if FG_L is not None:
+        img.paste(FG_L, (int(-230 - 2.6 * drift), 1480), FG_L)
+        img.paste(FG_R, (int(W - 330 - 2.6 * drift), 1510), FG_R)
     if raw:
         return img
     draw_chip(img, "Rumah cat hijau", 330, 560, t, 21.75, 1.5)
@@ -521,15 +610,17 @@ def scene4(t, raw=False):
     draw_chip(img, "Pagar hitam", 180, 1220, t, 22.55, 1.5)
     if t >= BADGE_T:
         p = t - BADGE_T
-        paste_layer(img, badge(), 540, 250, lin(p, 0, 0.1), 0.55 + 0.45 * back_out(p / 0.3))
+        a_, s_, dy_ = pop(t, BADGE_T, 0.5, rise=30)
+        paste_layer(img, badge(), 540, 250 + dy_, a_, 0.6 + 0.4 * s_ if s_ < 1 else s_)
     a1 = ease_out(lin(t, LINE1_T, LINE1_T + 0.4))
     if a1 > 0:  # soft scrim so the lines read over the lit wall
         sa = to_arr(img)
         glow_add(sa, 540, 485, 600, (-190, -185, -170), 0.9 * a1, squash=0.24)
         img = to_img(sa)
-    draw_text(img, "Alamatnya ketemu.", font("xb", 70), 540, 440 - 14 * (1 - a1), (255, 255, 255), a1, blur=16)
-    a2 = ease_out(lin(t, LINE2_T, LINE2_T + 0.45))
-    draw_text(img, "Sejauh apa pun alamatnya.", font("xb", 52), 540, 522 - 14 * (1 - a2), (255, 56, 64), a2, blur=16)
+    pa, ps, pd = pop(t, LINE1_T, 0.5)
+    draw_text(img, "Alamatnya ketemu.", font("xb", 70), 540, 440 + pd, (255, 255, 255), pa, ps, blur=16)
+    pa, ps, pd = pop(t, LINE2_T, 0.5)
+    draw_text(img, "Sejauh apa pun alamatnya.", font("xb", 52), 540, 522 + pd, (255, 56, 64), pa, ps, blur=16)
     return img
 
 
@@ -610,12 +701,14 @@ _rbg = None
 
 def recap_frame(t):
     """A-style recap: search-history panel, red X flip to green check, then big 'KETEMU.'"""
-    arr = recap_bg().copy()
-    img = to_img(arr)
+    bg = to_img(recap_bg())
+    zz = 1 + 0.045 * ease_io(lin(t, RECAP_T, LOGO_T))           # slow push-in, never static
+    cw, ch = W / zz, H / zz
+    img = bg.crop((int((W - cw) / 2), int((H - ch) * 0.45), int((W + cw) / 2), int((H - ch) * 0.45 + ch))).resize((W, H), Image.BICUBIC)
     out = ease_in(lin(t, LOGO_T - 0.12, LOGO_T))
-    enter = ease_out(lin(t, RECAP_T, RECAP_T + 0.3))
+    enter = back_in_out(lin(t, RECAP_T, RECAP_T + 0.5), 1.1)
     dy = 70 * (1 - enter) - 40 * out
-    alpha = enter * (1 - out)
+    alpha = clamp(enter) * (1 - out)
     # panel
     px0, py0, px1, py1 = 80, 470 + dy, 1000, 1020 + dy
     panel = Image.new("RGBA", (W, H), (0, 0, 0, 0))
@@ -645,7 +738,7 @@ def recap_frame(t):
     draw_text(img, "5 dari 5 alamat", font("b", 64), 540, 1120 + dy, (240, 244, 250), alpha, blur=14)
     if t >= RECAP_OK:
         q = t - RECAP_OK
-        pop = 0.6 + 0.4 * back_out(q / 0.28, 2.2)
+        pop = 0.7 + 0.3 * back_in_out(q / 0.45, 1.3)
         a2 = lin(q, 0, 0.08) * (1 - out)
         glow = Image.new("RGBA", (1, 1))
         draw_text(img, "KETEMU.", font("xb", 200), 540, 1300 + dy, (70, 220, 120), a2, pop, blur=24, glow=(0, 170, 80))
@@ -673,14 +766,17 @@ def scene5(t):
         arr = np.asarray(lg, np.float32).copy()
         arr[..., :3] = arr[..., :3] + (255 - arr[..., :3]) * band[..., None]
         lg = Image.fromarray(arr.astype(np.uint8), "RGBA")
-    paste_layer(img, lg, 540, 800, ease_out(p), 0.9 + 0.1 * back_out(p, 1.4))
+    drift = 1 + 0.03 * ease_io(lin(t, LOGO_T + 0.4, DUR))
+    paste_layer(img, lg, 540, 800, ease_out(p), (0.9 + 0.1 * back_in_out(p, 1.2)) * drift)
     q = lin(t, TAG_T, TAG_T + 0.4)
+    ta, ts_, tdy = pop(t, TAG_T, 0.5)
+    tb, tbs, tbdy = pop(t, TAG_T + 0.2, 0.5)
     if q > 0:
-        draw_text(img, "Kurir yang", font("xb", 92), 540, 1180 + 20 * (1 - ease_out(q)), (30, 36, 48), ease_out(q), shadow=0.12, blur=12)
+        draw_text(img, "Kurir yang", font("xb", 92), 540, 1180 + tdy, (30, 36, 48), ta, ts_, shadow=0.12, blur=12)
     q2 = lin(t, TAG_T + 0.2, TAG_T + 0.6)
     if q2 > 0:
-        draw_text(img, "nggak nyerah.", font("xb", 104), 540, 1295 + 20 * (1 - ease_out(q2)), (228, 20, 30), ease_out(q2),
-                  0.94 + 0.06 * back_out(q2), shadow=0.15, blur=12)
+        draw_text(img, "nggak nyerah.", font("xb", 104), 540, 1295 + tbdy, (228, 20, 30), tb,
+                  tbs, shadow=0.15, blur=12)
         u = ease_out(lin(t, TAG_T + 0.6, TAG_T + 1.0))
         if u > 0:
             half = 330 * u

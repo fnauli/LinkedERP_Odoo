@@ -11,13 +11,23 @@ import scene_night as SN
 import scene_house as SH
 
 
+def zoom(img, z, fy=0.5):
+    """Camera push: crop around centre and scale back up."""
+    if z <= 1.001:
+        return img
+    cw, ch = W / z, H / z
+    x0, y0 = (W - cw) / 2, (H - ch) * fy
+    return img.crop((int(x0), int(y0), int(x0 + cw), int(y0 + ch))).resize((W, H), Image.BICUBIC)
+
+
 def frame(i):
     hf = int(HOOK * FPS)
     if i < hf:
-        return np.asarray(to_img(SD.hook(i / FPS)), np.uint8).tobytes()
+        th = i / FPS
+        return np.asarray(zoom(to_img(SD.hook(th)), 1.06 - 0.06 * ease_out(th / HOOK)), np.uint8).tobytes()
     t = (i - hf) / FPS
     if t < S1_END:
-        arr = SD.scene1(t)
+        return np.asarray(zoom(to_img(SD.scene1(t)), 1 + 0.035 * ease_io(t / S1_END)), np.uint8).tobytes()
     elif t < NIGHT_START:
         arr = SD.scene2(t)
     elif t < S3_END:

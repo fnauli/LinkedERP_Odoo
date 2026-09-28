@@ -153,6 +153,31 @@ def x_icon(size, col=(235, 50, 60)):
     return im.resize((size, size), Image.LANCZOS)
 
 
+def back_in_out(x, c1=1.25):
+    """Anticipation (dips below 0) then overshoot (~6-7% past 1) and settle."""
+    x = clamp(x)
+    c2 = c1 * 1.525
+    if x < 0.5:
+        return ((2 * x) ** 2 * ((c2 + 1) * 2 * x - c2)) / 2
+    return ((2 * x - 2) ** 2 * ((c2 + 1) * (x * 2 - 2) + c2) + 2) / 2
+
+
+def pop(t, t0, dur=0.55, t_out=None, out_dur=0.35, rise=46):
+    """Entrance with pull-back + overshoot; eased exit. Returns (alpha, scale, dy)."""
+    if t < t0:
+        return 0.0, 1.0, 0.0
+    v = back_in_out((t - t0) / dur)
+    a = ease_out(lin(t, t0 + 0.08, t0 + 0.3))
+    s = 0.93 + 0.07 * v
+    dy = rise * (1 - v)
+    if t_out is not None and t > t_out - out_dur:
+        q = ease_in(lin(t, t_out - out_dur, t_out))
+        a *= 1 - q
+        dy -= 18 * q
+        s *= 1 - 0.03 * q
+    return a, s, dy
+
+
 _chips = {}
 
 
@@ -185,7 +210,5 @@ def chip(txt):
 def draw_chip(img, txt, cx, cy, t, t0, dur=1.6, anchor="c"):
     if t < t0 or t > t0 + dur:
         return
-    p = t - t0
-    s = 0.6 + 0.4 * back_out(p / 0.28)
-    a = lin(p, 0, 0.12) * (1 - lin(p, dur - 0.3, dur))
-    paste_layer(img, chip(txt), cx, cy - 10 * (1 - ease_out(p / 0.3)), a, s, anchor)
+    a, s, dy = pop(t, t0, 0.45, t0 + dur, 0.3, rise=22)
+    paste_layer(img, chip(txt), cx, cy + dy, a, 0.75 + 0.25 * s if s < 1 else s, anchor)

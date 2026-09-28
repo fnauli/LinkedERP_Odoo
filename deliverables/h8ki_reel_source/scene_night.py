@@ -239,14 +239,15 @@ def seg_details(side, idx, z0, z1, kind):
 
 
 class Painter:
-    def __init__(self, d, cz, yoff):
+    def __init__(self, d, cz, yoff, cx=CAM_X, cy=CAM_Y):
         self.d, self.cz = d, cz
+        self.cx, self.cy = cx, cy
         self.sx0 = W2 / 2
         self.sy0 = (HORIZON + yoff) * S
 
     def P(self, x, y, z):
         dz = z - self.cz
-        return (self.sx0 + F2 * (x - CAM_X) / dz, self.sy0 - F2 * (y - CAM_Y) / dz)
+        return (self.sx0 + F2 * (x - self.cx) / dz, self.sy0 - F2 * (y - self.cy) / dz)
 
     def clip(self, pts, zn=0.3):
         zmin = self.cz + zn
@@ -347,6 +348,41 @@ def fog_sprite(spr, dz, strength=1.0):
     return out
 
 
+_mr = np.random.default_rng(31)
+MOTES = [(_mr.uniform(-1.4, 1.4), _mr.uniform(0.4, 2.8), _mr.uniform(0, 12), _mr.uniform(0, 6.28)) for _ in range(45)]
+
+
+def lamp_flicker(t, i):
+    """Old wall lamps: tiny shimmer, and now and then a brief sag."""
+    f = 1 + 0.04 * math.sin(t * 23 + i * 3.1) + 0.03 * math.sin(t * 41 + i)
+    dip_t = (13.6, 16.9, 19.4, 22.0)[i % 4]
+    if 0 < t - dip_t < 0.18:
+        f *= 0.55 + 0.45 * abs(math.sin((t - dip_t) * 60))
+    return f
+
+
+def make_bush():
+    r = np.random.default_rng(8)
+    im = Image.new("RGBA", (700, 700), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    d.polygon([(250, 700), (450, 700), (470, 540), (230, 540)], fill=(60, 34, 30, 255))
+    for _ in range(240):
+        a = r.uniform(0, math.pi)
+        rad = r.uniform(0, 1) ** 0.6
+        cx, cy = 350 + math.cos(a) * rad * 330 * (1 if r.random() < 0.5 else -1), 520 - math.sin(a) * rad * 470
+        L, ang = r.uniform(50, 110), r.uniform(0, math.pi)
+        wv = L * 0.3
+        ca, sa = math.cos(ang), math.sin(ang)
+        c = int(r.uniform(14, 34))
+        d.polygon([(cx, cy), (cx + L * .5 * ca - wv * sa, cy + L * .5 * sa + wv * ca), (cx + L * ca, cy + L * sa),
+                   (cx + L * .5 * ca + wv * sa, cy + L * .5 * sa - wv * ca)], fill=(c, c + 16, c + 22, 255))
+    return im
+
+
+BUSH = make_bush()
+FG_BUSHES = [(1.5 if k % 2 else -1.5, 4.0 + k * 5.2) for k in range(8)]
+
+
 def render_world(t):
     """Returns (rgb float array 1x, screen info) for the alley at time t."""
     cz = cam_z(t)
@@ -355,7 +391,10 @@ def render_world(t):
     sky = SKY[SKY_H - H - sky_y0: SKY_H - sky_y0] if sky_y0 > 0 else SKY[SKY_H - H:]
     img = Image.fromarray(sky.astype(np.uint8)).resize((W2, H2), Image.BILINEAR)
     d = ImageDraw.Draw(img)
-    pn = Painter(d, cz, yoff)
+    phi = math.pi * (t - WALK_START - 0.25) / STEP
+    cam_x = CAM_X + 0.06 * math.sin(0.55 * t) + 0.015 * math.cos(phi)
+    cam_y = CAM_Y + 0.012 * math.cos(2 * phi - 1.2) + 0.03 * math.sin(0.4 * t)
+    pn = Painter(d, cz, yoff, cam_x, cam_y)
     info = {"cz": cz, "yoff": yoff}
     # skyline + mosque (far)
     sprite(img, SKYLINE, SKYLINE_PPM, 0, 0, 95, 0.5, cz, pn, extra=lambda s, dz: fog_sprite(s, dz, 0.35))
@@ -413,101 +452,142 @@ def render_world(t):
         d.line([wall, (sx, sy - 0.1 * sc)], fill=(30, 30, 40), width=max(2, int(0.05 * sc)))
         d.ellipse((sx - 0.07 * sc, sy - 0.07 * sc, sx + 0.07 * sc, sy + 0.07 * sc), fill=(255, 236, 190))
         gx, gy = pn.P(lx * 0.4, 0, lz)
-        lamp_scr.append((sx / S, sy / S, sc / S, gx / S, gy / S, lz - cz))
+        lamp_scr.append((sx / S, sy / S, sc / S, gx / S, gy / S, lz - cz, len(lamp_scr)))
     small = img.resize((W, H), Image.LANCZOS)
     arr = to_arr(small)
     # lamp glows + light pools on the floor
-    for (sx, sy, sc, gx, gy, dz) in lamp_scr:
-        fade = math.exp(-dz / 40)
+    for (sx, sy, sc, gx, gy, dz, li) in lamp_scr:
+        fade = math.exp(-dz / 40) * lamp_flicker(t, li)
         glow_add(arr, sx, sy, 0.22 * sc, (255, 220, 160), 1.2 * fade)
         glow_add(arr, sx, sy, 1.4 * sc, (255, 170, 90), 0.35 * fade)
         glow_add(arr, gx, gy, 1.5 * sc, (255, 170, 100), 0.30 * fade, squash=0.28)
+        if dz < 16:  # moths circling the bulb
+            for k in range(6):
+                a1 = t * (2.1 + 0.37 * k) + k * 1.7 + li
+                rr = sc * (0.18 + 0.12 * math.sin(t * 1.3 + k * 2.1))
+                mx = sx + rr * math.cos(a1) + 0.05 * sc * math.sin(t * 17 + k)
+                my = sy + 0.6 * rr * math.sin(a1 * 1.3) + 0.05 * sc * math.cos(t * 13 + k)
+                glow_add(arr, mx, my, max(1.2, 0.012 * sc), (255, 240, 210), 0.9 * fade)
+    # dust motes drifting past the camera (true parallax: they live in 3D)
+    for (mx_, my_, mz_, ph_) in MOTES:
+        z = cz + 0.6 + ((mz_ - cz) % 12.0)
+        dzm = z - cz
+        x = mx_ + 0.05 * math.sin(t * 0.7 + ph_)
+        y = my_ + 0.06 * math.sin(t * 0.5 + ph_ * 2)
+        px, py = pn.P(x, y, z)
+        a = min(1, (12 - dzm) / 3) * min(1, dzm / 1.5)
+        glow_add(arr, px / S, py / S, max(1.3, 0.012 * F2 / dzm / S), (210, 215, 255), 0.35 * a)
     # lit window spill
     return arr, info
 
 
 # ------------------------------------------------------------------ courier (from behind, 3/4)
 def courier_back(phi, t):
+    """Courier from behind (3/4). Proper walk cycle + secondary motion.
+
+    phi advances by pi per footstep. Contact (heel strike) at phi = k*pi.
+    - weight shift toward the stance foot, pelvis drops on the swing side
+    - shoulders counter-rotate against the hips, arms swing opposite the legs
+      and reach their extremes ~3 frames after the legs (overlapping action)
+    - head, bag, cap brim, jacket hem and parcel follow the body with lag
+    """
     Wc, Hc = 940, 1440
     fx, fy = 400, 1400
     im = Image.new("RGBA", (Wc, Hc), (0, 0, 0, 0))
     d = ImageDraw.Draw(im)
-    rl = max(0.0, math.sin(phi))      # right foot swinging
+    LAG = 0.63                                          # ~3 frames at this cadence
+    rl = max(0.0, math.sin(phi))                        # right foot swinging
     ll = max(0.0, -math.sin(phi))
-    bob = abs(math.sin(phi)) * 22
-    sway = -8 * math.cos(phi)
-    oy = fy - bob
-    ox = fx + sway
+    # body lowest just after contact (absorbing weight), highest at mid-stance
+    bob = lambda p: 11 * (1 - math.cos(2 * p - 0.5))
+    sway = lambda p: -12 * math.cos(p)                   # weight over the stance foot
+    oy, ox = fy - bob(phi), fx + sway(phi)
+    hip_tilt = 11 * math.sin(phi)                       # swing-side hip drops
+    sh_tilt = -7 * math.sin(phi - 0.3)                  # shoulders counter-rotate
     RIM = (118, 146, 205, 255)
-    pants = (30, 36, 56, 255)
+    pants, pants_d = (30, 36, 56, 255), (24, 29, 46, 255)
     navy = (36, 50, 92, 255)
-    red = (205, 34, 44, 255)
-    redd = (150, 20, 30, 255)
-    green = (0, 150, 72, 255)
+    red, redd, green = (205, 34, 44, 255), (150, 20, 30, 255), (0, 150, 72, 255)
     skin = (160, 112, 90, 255)
 
     def rim_poly(pts, col, off=(-7, -3)):
         d.polygon([(x + off[0], y + off[1]) for x, y in pts], fill=RIM)
         d.polygon(pts, fill=col)
 
-    # legs
+    # legs: thigh + shin, swing foot lifts, tucks inward and shows the sole
+    hip_y = oy - 640
     for side, lift in ((-1, ll), (1, rl)):
-        lx = ox + side * 64
-        foot_y = fy - lift * 70
-        hip_y = oy - 640
-        w = 112 - lift * 12
-        rim_poly([(lx - w / 2, hip_y), (lx + w / 2, hip_y), (lx + w / 2 - 6, foot_y - 70), (lx - w / 2 + 6, foot_y - 70)], pants)
-        # shoe (heel up shows the sole)
-        d.rounded_rectangle((lx - 66, foot_y - 92, lx + 66, foot_y - 12), 30, fill=(24, 24, 30, 255))
+        hx = ox + side * 62
+        hy = hip_y + side * hip_tilt
+        foot_x = fx + side * 58 - side * 14 * lift        # feet land near the line of travel
+        foot_y = fy - lift * 78
+        knee_x = (hx + foot_x) / 2 + side * 6 * lift
+        knee_y = hy + (foot_y - 70 - hy) * 0.5 + lift * 10
+        w = 114 - lift * 14
+        col = pants_d if lift > 0.1 else pants
+        rim_poly([(hx - w / 2, hy), (hx + w / 2, hy), (knee_x + w / 2 - 4, knee_y), (knee_x - w / 2 + 4, knee_y)], col)
+        rim_poly([(knee_x - w / 2 + 4, knee_y - 4), (knee_x + w / 2 - 4, knee_y - 4),
+                  (foot_x + w / 2 - 10, foot_y - 70), (foot_x - w / 2 + 10, foot_y - 70)], col)
+        d.rounded_rectangle((foot_x - 66, foot_y - 94, foot_x + 66, foot_y - 12), 30, fill=(24, 24, 30, 255))
         if lift > 0.15:
-            d.rounded_rectangle((lx - 60, foot_y - 40, lx + 60, foot_y - 10), 14, fill=(130, 136, 152, 255))
+            d.rounded_rectangle((foot_x - 60, foot_y - 42, foot_x + 60, foot_y - 10), 14, fill=(130, 136, 152, 255))
         else:
-            d.rectangle((lx - 64, foot_y - 26, lx + 64, foot_y - 12), fill=(110, 116, 130, 255))
-    # package in right hand (partly behind the bag)
-    px0, py0 = ox + 240, oy - 910
+            d.rectangle((foot_x - 64, foot_y - 26, foot_x + 64, foot_y - 12), fill=(110, 116, 130, 255))
+    # parcel in the right hand: bobs a beat behind the body
+    pb = 7 * math.sin(2 * phi - 2 * LAG)
+    px0, py0 = ox + 240 + 4 * math.sin(phi - LAG), oy - 910 + pb
     d.rounded_rectangle((px0, py0, px0 + 200, py0 + 170), 14, fill=(255, 70, 58, 255))
     d.polygon([(px0 + 200, py0 + 6), (px0 + 232, py0 - 16), (px0 + 232, py0 + 150), (px0 + 200, py0 + 170)], fill=(200, 40, 40, 255))
     d.polygon([(px0 + 10, py0), (px0 + 200, py0), (px0 + 232, py0 - 16), (px0 + 42, py0 - 16)], fill=(255, 120, 100, 255))
-    # branded parcel: H8KI mark on the visible face
     d.rectangle((px0 + 60, py0 + 112, px0 + 200, py0 + 128), fill=(0, 150, 72, 255))
     d.text((px0 + 128, py0 + 70), "H8KI", font=font("xb", 50), fill=(255, 255, 255, 255), anchor="mm")
-    # jacket
-    rim_poly([(ox - 175, oy - 600), (ox + 175, oy - 600), (ox + 200, oy - 1110), (ox - 200, oy - 1110)], navy)
-    d.rectangle((ox - 175, oy - 640, ox + 175, oy - 600), fill=red)
-    d.rectangle((ox - 175, oy - 656, ox + 175, oy - 644), fill=green)
-    # arms
-    swing = 14 * math.sin(phi)
-    rim_poly([(ox - 205, oy - 1100), (ox - 150, oy - 1100), (ox - 170 + swing, oy - 720), (ox - 230 + swing, oy - 720)], navy)
-    d.rectangle((ox - 232 + swing, oy - 740, ox - 168 + swing, oy - 722), fill=green)
-    d.ellipse((ox - 236 + swing, oy - 730, ox - 170 + swing, oy - 668), fill=skin)
-    rim_poly([(ox + 150, oy - 1100), (ox + 205, oy - 1100), (ox + 250, oy - 820), (ox + 195, oy - 800)], navy)
-    # neck + head
-    d.rectangle((ox - 42, oy - 1190, ox + 50, oy - 1110), fill=(130, 90, 74, 255))
-    hx, hy = ox + 6, oy - 1262
+    # jacket: hips tilt one way, shoulders the other; hem flutters behind
+    hem_l = oy - 600 - hip_tilt * 0.8 + 6 * math.sin(phi - 1.2 * LAG)
+    hem_r = oy - 600 + hip_tilt * 0.8 + 6 * math.sin(phi - 1.2 * LAG + 0.7)
+    shl, shr = oy - 1110 - sh_tilt, oy - 1110 + sh_tilt
+    rim_poly([(ox - 177, hem_l), (ox + 177, hem_r), (ox + 200, shr), (ox - 200, shl)], navy)
+    d.polygon([(ox - 177, hem_l - 40), (ox + 177, hem_r - 40), (ox + 177, hem_r), (ox - 177, hem_l)], fill=red)
+    d.polygon([(ox - 177, hem_l - 56), (ox + 177, hem_r - 56), (ox + 177, hem_r - 44), (ox - 177, hem_l - 44)], fill=green)
+    # arms swing opposite the legs, peaking ~3 frames later
+    aswing = 22 * math.sin(phi + math.pi - LAG)
+    rim_poly([(ox - 205, shl + 10), (ox - 150, shl + 10), (ox - 170 + aswing, oy - 720), (ox - 230 + aswing, oy - 720)], navy)
+    d.rectangle((ox - 232 + aswing, oy - 740, ox - 168 + aswing, oy - 722), fill=green)
+    d.ellipse((ox - 236 + aswing, oy - 730, ox - 170 + aswing, oy - 668), fill=skin)
+    rim_poly([(ox + 150, shr + 10), (ox + 205, shr + 10), (px0 + 10, py0 + 90), (px0 - 45, py0 + 110)], navy)
+    # head: follows the body a beat late, slight counter-tilt
+    hb = bob(phi - LAG) - bob(phi)
+    hx, hy = ox + 6 + 0.5 * (sway(phi - LAG) - sway(phi)), oy - 1262 - hb * 0.8
+    d.rectangle((hx - 48, hy + 72, hx + 44, hy + 150), fill=(130, 90, 74, 255))
     d.ellipse((hx - 106, hy - 104, hx + 102, hy + 104), fill=RIM)
     d.ellipse((hx - 100, hy - 100, hx + 104, hy + 106), fill=(24, 20, 22, 255))
-    d.pieslice((hx + 20, hy - 60, hx + 110, hy + 100), -70, 80, fill=skin)          # cheek sliver
-    d.ellipse((hx + 84, hy - 18, hx + 122, hy + 42), fill=skin)                      # ear
-    # cap
+    d.pieslice((hx + 20, hy - 60, hx + 110, hy + 100), -70, 80, fill=skin)
+    d.ellipse((hx + 84, hy - 18, hx + 122, hy + 42), fill=skin)
     d.chord((hx - 108, hy - 124, hx + 110, hy + 60), 180, 360, fill=red)
     d.rectangle((hx - 108, hy - 34, hx + 110, hy - 14), fill=green)
-    d.polygon([(hx + 96, hy - 30), (hx + 150, hy - 18), (hx + 104, hy - 12)], fill=redd)
+    brim = 7 * math.sin(2 * phi - 3 * LAG)             # brim flexes after the head
+    d.polygon([(hx + 96, hy - 30), (hx + 152, hy - 18 + brim), (hx + 104, hy - 12)], fill=redd)
     d.ellipse((hx - 12, hy - 128, hx + 12, hy - 106), fill=green)
     d.text((hx, hy - 70), "H8KI", font=font("xb", 46), fill=(255, 255, 255, 255), anchor="mm")
-    # big delivery bag (the weight of responsibility)
-    bx0, by0, bx1, by1 = ox - 225, oy - 1190, ox + 240, oy - 690
-    d.polygon([(bx1, by0 + 10), (bx1 + 46, by0 - 20), (bx1 + 46, by1 - 36), (bx1, by1)], fill=redd)
-    d.polygon([(bx0 + 20, by0), (bx1 - 10, by0), (bx1 + 40, by0 - 26), (bx0 + 70, by0 - 26)], fill=(225, 60, 64, 255))
-    d.rounded_rectangle((bx0 - 7, by0 - 3, bx1 - 7, by1 - 3), 30, fill=(236, 120, 130, 255))
-    d.rounded_rectangle((bx0, by0, bx1, by1), 30, fill=red)
-    d.rectangle((bx0, by0 + 290, bx1, by0 + 360), fill=green)
-    d.text(((bx0 + bx1) / 2, by0 + 160), "H8KI", font=font("xb", 150), fill=(255, 255, 255, 255), anchor="mm")
-    d.text(((bx0 + bx1) / 2, by0 + 326), "LOGISTIK LIONINDO", font=font("b", 34), fill=(255, 255, 255, 255), anchor="mm")
-    d.line([(bx0 + 30, by0 + 30), (bx1 - 30, by0 + 30)], fill=redd, width=6)
-    # straps
-    for sx in (ox - 150, ox + 150):
-        d.rounded_rectangle((sx - 22, oy - 1200, sx + 22, oy - 1150), 10, fill=(20, 22, 30, 255))
-    # right hand gripping the parcel
+    # big delivery bag on its own layer: lags the torso, sways and swings
+    bag = Image.new("RGBA", (Wc, Hc), (0, 0, 0, 0))
+    bd = ImageDraw.Draw(bag)
+    bdx = 1.4 * (sway(phi - LAG) - sway(phi)) + 1.0 * sway(phi)
+    bdy = 0.9 * (bob(phi) - bob(phi - LAG))
+    bx0, by0, bx1, by1 = fx - 225 + bdx, oy - 1190 + bdy, fx + 240 + bdx, oy - 690 + bdy
+    bd.polygon([(bx1, by0 + 10), (bx1 + 46, by0 - 20), (bx1 + 46, by1 - 36), (bx1, by1)], fill=redd)
+    bd.polygon([(bx0 + 20, by0), (bx1 - 10, by0), (bx1 + 40, by0 - 26), (bx0 + 70, by0 - 26)], fill=(225, 60, 64, 255))
+    bd.rounded_rectangle((bx0 - 7, by0 - 3, bx1 - 7, by1 - 3), 30, fill=(236, 120, 130, 255))
+    bd.rounded_rectangle((bx0, by0, bx1, by1), 30, fill=red)
+    bd.rectangle((bx0, by0 + 290, bx1, by0 + 360), fill=green)
+    bd.text(((bx0 + bx1) / 2, by0 + 160), "H8KI", font=font("xb", 150), fill=(255, 255, 255, 255), anchor="mm")
+    bd.text(((bx0 + bx1) / 2, by0 + 326), "LOGISTIK LIONINDO", font=font("b", 34), fill=(255, 255, 255, 255), anchor="mm")
+    bd.line([(bx0 + 30, by0 + 30), (bx1 - 30, by0 + 30)], fill=redd, width=6)
+    ang = 3.2 * math.sin(phi - 1.3 * LAG) + 0.35 * sh_tilt
+    bag = bag.rotate(ang, resample=Image.BICUBIC, center=((bx0 + bx1) / 2, by0))
+    im.alpha_composite(bag)
+    d = ImageDraw.Draw(im)
+    for sx, sy in ((ox - 150, shl), (ox + 150, shr)):
+        d.rounded_rectangle((sx - 22, sy - 90, sx + 22, sy - 40), 10, fill=(20, 22, 30, 255))
     d.ellipse((px0 + 170, py0 + 110, px0 + 234, py0 + 170), fill=skin)
     out = im.resize((Wc // 2, Hc // 2), Image.LANCZOS)
     return out, (fx // 2, fy // 2), ((px0 + 120) / 2, (py0 + 85) / 2)
@@ -527,6 +607,28 @@ def make_mist():
 MIST = make_mist()
 
 
+def _dof_mask():
+    ys, xs = np.mgrid[0:H + TILT_PX:4, 0:W:4]
+    m = np.exp(-(((xs - 540) / 330.0) ** 2 + ((ys - HORIZON + 60) / 300.0) ** 2))
+    m = np.clip(m * 1.4, 0, 1).astype(np.float32)
+    return np.asarray(Image.fromarray((m * 255).astype(np.uint8)).resize((W, H + TILT_PX)), np.float32) / 255
+
+
+_DOF = _dof_mask()
+
+
+def DOF_MASK_AT(yoff):
+    """Depth mask: far end of the gang (around the vanishing point) = 1."""
+    y0 = int(TILT_PX - yoff) if yoff < TILT_PX else 0
+    m = _DOF[max(0, int(TILT_PX - (TILT_PX - yoff))):][:H]
+    m = _DOF[int(max(0, TILT_PX - yoff)): int(max(0, TILT_PX - yoff)) + H] if False else np.roll(_DOF, 0, 0)[0:H]
+    shift = int(yoff)
+    out = np.zeros((H, W), np.float32)
+    if shift < H:
+        out[shift:] = _DOF[:H - shift]
+    return out[..., None]
+
+
 def scene3(t):
     arr, info = render_world(t)
     yoff = info["yoff"]
@@ -534,12 +636,23 @@ def scene3(t):
     off = int((t * 40) % W)
     m = MIST[:, off:off + W][..., None]
     arr = arr + m * np.array([70, 76, 120], np.float32) * 0.5
-    # depth of field: soften background before the hero
-    img = to_img(arr).filter(ImageFilter.GaussianBlur(1.3))
-    # courier
-    phi = math.pi * (t - WALK_START - 0.25) / STEP
-    spr, (ax, ay), pk = courier_back(phi, t)
+    # depth of field: far end of the gang (around the vanishing point) goes soft
+    img = to_img(arr)
+    near = np.asarray(img.filter(ImageFilter.GaussianBlur(0.8)), np.float32)
+    far = np.asarray(img.filter(ImageFilter.GaussianBlur(3.6)), np.float32)
+    arr = near * (1 - DOF_MASK_AT(yoff)) + far * DOF_MASK_AT(yoff)
+    img = to_img(arr)
+    # courier, with motion blur (3 sub-frames across a 180-degree shutter)
     k = 1.28
+    subs = []
+    for dt in (-1 / 120, 0.0, 1 / 120):
+        phi = math.pi * (t + dt - WALK_START - 0.25) / STEP
+        spr, (ax, ay), pk = courier_back(phi, t + dt)
+        subs.append(np.asarray(spr, np.float32))
+    stack = np.stack(subs)
+    a = stack[..., 3:4] / 255.0
+    rgb = (stack[..., :3] * a).sum(0) / np.maximum(a.sum(0), 1e-4)
+    spr = Image.fromarray(np.dstack([rgb, a.mean(0)[..., 0] * 255]).clip(0, 255).astype(np.uint8), "RGBA")
     spr = spr.resize((int(spr.width * k), int(spr.height * k)), Image.LANCZOS)
     ax, ay, pk = ax * k, ay * k, (pk[0] * k, pk[1] * k)
     cx, feet = 420, 1650 + yoff   # kept above the Reels caption zone
@@ -548,6 +661,22 @@ def scene3(t):
     glow_add(arr, cx + 10, feet - 8, 190, (-60, -60, -50), 1.0, squash=0.16)
     img = to_img(arr)
     img.paste(spr, (int(cx - ax), int(feet - ay)), spr)
+    # foreground plants slide past the lens, heavily defocused
+    cz = info["cz"]
+    for (bx, bz) in FG_BUSHES:
+        dz = bz - cz
+        if 0.45 < dz < 2.6:
+            sc = 1000.0 / dz
+            w = int(1.25 * sc)
+            if w < 8 or w > 3000:
+                continue
+            sx = 540 + sc * (bx - CAM_X)
+            sy = HORIZON + yoff + sc * CAM_Y
+            b = BUSH.resize((w, w), Image.BILINEAR).filter(ImageFilter.GaussianBlur(min(26, 9 + (2.6 - dz) * 8)))
+            al = min(1.0, (2.6 - dz) / 0.4)
+            if al < 1:
+                b.putalpha(b.getchannel("A").point(lambda v: int(v * al)))
+            img.paste(b, (int(sx - w / 2), int(sy - w)), b)
     arr = to_arr(img)
     # the package is the heart of the mission: warm red glow
     pgx, pgy = cx - ax + pk[0], feet - ay + pk[1]
@@ -564,23 +693,20 @@ def scene3(t):
         draw_chip(img, "Dekat masjid", mx / S, my / S - 40, t, 13.9, 1.7)
     if info.get("tree"):
         tx, ty = info["tree"]
-        draw_chip(img, "Depan pohon mangga", max(220, tx / S), ty / S + 40, t, 16.4, 1.7)
+        draw_chip(img, "Depan pohon mangga", 60, ty / S + 40, t, 16.4, 1.7, anchor="l")
     if info.get("end"):
         ex, ey = info["end"]
         draw_chip(img, "Masuk gang, mentok, belok kiri", 540, ey / S - 20, t, 19.6, 1.8)
-    # story text
-    a1 = ease_io(lin(t, T1[0], T1[0] + 0.6)) * (1 - lin(t, T1[1] - 0.4, T1[1]))
-    draw_text(img, "Kurir kami tidak.", font("xb", 88), 540, 420, (255, 255, 255), a1,
-              0.96 + 0.04 * ease_out(lin(t, T1[0], T1[0] + 1.2)), blur=16)
-    a2 = ease_io(lin(t, T2[0], T2[0] + 0.5)) * (1 - lin(t, T2[1] - 0.4, T2[1]))
-    draw_text(img, "Buat yang kirim, ini order", font("sb", 54), 540, 390, (255, 255, 255), a2, blur=14)
-    a2b = ease_io(lin(t, T2[0] + 0.5, T2[0] + 1.0)) * (1 - lin(t, T2[1] - 0.4, T2[1]))
-    draw_text(img, "yang sudah lama ditunggu.", font("xb", 58), 540, 466, (255, 56, 64), a2b, blur=16)
+    # story text: pull-back, overshoot, settle; eased exits
+    a, sc_, dy = pop(t, T1[0], 0.6, T1[1])
+    draw_text(img, "Kurir kami tidak.", font("xb", 88), 540, 420 + dy, (255, 255, 255), a, sc_, blur=16)
+    a, sc_, dy = pop(t, T2[0], 0.55, T2[1])
+    draw_text(img, "Buat yang kirim, ini order", font("sb", 54), 540, 390 + dy, (255, 255, 255), a, sc_, blur=14)
+    a, sc_, dy = pop(t, T2[0] + 0.45, 0.55, T2[1])
+    draw_text(img, "yang sudah lama ditunggu.", font("xb", 58), 540, 466 + dy, (255, 56, 64), a, sc_, blur=16)
     for k, (txt, y, dt) in enumerate([("Satu paket,", 390, 0.05), ("satu penghasilan.", 480, 1.25)]):
-        tt = T3[0] + dt
-        a = ease_out(lin(t, tt, tt + 0.25)) * (1 - lin(t, T3[1] - 0.4, T3[1]))
-        pulse = 1 + 0.10 * math.exp(-max(0, t - tt) * 6) * (t >= tt)
-        draw_text(img, txt, font("xb", 80), 540, y, (255, 255, 255) if k == 0 else (255, 56, 64), a, pulse, blur=18)
+        a, sc_, dy = pop(t, T3[0] + dt, 0.5, T3[1])
+        draw_text(img, txt, font("xb", 80), 540, y + dy, (255, 255, 255) if k == 0 else (255, 56, 64), a, sc_, blur=18)
     return to_arr(img)
 
 
