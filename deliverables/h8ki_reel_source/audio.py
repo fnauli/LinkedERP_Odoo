@@ -252,7 +252,8 @@ def concrete_step(gain):
 
 for i, ts in enumerate(footsteps_s4()):
     place(night, concrete_step(0.16), ts, pan=-0.3 + 0.1 * i)
-place(night, concrete_step(0.10), LIGHT_T + 0.45, pan=0.0)
+place(night, concrete_step(0.10), STEP_FWD_T, pan=0.0)
+place(night, concrete_step(0.07), REC_OUT[0] + 0.25, pan=0.3)
 
 # whooshes
 for tw, g, dd in [(NIGHT_START, 0.06, 1.8), (S4_START - 0.25, 0.07, 0.6), (S4_END - 0.1, 0.09, 1.0)]:
@@ -276,7 +277,6 @@ crin = np.convolve(crin, np.exp(-np.arange(200) / 30), "same")
 rus = fft_filter(noise(d), 700, 4500) * (0.3 + crin) * np.sin(np.pi * tt / d)
 place(night, rus * 0.10, RUSTLE_T - 0.2)
 tt = T(0.2)
-place(night, np.sin(2 * np.pi * 110 * tt) * env_exp(0.2, 0.04) * 0.25, RUSTLE_T + 0.18)
 
 # doorbell ting-tong
 for i, m in enumerate([76, 72]):

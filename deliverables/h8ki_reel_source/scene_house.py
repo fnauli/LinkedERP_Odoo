@@ -161,6 +161,61 @@ HOUSE_DARK = build_house(False)
 HOUSE_LIT = build_house(True)
 
 
+def draw_parcel(d, P, c, m, k=S):
+    """Branded H8KI parcel centred at scene point c."""
+    pw, ph_ = 0.3 * m, 0.24 * m
+    cx, cy = c
+    d.rounded_rectangle((*P(cx - pw / 2, cy - ph_ / 2), *P(cx + pw / 2, cy + ph_ / 2)), 8 * k, fill=(255, 70, 58, 255))
+    d.rectangle((*P(cx - pw / 2, cy + ph_ * 0.22), *P(cx + pw / 2, cy + ph_ * 0.32)), fill=(0, 150, 72, 255))
+    d.text(P(cx, cy - ph_ * 0.08), "H8KI", font=font("xb", 25 * k), fill=(255, 255, 255, 255), anchor="mm")
+    return c
+
+
+def recipient(img, x, feet, hand_tgts, warm, alpha=1.0, bob=0.0):
+    """Recipient (hijab, long dress) facing left, backlit gold from the doorway."""
+    m = PPM
+    ox, oy = x - 260, feet - 700
+    lay = Image.new("RGBA", (520 * S, 740 * S), (0, 0, 0, 0))
+    d = ImageDraw.Draw(lay)
+    P = lambda px, py: ((px - ox) * S, (py - oy) * S)
+    fy = feet - bob
+    rim = (255, 204, 128, 255)
+    dress, hij, skin = (112, 70, 116, 255), (222, 176, 124, 255), (182, 124, 96, 255)
+    sh = (x - 0.03 * m, fy - 1.26 * m)
+
+    def body(off, cd, ch, cs):
+        o = lambda p: (p[0] + off[0], p[1] + off[1])
+        d.polygon([P(*o((x - 0.24 * m, fy))), P(*o((x + 0.24 * m, fy))), P(*o((x + 0.17 * m, fy - 1.28 * m))),
+                   P(*o((x - 0.17 * m, fy - 1.28 * m)))], fill=cd)
+        d.polygon([P(*o((x - 0.21 * m, fy - 1.12 * m))), P(*o((x + 0.21 * m, fy - 1.12 * m))),
+                   P(*o((x + 0.11 * m, fy - 1.42 * m))), P(*o((x - 0.11 * m, fy - 1.42 * m)))], fill=ch)
+        hc = o((x, fy - 1.45 * m))
+        d.ellipse((*P(hc[0] - 0.125 * m, hc[1] - 0.14 * m), *P(hc[0] + 0.125 * m, hc[1] + 0.12 * m)), fill=ch)
+        if cs:
+            d.ellipse((*P(hc[0] - 0.105 * m, hc[1] - 0.075 * m), *P(hc[0] + 0.01 * m, hc[1] + 0.085 * m)), fill=cs)
+            d.ellipse((*P(hc[0] - 0.07 * m, hc[1] - 0.02 * m), *P(hc[0] - 0.052 * m, hc[1])), fill=(30, 20, 20, 255))
+            d.arc((*P(hc[0] - 0.08 * m, hc[1] + 0.015 * m), *P(hc[0] - 0.035 * m, hc[1] + 0.05 * m)), 20, 160,
+                  fill=(90, 40, 40, 255), width=3 * S)
+
+    body((5, -3), rim, rim, None)
+    body((0, 0), dress, hij, skin)
+    for i, tg in enumerate(hand_tgts or [(x - 0.08 * m, fy - 0.72 * m), (x - 0.02 * m, fy - 0.72 * m)]):
+        s0 = (sh[0] + (0.02 * m if i else 0), sh[1])
+        e, h = ik(s0[0], s0[1], tg[0], tg[1], 0.28 * m, 0.27 * m, bend=-1)
+        col = dress if i == 0 else tuple(int(c * 0.8) for c in dress[:3]) + (255,)
+        for a, b, w in ((s0, e, 30), (e, h, 26)):
+            d.line([P(*a), P(*b)], fill=col, width=w * S)
+            for q in (a, b):
+                q = P(*q)
+                d.ellipse((q[0] - w * S / 2, q[1] - w * S / 2, q[0] + w * S / 2, q[1] + w * S / 2), fill=col)
+        q = P(*h)
+        d.ellipse((q[0] - 15 * S, q[1] - 15 * S, q[0] + 15 * S, q[1] + 15 * S), fill=skin)
+    lay = lay.resize((520, 740), Image.LANCZOS)
+    if alpha < 0.999:
+        lay.putalpha(lay.getchannel("A").point(lambda v: int(v * alpha)))
+    img.paste(lay, (int(ox), int(oy)), lay)
+
+
 def ik(sx, sy, tx, ty, l1, l2, bend=1):
     dx, dy = tx - sx, ty - sy
     dd = min(math.hypot(dx, dy), l1 + l2 - 0.5)
@@ -173,7 +228,7 @@ def ik(sx, sy, tx, ty, l1, l2, bend=1):
     return (ex, ey), (hx, hy)
 
 
-def courier_side(x, phi, walk, bend, reach, carry, warm):
+def courier_side(x, phi, walk, bend, reach, carry, warm, pbox=None, hands=None, nod=0.0):
     """Side view facing right. Returns RGBA canvas (1x) + its top-left and parcel centre if carried."""
     ox, oy = x - 450, 900
     im = Image.new("RGBA", (900 * S, 800 * S), (0, 0, 0, 0))
@@ -208,7 +263,7 @@ def courier_side(x, phi, walk, bend, reach, carry, warm):
             q = P(*p)
             d.ellipse((q[0] - w * S / 2, q[1] - w * S / 2, q[0] + w * S / 2, q[1] + w * S / 2), fill=col)
 
-    lean = math.radians(6 + 60 * bend)
+    lean = math.radians(6 + 60 * bend + 8 * nod)
     tl = 0.55 * m
     sh = (hip[0] + tl * math.sin(lean), hip[1] - tl * math.cos(lean))
     head = (sh[0] + 0.2 * m * math.sin(lean) + 8, sh[1] - 0.2 * m * math.cos(lean))
@@ -229,6 +284,8 @@ def courier_side(x, phi, walk, bend, reach, carry, warm):
         tgt = None
     # far arm
     far_t = tgt if tgt else (sh[0] + 0.12 * m, sh[1] + 0.55 * m)
+    if hands:
+        far_t = hands[1]
     e, h = ik(sh[0] - 6, sh[1] + 6, far_t[0] - 10, far_t[1], 0.3 * m, 0.3 * m, bend=1)
     limb((sh[0] - 6, sh[1] + 6), e, 34, (26, 36, 66, 255))
     limb(e, h, 30, (26, 36, 66, 255))
@@ -283,8 +340,12 @@ def courier_side(x, phi, walk, bend, reach, carry, warm):
         d.rectangle((*P(cx - pw / 2, cy + ph_ * 0.22), *P(cx + pw / 2, cy + ph_ * 0.32)), fill=(0, 150, 72, 255))
         d.text(P(cx, cy - ph_ * 0.08), "H8KI", font=font("xb", 50), fill=(255, 255, 255, 255), anchor="mm")
         pc = (cx, cy)
+    if pbox is not None:
+        pc = draw_parcel(d, P, pbox, m)
     # near arm
-    if reach > 0:
+    if hands and reach <= 0:
+        rt = hands[0]
+    elif reach > 0:
         rt = (sh[0] + (BELL[0] - sh[0]) * reach, sh[1] + 0.5 * m * (1 - reach) + (BELL[1] - sh[1]) * reach)
     else:
         rt = ((pc[0] - 0.12 * m, pc[1] + 0.1 * m) if pc else (tgt[0] + 14, tgt[1])) if tgt else (sh[0] + 0.1 * m, sh[1] + 0.56 * m)
@@ -337,8 +398,6 @@ def open_door(img, t):
             hx, hy = ex + math.sin(wv) * 40 * kf, ey - math.cos(wv) * 80 * kf
             d.line([(sx, sy), (ex, ey), (hx, hy)], fill=col, width=int(30 * kf), joint="curve")
             d.ellipse((hx - 20 * kf, hy - 20 * kf, hx + 20 * kf, hy + 20 * kf), fill=col)
-    figure(-4 * k, rim)
-    figure(0, fig)
     lay = lay.resize(((x1 - x0), (y1 - y0)), Image.LANCZOS)
     # clip to the opening, then draw the door leaves swung inward at the edges
     mask = Image.new("L", lay.size, 0)
@@ -373,45 +432,69 @@ def scene4(t, raw=False):
     img = to_img(arr)
     if t >= DOOR_OPEN_T:
         img = open_door(img, t)
-    # courier choreography
+    # courier choreography: walk in, ring (parcel in hand), hand it over, nod
+    m = PPM
     walk_end_x = 300
+    M = (452, 1188)                                # hand-over point, chest height
+    carry_c = lambda cx: (cx + 172, 1259)
+    nod = 0.0
     if t < WALKIN_END:
         p = lin(t, S4_START, WALKIN_END)
         x = -160 + (walk_end_x + 160) * (1 - (1 - p) ** 1.6)
         phi = math.pi * (t - S4_START - 0.12) / S4_STEP
         pose = dict(walk=1.0 - 0.6 * lin(t, WALKIN_END - 0.35, WALKIN_END), bend=0, reach=0, carry="carry")
-    elif t < PLACE_END:
-        p = lin(t, PLACE_START, PLACE_END)
-        b = math.sin(math.pi * p)
-        x, phi = walk_end_x, 0
-        pose = dict(walk=0, bend=0.85 * b, reach=0, carry="place" if p > 0.2 and p < 0.62 else ("carry" if p <= 0.2 else "none"))
     else:
-        x, phi = walk_end_x, 0
-        r = ease_io(lin(t, BELL_REACH, BELL_T)) * (1 - ease_io(lin(t, BELL_T + 0.25, BELL_T + 0.6)))
-        step_back = ease_io(lin(t, LIGHT_T + 0.3, LIGHT_T + 0.8))
-        x -= 40 * step_back
-        phi = math.pi * 0.5 * step_back
-        pose = dict(walk=0.4 * math.sin(math.pi * step_back), bend=0, reach=r, carry="none")
-    placed = t >= PLACE_START + 0.62 * (PLACE_END - PLACE_START)
+        sf = ease_io(lin(t, *STEP_FWD))
+        back = ease_io(lin(t, GIVE_T + 0.05, NOD[0] + 0.2))
+        x = walk_end_x + 45 * sf - 34 * back
+        phi = math.pi * 0.5 * sf
+        r = ease_io(lin(t, BELL_REACH, BELL_T)) * (1 - ease_io(lin(t, BELL_T + 0.2, BELL_T + 0.5)))
+        off = ease_io(lin(t, *OFFER))
+        pull = ease_io(lin(t, GIVE_T, GIVE_T + 0.4))
+        nod = math.sin(math.pi * lin(t, *NOD)) if NOD[0] < t < NOD[1] else 0.0
+        pose = dict(walk=0.4 * math.sin(math.pi * sf), bend=0, reach=r, carry="none")
+    rx = 585 - 37 * ease_io(lin(t, *REC_OUT)) + 26 * ease_io(lin(t, GIVE_T, GIVE_T + 0.5))
+    rec_on = t >= DOOR_OPEN_T + 0.2
+    if t >= WALKIN_END:
+        cc = carry_c(x)
+        box = (cc[0] + (M[0] - cc[0]) * off, cc[1] + (M[1] - cc[1]) * off)
+        chest = (rx - 0.14 * m, 1222)
+        box = (box[0] + (chest[0] - box[0]) * pull, box[1] + (chest[1] - box[1]) * pull)
+        left = [(box[0] - 0.13 * m, box[1] + 0.05 * m), (box[0] - 0.12 * m, box[1] - 0.06 * m)]
+        rest = [(x + 0.1 * m, 1320), (x + 0.04 * m, 1320)]
+        wd = ease_io(lin(t, GIVE_T + 0.05, GIVE_T + 0.45))
+        hands = [(a[0] + (b[0] - a[0]) * wd, a[1] + (b[1] - a[1]) * wd) for a, b in zip(left, rest)]
+        pose.update(pbox=None if pull > 0 else box, hands=hands, nod=nod)
+        if r > 0:
+            pose["hands"] = [hands[0], hands[1]]
     arr = to_arr(img)
     glow_add(arr, x + 10, GROUND + 6, 110, (-50, -50, -40), 1.0, squash=0.18)
-    if placed:
-        img = to_img(arr)
-        d = ImageDraw.Draw(img)
-        pw, ph = 0.3 * PPM, 0.24 * PPM
-        cx = PKG_POS[0]
-        d.rounded_rectangle((cx - pw / 2, PKG_POS[1] - ph, cx + pw / 2, PKG_POS[1]), 5, fill=(240, 62, 52))
-        d.rectangle((cx - pw / 2, PKG_POS[1] - ph * 0.28, cx + pw / 2, PKG_POS[1] - ph * 0.18), fill=(0, 150, 72))
-        d.text((cx, PKG_POS[1] - ph * 0.58), "H8KI", font=font("xb", 26), fill=(255, 255, 255), anchor="mm")
-        arr = to_arr(img)
     img = to_img(arr)
+    rhands = None
+    if t >= WALKIN_END:
+        tk = ease_io(lin(t, *TAKE))
+        restr = [(rx - 0.08 * m, 1300), (rx - 0.02 * m, 1300)]
+        onbox = [(box[0] + 0.13 * m, box[1] - 0.05 * m), (box[0] + 0.12 * m, box[1] + 0.06 * m)]
+        rhands = [(a[0] + (b[0] - a[0]) * tk, a[1] + (b[1] - a[1]) * tk) for a, b in zip(restr, onbox)]
+        hold = [(box[0] - 0.08 * m, box[1] + 0.11 * m), (box[0] + 0.1 * m, box[1] + 0.1 * m)]
+        rhands = [(a[0] + (b[0] - a[0]) * pull, a[1] + (b[1] - a[1]) * pull) for a, b in zip(rhands, hold)]
+    if rec_on:
+        rbob = 8 * abs(math.sin(math.pi * 2 * lin(t, *REC_OUT))) if REC_OUT[0] < t < REC_OUT[1] else 0
+        recipient(img, rx, TERRACE, rhands, L, ease_io(lin(t, DOOR_OPEN_T + 0.2, DOOR_OPEN_T + 0.5)), rbob)
     spr, (ox, oy), pc = courier_side(x, phi, warm=L, **pose)
     img.paste(spr, (int(ox), int(oy)), spr)
+    if t >= WALKIN_END and pose.get("pbox") is None:
+        # after the hand-over the recipient holds the parcel at her chest
+        d = ImageDraw.Draw(img)
+        draw_parcel(d, lambda px, py: (px, py), box, m, k=1)
+        pc = box
+    if rec_on and rhands and t >= TAKE[0]:
+        d = ImageDraw.Draw(img)
+        for h in rhands[:1]:
+            d.ellipse((h[0] - 15, h[1] - 15, h[0] + 15, h[1] + 15), fill=(182, 124, 96))
     arr = to_arr(img)
-    # parcel glow follows it
-    g = (PKG_POS[0], PKG_POS[1] - 45) if placed else pc
-    if g:
-        glow_add(arr, g[0], g[1], 110, (255, 60, 40), 0.45 * (1 - 0.5 * L))
+    if pc:
+        glow_add(arr, pc[0], pc[1], 110, (255, 60, 40), 0.45 * (1 - 0.4 * L))
     # warm bloom when the light comes on
     if L > 0:
         glow_add(arr, LAMP[0], LAMP[1], 70, (255, 230, 170), 1.3 * L)

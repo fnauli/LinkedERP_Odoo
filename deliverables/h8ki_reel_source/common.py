@@ -52,13 +52,20 @@ T3 = (18.3, 21.3)
 # Scene 4 - delivery
 S4_START = 21.5
 WALKIN_END = 23.0
-PLACE_START, PLACE_END = 23.0, 23.95
-RUSTLE_T = 23.45
-BELL_REACH, BELL_T = 24.0, 24.25
-LIGHT_T = 24.6
-BADGE_T = 25.05
-LINE1_T, LINE2_T = 25.75, 26.35
-DOOR_OPEN_T = 25.15                # recipient opens the door
+# hand-over (same window as before, no added time)
+BELL_REACH, BELL_T = 23.15, 23.4   # rings with the parcel still in hand
+LIGHT_T = 23.85
+DOOR_OPEN_T = 24.25                # recipient opens the door
+REC_OUT = (24.75, 25.3)            # recipient steps out to the gate
+STEP_FWD = (24.7, 25.15)           # courier steps forward
+STEP_FWD_T = 24.95
+OFFER = (24.95, 25.45)             # parcel held out at chest height
+TAKE = (25.15, 25.45)              # recipient's hands reach the box
+GIVE_T = 25.85                     # both hands on the box until here
+RUSTLE_T = 25.5
+NOD = (25.95, 26.6)                # courier's small nod
+BADGE_T = 25.9
+LINE1_T, LINE2_T = 26.35, 26.75
 S4_END = 27.6
 
 # Scene 5 - recap (x -> check) then brand promise
