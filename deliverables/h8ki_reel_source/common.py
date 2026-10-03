@@ -118,6 +118,19 @@ def footsteps_s4():
     return out
 
 
+if REAL:
+    # heel strikes measured from the Kling footage (clips 1-2): the backpack's walking bob, checked frame by
+    # frame against the feet. Clip 3 has no steps (he stands at the gate), only a small weight shift.
+    FOOT_TS = [11.451, 12.058, 12.701, 13.321, 13.879, 14.707, 15.364, 16.042, 16.696, 17.383]
+    SHIFT_T = 18.34
+
+    def footsteps_s3():
+        return list(FOOT_TS)
+
+    def footsteps_s4():
+        return []
+
+
 def clamp(x, a=0.0, b=1.0):
     return a if x < a else b if x > b else x
 

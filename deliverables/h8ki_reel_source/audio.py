@@ -252,8 +252,11 @@ def concrete_step(gain):
 
 for i, ts in enumerate(footsteps_s4()):
     place(night, concrete_step(0.16), ts, pan=-0.3 + 0.1 * i)
-place(night, concrete_step(0.10), STEP_FWD_T, pan=0.0)
-place(night, concrete_step(0.07), REC_OUT[0] + 0.25, pan=0.3)
+if REAL:
+    place(night, concrete_step(0.05), SHIFT_T, pan=-0.1)       # soft scuff as he shifts his weight
+else:
+    place(night, concrete_step(0.10), STEP_FWD_T, pan=0.0)
+    place(night, concrete_step(0.07), REC_OUT[0] + 0.25, pan=0.3)
 
 # whooshes
 for tw, g, dd in [(NIGHT_START, 0.06, 1.8), (S4_START - 0.25, 0.07, 0.6), (S4_END - 0.1, 0.09, 1.0)]:
@@ -331,6 +334,18 @@ def pluck(m, d=3.2, bright=0.45):
 
 
 t0 = g_start
+
+
+def walk_sync(t):
+    """REAL: move a time on the old fixed 0.75 s guitar grid so each beat lands on a measured footfall."""
+    if not REAL or t >= g_start + 10 * e8 * 2:          # the five walking chords (10 beats)
+        return t
+    beats = [FOOT_TS[0] - (FOOT_TS[1] - FOOT_TS[0])] + FOOT_TS + [FOOT_TS[-1] + (FOOT_TS[-1] - FOOT_TS[-2])]
+    b = (t - g_start) / (e8 * 2)                   # beat index on the old grid (a beat = 4 plucks)
+    k = int(np.clip(np.floor(b), 0, len(beats) - 2))
+    return beats[k] + (b - k) * (beats[k + 1] - beats[k])
+
+
 for ci, ch in enumerate(prog3):
     notes = CH[ch]
     for k in range(8):
@@ -341,7 +356,7 @@ for ci, ch in enumerate(prog3):
         g = 0.22 if k == 0 else 0.13
         g *= 0.6 + 0.4 * lin(tt, g_start, 14.0)
         pan = -0.35 + 0.7 * (pattern[k] / 4)
-        place(music, pluck(m), tt + rng.uniform(0, 0.008), g, pan)
+        place(music, pluck(m), walk_sync(tt) + rng.uniform(0, 0.008), g, pan)
 # each chord = 4 eighth-notes-of-16th feel -> chord length:
 chord_len = 8 * e8 / 2          # 1.5 s
 s3_music_end = t0 + len(prog3) * chord_len   # 22.85
@@ -351,7 +366,7 @@ mel = [(14.6, 78, 0.9), (15.35, 76, 0.4), (15.73, 74, 0.8), (16.85, 76, 0.7), (1
        (18.35, 81, 1.2), (19.85, 79, 0.4), (20.23, 78, 0.4), (20.6, 76, 1.0), (21.35, 74, 0.6),
        (22.1, 76, 1.2)]
 for tm, m, _ in mel:
-    place(music, pluck(m, 3.5, 0.7), tm, 0.16, 0.1)
+    place(music, pluck(m, 3.5, 0.7), walk_sync(tm), 0.16, 0.1)
 
 # scene 4: strums + strings swell
 prog4 = [("G", 18.35), ("A", LIGHT_T - 0.1), ("D", 20.9), ("Bm", 22.1), ("G", 23.0), ("D", GIVE_T - 0.05), ("Bm", 26.1), ("G", 27.0), ("A", 27.9), ("D", CHIME_T - 0.05)] if REAL else [("G", 21.35), ("A", 22.85), ("D", LIGHT_T - 0.1), ("Bm", 26.1), ("G", 27.1), ("A", 28.45), ("D", CHIME_T - 0.05)]
