@@ -415,13 +415,22 @@ else:
 
 # recap: each X->check flip gets a rising pluck + tick, then a success ding
 for k, tf in enumerate(FLIP_TS):
-    place(fx_bright, pluck([74, 76, 78, 81, 83][k], 2.0, 0.8) * 0.22, tf, pan=-0.4 + 0.2 * k)
+    flip_notes = [76, 78, 80, 83, 85] if REAL else [74, 76, 78, 81, 83]   # REAL: the motif, in E
+    place(fx_bright, pluck(flip_notes[k], 2.0, 0.8) * 0.22, tf, pan=-0.4 + 0.2 * k)
     d = 0.02
     place(night, fft_filter(noise(d), 2500, 9000) * env_exp(d, 0.004) * 0.25, tf)
-place(fx_bright, ding * 0.12, RECAP_OK)
+if REAL:                                                       # F#6: a chord tone of the B chord under KETEMU
+    d = 1.6
+    tt = T(d)
+    f = 1479.98
+    ding_ok = (np.sin(2 * np.pi * f * tt) + 0.5 * np.sin(2 * np.pi * 2 * f * tt) * np.exp(-tt * 5)
+               + 0.25 * np.sin(2 * np.pi * 3 * f * tt) * np.exp(-tt * 9)) * env_exp(d, 0.45, 0.002)
+    place(fx_bright, ding_ok * 0.11, RECAP_OK)
+else:
+    place(fx_bright, ding * 0.12, RECAP_OK)
 
 # brand chime: two-note harmonic (A5 -> E6), bell-clean
-for i, m in enumerate([81, 88]):
+for i, m in enumerate([83, 88] if REAL else [81, 88]):        # REAL: B5 -> E6 resolves the E-major ending
     d = 3.0
     tt = T(d)
     f = midi(m)
