@@ -5,6 +5,6 @@
 | 1 | Courier, front 3/4 | Option 2 of 3 (both hands on parcel, youngest face, clean white label) | 01_courier_front_PICK.webp | ✅ chosen |
 | 2 | Courier, back view | Option 2 of 3 (natural mid-stride, centred bag, tall white label, parcel in right hand) | 02_courier_back_PICK.webp | ✅ chosen |
 | 3 | Courier at the house (3/4 view – Kling did not give a true profile) | Option 3 of 3 (green house + black iron gate between green pillars, closest to the v8 house; also the house reference for Stage 2) | 03_courier_house_threequarter_PICK.webp | ✅ chosen (optional: regenerate a true side profile) |
-| 4 | Recipient | – | – | ⏳ pending |
+| 4 | Recipient | Option 3 of 3 (clear face, warm smile, beige hijab + plum dress, green house + iron gate) | 04_recipient_PICK.webp | ✅ chosen |
 
 Notes: crop the "KlingAI 3.0" watermark (bottom-right) before using any pick as a reference or element image.
