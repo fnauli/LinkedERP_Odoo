@@ -14,6 +14,6 @@ Notes: crop the "KlingAI 3.0" watermark (bottom-right) before using any pick as 
 | Shot | Pick | File | Status |
 |---|---|---|---|
 | SF1 establishing | Option 2 of 3 (wide, courier small in frame, glowing mosque far away, fog + receding lamps, cat on right – best depth, room for push-in) | SF1_establishing_PICK.webp | ✅ chosen |
-| SF2 tracking | Option 2 so far (natural mango tree, two moths at the lamp) – waiting for option 3 | SF2_tracking_PICK_provisional.webp | ⏳ provisional |
-| SF3 arrival | – | – | ⏳ pending |
-| SF4 handover | – | – | ⏳ pending |
+| SF2 tracking | Option 2 of 3 (natural mango tree, two moths at the lamp; option 3 had a swarm of oversized insects) | SF2_tracking_PICK.webp | ✅ chosen |
+| SF3 arrival | Option 2 of 3 (three-quarter profile facing right, presses bell, parcel visible, warung shutter on right; matches SF4 screen direction. Option 1 had garbled sign text) | SF3_arrival_PICK.webp | ✅ chosen (porch lamp already on – adjust motion prompt) |
+| SF4 handover | Option 1 so far (both hands on the box, both smiling, gate + door + lamp) – waiting for options 2-3 | SF4_handover_PICK_provisional.webp | ⏳ provisional |
