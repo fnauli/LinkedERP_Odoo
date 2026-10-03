@@ -55,7 +55,12 @@ def _canon(clip):
     return _canon_cache[clip]
 
 
+NO_LOGO = {4}   # clip 4 take 2: only a sliver of the bag label is in frame, so no partial logo
+
+
 def apply(frame, clip, idx, strength=1.0):
+    if clip in NO_LOGO:
+        return frame
     d = _L[str(clip)]
     idx = max(0, min(idx, len(d["quads"]) - 1))
     q = np.array(d["quads"][idx], np.float32)

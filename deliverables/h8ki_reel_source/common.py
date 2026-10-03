@@ -87,7 +87,7 @@ if REAL:
     # Source offsets were chosen so his footfalls, the house light and the handover land on beats;
     # the graphics (badge, recap, flips, logo) are placed on the same grid.
     BEAT, GRID_A = 0.625, 11.19
-    CLIPS = {1: (10.9, 14.4, 0.82), 2: (14.4, 17.6, 0.625), 3: (17.6, 22.1, 0.185), 4: (22.1, 26.19, 0.41)}
+    CLIPS = {1: (10.9, 14.4, 0.82), 2: (14.4, 17.6, 0.625), 3: (17.6, 22.1, 0.185), 4: (22.1, 26.19, 0.51)}   # clip 4 = take 2 (fixed face): release at src 2.1 s -> beat 20
     NIGHT_START, WALK_START, S3_END = 10.9, 10.9, 17.6
     T1, T2, T3 = (11.5, 14.3), (14.94, 17.5), (19.94, 22.0)
     S4_START = WALKIN_END = 17.6
