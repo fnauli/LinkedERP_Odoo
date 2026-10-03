@@ -8,3 +8,12 @@
 | 4 | Recipient | Option 3 of 3 (clear face, warm smile, beige hijab + plum dress, green house + iron gate) | 04_recipient_PICK.webp | ✅ chosen |
 
 Notes: crop the "KlingAI 3.0" watermark (bottom-right) before using any pick as a reference or element image.
+
+# Stage 2 – start frames (running list)
+
+| Shot | Pick | File | Status |
+|---|---|---|---|
+| SF1 establishing | Option 2 of 3 (wide, courier small in frame, glowing mosque far away, fog + receding lamps, cat on right – best depth, room for push-in) | SF1_establishing_PICK.webp | ✅ chosen |
+| SF2 tracking | Option 2 so far (natural mango tree, two moths at the lamp) – waiting for option 3 | SF2_tracking_PICK_provisional.webp | ⏳ provisional |
+| SF3 arrival | – | – | ⏳ pending |
+| SF4 handover | – | – | ⏳ pending |
