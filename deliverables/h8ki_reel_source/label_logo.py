@@ -66,10 +66,13 @@ def apply(frame, clip, idx, strength=1.0):
     closed = cv2.morphologyEx(roi, cv2.MORPH_CLOSE, k)            # fabric with dark strokes filled in
     gc = cv2.cvtColor(closed, cv2.COLOR_RGB2GRAY)
     marks = ((gc.astype(np.int16) - g.astype(np.int16)) > 8) & (inner > 0)
+    from track_outline import label_mask as _lm
+    real = _lm(cv2.cvtColor(frame, cv2.COLOR_RGB2BGR), clip)
+    if real is not None:                                           # print only inside the label's own outline
+        real = cv2.erode(real[y:y2, x:x2], np.ones((3, 3), np.uint8))
+        if real.sum() > 0.6 * (mroi > 0).sum():
+            inner = real
     if clip in FULL_CLEAN:                                         # AI drew letters here: rebuild the label
-        from track_clip1 import label_mask as _lm
-        real = _lm(cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))[y:y2, x:x2]
-        inner = cv2.erode(real, np.ones((3, 3), np.uint8))           # exactly the label's own shape
         rng = np.random.default_rng(idx * 7 + clip)
         gi = g[inner > 0].astype(np.float32)
         med = np.median(gi)
@@ -100,7 +103,7 @@ def apply(frame, clip, idx, strength=1.0):
     M = cv2.getPerspectiveTransform(src, q - np.array([x, y], np.float32))
     warped = cv2.warpPerspective(m, M, (x2 - x, y2 - y), flags=cv2.INTER_AREA, borderValue=(1, 1, 1))
     warped = cv2.GaussianBlur(warped, (0, 0), 0.9)          # match the footage's softness
-    pm = inner if clip in FULL_CLEAN else (mroi > 0)
+    pm = inner
     feather = cv2.GaussianBlur(pm.astype(np.float32), (0, 0), 1.2)[..., None] * strength
     printed = roi.astype(np.float32) * warped
     base = frame[y:y2, x:x2].astype(np.float32)
