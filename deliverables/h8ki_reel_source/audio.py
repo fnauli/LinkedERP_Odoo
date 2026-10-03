@@ -308,107 +308,110 @@ ding = (np.sin(2 * np.pi * 1318.5 * tt) + 0.5 * np.sin(2 * np.pi * 2637 * tt) * 
 place(fx_bright, ding * 0.13, BADGE_T)
 place(fx_bright, np.sin(2 * np.pi * 1760 * tt) * env_exp(d, 0.35, 0.002) * 0.07, BADGE_T + 0.09)
 
-# ---------------- Music: acoustic guitar + strings
-beat = 0.75   # 80 bpm
-e8 = beat / 2
-CH = {
-    "D": [50, 57, 62, 66, 69],
-    "A/C#": [49, 57, 64, 69, 73],
-    "Bm": [47, 54, 59, 62, 66],
-    "G": [43, 50, 55, 59, 62],
-    "A": [45, 52, 57, 61, 64],
-    "Asus": [45, 52, 57, 62, 64],
-    "Em": [40, 47, 52, 55, 59],
-}
-prog3 = ["D", "A/C#", "Bm", "G", "D"] if REAL else ["D", "A/C#", "Bm", "G", "D", "A/C#", "Asus"]
-pattern = [0, 1, 2, 3, 4, 3, 2, 1]
-g_start = 10.85
-cache = {}
+if REAL:
+    exec(open("score_real.py").read())
+else:
+    # ---------------- Music: acoustic guitar + strings
+    beat = 0.75   # 80 bpm
+    e8 = beat / 2
+    CH = {
+        "D": [50, 57, 62, 66, 69],
+        "A/C#": [49, 57, 64, 69, 73],
+        "Bm": [47, 54, 59, 62, 66],
+        "G": [43, 50, 55, 59, 62],
+        "A": [45, 52, 57, 61, 64],
+        "Asus": [45, 52, 57, 62, 64],
+        "Em": [40, 47, 52, 55, 59],
+    }
+    prog3 = ["D", "A/C#", "Bm", "G", "D"] if REAL else ["D", "A/C#", "Bm", "G", "D", "A/C#", "Asus"]
+    pattern = [0, 1, 2, 3, 4, 3, 2, 1]
+    g_start = 10.85
+    cache = {}
 
 
-def pluck(m, d=3.2, bright=0.45):
-    key = (m, d, bright)
-    if key not in cache:
-        cache[key] = karplus(midi(m), d, bright)
-    return cache[key]
+    def pluck(m, d=3.2, bright=0.45):
+        key = (m, d, bright)
+        if key not in cache:
+            cache[key] = karplus(midi(m), d, bright)
+        return cache[key]
 
 
-t0 = g_start
+    t0 = g_start
 
 
-def walk_sync(t):
-    """REAL: move a time on the old fixed 0.75 s guitar grid so each beat lands on a measured footfall."""
-    if not REAL or t >= g_start + 10 * e8 * 2:          # the five walking chords (10 beats)
-        return t
-    beats = [FOOT_TS[0] - (FOOT_TS[1] - FOOT_TS[0])] + FOOT_TS + [FOOT_TS[-1] + (FOOT_TS[-1] - FOOT_TS[-2])]
-    b = (t - g_start) / (e8 * 2)                   # beat index on the old grid (a beat = 4 plucks)
-    k = int(np.clip(np.floor(b), 0, len(beats) - 2))
-    return beats[k] + (b - k) * (beats[k + 1] - beats[k])
+    def walk_sync(t):
+        """REAL: move a time on the old fixed 0.75 s guitar grid so each beat lands on a measured footfall."""
+        if not REAL or t >= g_start + 10 * e8 * 2:          # the five walking chords (10 beats)
+            return t
+        beats = [FOOT_TS[0] - (FOOT_TS[1] - FOOT_TS[0])] + FOOT_TS + [FOOT_TS[-1] + (FOOT_TS[-1] - FOOT_TS[-2])]
+        b = (t - g_start) / (e8 * 2)                   # beat index on the old grid (a beat = 4 plucks)
+        k = int(np.clip(np.floor(b), 0, len(beats) - 2))
+        return beats[k] + (b - k) * (beats[k + 1] - beats[k])
 
 
-for ci, ch in enumerate(prog3):
-    notes = CH[ch]
-    for k in range(8):
-        tt = t0 + ci * 8 * e8 / 2 + k * e8 / 2
-        if ci == 0 and k % 2 == 1:
-            continue  # sparse entry
-        m = notes[pattern[k]]
-        g = 0.22 if k == 0 else 0.13
-        g *= 0.6 + 0.4 * lin(tt, g_start, 14.0)
-        pan = -0.35 + 0.7 * (pattern[k] / 4)
-        place(music, pluck(m), walk_sync(tt) + rng.uniform(0, 0.008), g, pan)
-# each chord = 4 eighth-notes-of-16th feel -> chord length:
-chord_len = 8 * e8 / 2          # 1.5 s
-s3_music_end = t0 + len(prog3) * chord_len   # 22.85
+    for ci, ch in enumerate(prog3):
+        notes = CH[ch]
+        for k in range(8):
+            tt = t0 + ci * 8 * e8 / 2 + k * e8 / 2
+            if ci == 0 and k % 2 == 1:
+                continue  # sparse entry
+            m = notes[pattern[k]]
+            g = 0.22 if k == 0 else 0.13
+            g *= 0.6 + 0.4 * lin(tt, g_start, 14.0)
+            pan = -0.35 + 0.7 * (pattern[k] / 4)
+            place(music, pluck(m), walk_sync(tt) + rng.uniform(0, 0.008), g, pan)
+    # each chord = 4 eighth-notes-of-16th feel -> chord length:
+    chord_len = 8 * e8 / 2          # 1.5 s
+    s3_music_end = t0 + len(prog3) * chord_len   # 22.85
 
-# melody (enters with the second phrase)
-mel = [(14.6, 78, 0.9), (15.35, 76, 0.4), (15.73, 74, 0.8), (16.85, 76, 0.7), (17.6, 78, 0.8),
-       (18.35, 81, 1.2), (19.85, 79, 0.4), (20.23, 78, 0.4), (20.6, 76, 1.0), (21.35, 74, 0.6),
-       (22.1, 76, 1.2)]
-for tm, m, _ in mel:
-    place(music, pluck(m, 3.5, 0.7), walk_sync(tm), 0.16, 0.1)
+    # melody (enters with the second phrase)
+    mel = [(14.6, 78, 0.9), (15.35, 76, 0.4), (15.73, 74, 0.8), (16.85, 76, 0.7), (17.6, 78, 0.8),
+           (18.35, 81, 1.2), (19.85, 79, 0.4), (20.23, 78, 0.4), (20.6, 76, 1.0), (21.35, 74, 0.6),
+           (22.1, 76, 1.2)]
+    for tm, m, _ in mel:
+        place(music, pluck(m, 3.5, 0.7), walk_sync(tm), 0.16, 0.1)
 
-# scene 4: strums + strings swell
-prog4 = [("G", 18.35), ("A", LIGHT_T - 0.1), ("D", 20.9), ("Bm", 22.1), ("G", 23.0), ("D", GIVE_T - 0.05), ("Bm", 26.1), ("G", 27.0), ("A", 27.9), ("D", CHIME_T - 0.05)] if REAL else [("G", 21.35), ("A", 22.85), ("D", LIGHT_T - 0.1), ("Bm", 26.1), ("G", 27.1), ("A", 28.45), ("D", CHIME_T - 0.05)]
-for idx, (ch, ts) in enumerate(prog4):
-    nxt = prog4[idx + 1][1] if idx + 1 < len(prog4) else DUR
-    b = ts
-    while b < nxt - 0.05 and b < DUR - 1.5:
-        for s, m in enumerate(CH[ch]):
-            place(music, pluck(m, 3.0, 0.55), b + s * 0.014, 0.10 if b == ts else 0.065, -0.4 + s * 0.2)
-        b += beat if ch != "D" or idx != len(prog4) - 1 else 99
+    # scene 4: strums + strings swell
+    prog4 = [("G", 18.35), ("A", LIGHT_T - 0.1), ("D", 20.9), ("Bm", 22.1), ("G", 23.0), ("D", GIVE_T - 0.05), ("Bm", 26.1), ("G", 27.0), ("A", 27.9), ("D", CHIME_T - 0.05)] if REAL else [("G", 21.35), ("A", 22.85), ("D", LIGHT_T - 0.1), ("Bm", 26.1), ("G", 27.1), ("A", 28.45), ("D", CHIME_T - 0.05)]
+    for idx, (ch, ts) in enumerate(prog4):
+        nxt = prog4[idx + 1][1] if idx + 1 < len(prog4) else DUR
+        b = ts
+        while b < nxt - 0.05 and b < DUR - 1.5:
+            for s, m in enumerate(CH[ch]):
+                place(music, pluck(m, 3.0, 0.55), b + s * 0.014, 0.10 if b == ts else 0.065, -0.4 + s * 0.2)
+            b += beat if ch != "D" or idx != len(prog4) - 1 else 99
 
-strings = buf()
-for idx, (ch, ts) in enumerate(prog4):
-    nxt = prog4[idx + 1][1] if idx + 1 < len(prog4) else DUR
-    d = nxt - ts + 0.6
-    tt = T(d)
-    s = np.zeros(len(tt))
-    for m in CH[ch][1:]:
-        f = midi(m + 12 if m < 52 else m)
-        for det in (-0.12, 0.0, 0.11):
-            s += saw(f * 2 ** (det / 12), tt + rng.random())
-    s = fft_filter(s, 150, 1800)
-    att = np.clip(tt / 0.9, 0, 1)
-    rel = np.clip((d - tt) / 0.6, 0, 1)
-    vib = 1 + 0.08 * np.sin(2 * np.pi * 5 * tt)
-    swell = 0.5 + 0.5 * (lin(ts, 17.6, LIGHT_T) if REAL else lin(ts, 21.3, LIGHT_T))
-    place(strings, s * att * rel * vib * 0.012 * swell, ts, pan=(-0.2 if idx % 2 else 0.2))
-music += strings
+    strings = buf()
+    for idx, (ch, ts) in enumerate(prog4):
+        nxt = prog4[idx + 1][1] if idx + 1 < len(prog4) else DUR
+        d = nxt - ts + 0.6
+        tt = T(d)
+        s = np.zeros(len(tt))
+        for m in CH[ch][1:]:
+            f = midi(m + 12 if m < 52 else m)
+            for det in (-0.12, 0.0, 0.11):
+                s += saw(f * 2 ** (det / 12), tt + rng.random())
+        s = fft_filter(s, 150, 1800)
+        att = np.clip(tt / 0.9, 0, 1)
+        rel = np.clip((d - tt) / 0.6, 0, 1)
+        vib = 1 + 0.08 * np.sin(2 * np.pi * 5 * tt)
+        swell = 0.5 + 0.5 * (lin(ts, 17.6, LIGHT_T) if REAL else lin(ts, 21.3, LIGHT_T))
+        place(strings, s * att * rel * vib * 0.012 * swell, ts, pan=(-0.2 if idx % 2 else 0.2))
+    music += strings
 
-# subtle uplifting beat after the light turns on
-t = LIGHT_T - 0.1
-k = 0
-while t < CHIME_T - 0.2:
-    if k % 2 == 0:
-        tt = T(0.35)
-        kick = np.sin(2 * np.pi * (50 + 70 * np.exp(-tt * 35)) * tt) * env_exp(0.35, 0.1)
-        place(music, kick * 0.22, t)
-    d = 0.06
-    sh = fft_filter(noise(d), 5000, 12000) * np.sin(np.pi * T(d) / d)
-    place(music, sh * 0.04, t + e8 / 2, pan=0.3)
-    t += e8
-    k += 1
+    # subtle uplifting beat after the light turns on
+    t = LIGHT_T - 0.1
+    k = 0
+    while t < CHIME_T - 0.2:
+        if k % 2 == 0:
+            tt = T(0.35)
+            kick = np.sin(2 * np.pi * (50 + 70 * np.exp(-tt * 35)) * tt) * env_exp(0.35, 0.1)
+            place(music, kick * 0.22, t)
+        d = 0.06
+        sh = fft_filter(noise(d), 5000, 12000) * np.sin(np.pi * T(d) / d)
+        place(music, sh * 0.04, t + e8 / 2, pan=0.3)
+        t += e8
+        k += 1
 
 # recap: each X->check flip gets a rising pluck + tick, then a success ding
 for k, tf in enumerate(FLIP_TS):
