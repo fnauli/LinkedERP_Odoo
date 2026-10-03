@@ -67,6 +67,9 @@ def apply(frame, clip, idx, strength=1.0):
     gc = cv2.cvtColor(closed, cv2.COLOR_RGB2GRAY)
     marks = ((gc.astype(np.int16) - g.astype(np.int16)) > 8) & (inner > 0)
     if clip in FULL_CLEAN:                                         # AI drew letters here: rebuild the label
+        from track_clip1 import label_mask as _lm
+        real = _lm(cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))[y:y2, x:x2]
+        inner = cv2.erode(real, np.ones((3, 3), np.uint8))           # exactly the label's own shape
         rng = np.random.default_rng(idx * 7 + clip)
         gi = g[inner > 0].astype(np.float32)
         med = np.median(gi)
@@ -79,8 +82,8 @@ def apply(frame, clip, idx, strength=1.0):
         for ch in range(3):                                         # smooth lighting gradient of the fabric
             coef, *_ = np.linalg.lstsq(A, roi[yy, xx, ch].astype(np.float32), rcond=None)
             fabric[..., ch] = G @ coef
-        fabric += rng.normal(0, 2.8, fabric.shape[:2])[..., None]
-        mk = cv2.GaussianBlur(inner.astype(np.float32), (0, 0), 1.5)[..., None]
+        fabric += rng.normal(0, 2.2, fabric.shape[:2])[..., None]   # footage-like grain
+        mk = cv2.GaussianBlur(inner.astype(np.float32), (0, 0), 1.0)[..., None]
         roi = np.clip(roi * (1 - mk) + fabric * mk, 0, 255).astype(np.uint8)
     elif marks.any():
         mk = cv2.GaussianBlur(cv2.dilate(marks.astype(np.uint8) * 255, np.ones((5, 5), np.uint8)).astype(np.float32) / 255,
@@ -97,7 +100,8 @@ def apply(frame, clip, idx, strength=1.0):
     M = cv2.getPerspectiveTransform(src, q - np.array([x, y], np.float32))
     warped = cv2.warpPerspective(m, M, (x2 - x, y2 - y), flags=cv2.INTER_AREA, borderValue=(1, 1, 1))
     warped = cv2.GaussianBlur(warped, (0, 0), 0.9)          # match the footage's softness
-    feather = cv2.GaussianBlur((mroi > 0).astype(np.float32), (0, 0), 1.5)[..., None] * strength
+    pm = inner if clip in FULL_CLEAN else (mroi > 0)
+    feather = cv2.GaussianBlur(pm.astype(np.float32), (0, 0), 1.2)[..., None] * strength
     printed = roi.astype(np.float32) * warped
     base = frame[y:y2, x:x2].astype(np.float32)
     out = base * (1 - feather) + printed * feather
