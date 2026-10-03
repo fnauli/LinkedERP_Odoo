@@ -22,7 +22,7 @@ Notes: crop the "KlingAI 3.0" watermark (bottom-right) before using any pick as 
 
 | Clip | Start frame | Elements | Status |
 |---|---|---|---|
-| 1 | SF1_establishing_PICK | KURIR REAL | ⏳ |
+| 1 | SF1_establishing_PICK | KURIR REAL | ✅ take 1 keeper (garbled letters appear on bag label from ~2 s – covered by H8KI logo in post) |
 | 2 | SF2_tracking_PICK | KURIR REAL | ⏳ |
 | 3 | SF3_arrival_PICK | KURIR REAL | ⏳ |
 | 4 | SF4_handover_PICK | KURIR REAL + WARGA | ✅ take 1, clean (no watermark), use 0–3.5 s |
