@@ -77,6 +77,27 @@ CHIME_T = 30.2
 TAG_T = 30.65
 
 
+# ---------------------------------------------------------------- REAL (Kling live-action) cut
+import os
+REAL = os.environ.get("REAL") == "1"
+if REAL:
+    # four Kling clips replace the drawn night + delivery scenes: (film start, film end, source offset)
+    CLIPS = {1: (10.9, 14.4, 0.6), 2: (14.4, 17.6, 0.8), 3: (17.6, 22.1, 0.3), 4: (22.1, 26.1, 0.2)}
+    NIGHT_START, WALK_START, S3_END = 10.9, 10.9, 17.6
+    T1, T2, T3 = (11.4, 14.3), (14.6, 17.5), (19.7, 22.0)
+    S4_START = WALKIN_END = 17.6
+    BELL_REACH, BELL_T = 17.55, 17.7
+    STEP_FWD_T, REC_OUT = 18.8, (18.9, 19.0)
+    LIGHT_T, DOOR_OPEN_T = 19.2, 19.7
+    GIVE_T, RUSTLE_T, BADGE_T = 23.9, 23.6, 24.0
+    LINE1_T, LINE2_T = 24.6, 25.1
+    S4_END = RECAP_T = 26.1
+    FLIP_TS = [26.5 + 0.2 * k for k in range(5)]
+    RECAP_OK = 27.55
+    LOGO_T, CHIME_T, TAG_T = 28.6, 28.7, 29.15
+    DUR = 30.8
+
+
 def footsteps_s3():
     t, out = WALK_START + 0.25, []
     while t < S3_END - 0.05:

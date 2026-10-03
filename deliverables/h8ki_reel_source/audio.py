@@ -317,7 +317,7 @@ CH = {
     "Asus": [45, 52, 57, 62, 64],
     "Em": [40, 47, 52, 55, 59],
 }
-prog3 = ["D", "A/C#", "Bm", "G", "D", "A/C#", "Asus"]
+prog3 = ["D", "A/C#", "Bm", "G", "D"] if REAL else ["D", "A/C#", "Bm", "G", "D", "A/C#", "Asus"]
 pattern = [0, 1, 2, 3, 4, 3, 2, 1]
 g_start = 10.85
 cache = {}
@@ -354,7 +354,7 @@ for tm, m, _ in mel:
     place(music, pluck(m, 3.5, 0.7), tm, 0.16, 0.1)
 
 # scene 4: strums + strings swell
-prog4 = [("G", 21.35), ("A", 22.85), ("D", LIGHT_T - 0.1), ("Bm", 26.1), ("G", 27.1), ("A", 28.45), ("D", CHIME_T - 0.05)]
+prog4 = [("G", 18.35), ("A", LIGHT_T - 0.1), ("D", 20.9), ("Bm", 22.1), ("G", 23.0), ("D", GIVE_T - 0.05), ("Bm", 26.1), ("G", 27.0), ("A", 27.9), ("D", CHIME_T - 0.05)] if REAL else [("G", 21.35), ("A", 22.85), ("D", LIGHT_T - 0.1), ("Bm", 26.1), ("G", 27.1), ("A", 28.45), ("D", CHIME_T - 0.05)]
 for idx, (ch, ts) in enumerate(prog4):
     nxt = prog4[idx + 1][1] if idx + 1 < len(prog4) else DUR
     b = ts
@@ -377,7 +377,7 @@ for idx, (ch, ts) in enumerate(prog4):
     att = np.clip(tt / 0.9, 0, 1)
     rel = np.clip((d - tt) / 0.6, 0, 1)
     vib = 1 + 0.08 * np.sin(2 * np.pi * 5 * tt)
-    swell = 0.5 + 0.5 * lin(ts, 21.3, LIGHT_T)
+    swell = 0.5 + 0.5 * (lin(ts, 17.6, LIGHT_T) if REAL else lin(ts, 21.3, LIGHT_T))
     place(strings, s * att * rel * vib * 0.012 * swell, ts, pan=(-0.2 if idx % 2 else 0.2))
 music += strings
 
@@ -448,7 +448,7 @@ h = h / np.max(np.abs(h)) * 0.85
 h[-300:] *= np.linspace(1, 0.3, 300)
 mix = np.concatenate([np.stack([h, h], 1), mix])
 pcm = (mix * 32767).astype(np.int16)
-with wave.open("audio.wav", "wb") as w:
+with wave.open("audio_real.wav" if REAL else "audio.wav", "wb") as w:
     w.setnchannels(2)
     w.setsampwidth(2)
     w.setframerate(SR)
