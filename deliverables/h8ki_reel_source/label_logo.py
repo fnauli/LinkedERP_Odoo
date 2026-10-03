@@ -43,6 +43,18 @@ def ink(w, h):
     return m
 
 
+_canon_cache = {}
+
+
+def _canon(clip):
+    if clip not in _canon_cache:
+        Q = np.array(_L[str(clip)]["quads"], np.float32)
+        w = np.maximum(np.linalg.norm(Q[:, 1] - Q[:, 0], axis=1), np.linalg.norm(Q[:, 2] - Q[:, 3], axis=1))
+        h = np.maximum(np.linalg.norm(Q[:, 3] - Q[:, 0], axis=1), np.linalg.norm(Q[:, 2] - Q[:, 1], axis=1))
+        _canon_cache[clip] = (np.percentile(w, 90), np.median(h))
+    return _canon_cache[clip]
+
+
 def apply(frame, clip, idx, strength=1.0):
     d = _L[str(clip)]
     idx = max(0, min(idx, len(d["quads"]) - 1))
@@ -94,10 +106,9 @@ def apply(frame, clip, idx, strength=1.0):
         smooth_fabric = cv2.GaussianBlur(closed, (0, 0), 3.0).astype(np.float32)
         grain = (roi.astype(np.float32) - cv2.GaussianBlur(roi, (0, 0), 1.0).astype(np.float32)) * 0.6
         roi = np.clip(roi * (1 - mk) + (smooth_fabric + grain) * mk, 0, 255).astype(np.uint8)
-    # ink map warped into the frame
-    w = max(np.linalg.norm(q[1] - q[0]), np.linalg.norm(q[2] - q[3]))
-    h = max(np.linalg.norm(q[3] - q[0]), np.linalg.norm(q[2] - q[1]))
-    m = ink(w, h)
+    # ink map warped into the frame: one fixed print per clip (the label's front-on size), so turning
+    # the bag only foreshortens it like real ink, instead of the logo shrinking and re-laying out
+    m = ink(*_canon(clip))
     th, tw = m.shape[:2]
     src = np.array([[0, 0], [tw, 0], [tw, th], [0, th]], np.float32)
     M = cv2.getPerspectiveTransform(src, q - np.array([x, y], np.float32))
@@ -111,3 +122,4 @@ def apply(frame, clip, idx, strength=1.0):
     res = frame.copy()
     res[y:y2, x:x2] = np.clip(out, 0, 255).astype(np.uint8)
     return res
+
