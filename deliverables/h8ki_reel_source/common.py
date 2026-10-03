@@ -81,6 +81,7 @@ TAG_T = 30.65
 import os
 REAL = os.environ.get("REAL") == "1"
 if REAL:
+    FPS = 24                     # native frame rate of the Kling footage: no 24->30 judder
     # four Kling clips replace the drawn night + delivery scenes: (film start, film end, source offset)
     CLIPS = {1: (10.9, 14.4, 0.6), 2: (14.4, 17.6, 0.8), 3: (17.6, 22.1, 0.3), 4: (22.1, 26.1, 0.2)}
     NIGHT_START, WALK_START, S3_END = 10.9, 10.9, 17.6
