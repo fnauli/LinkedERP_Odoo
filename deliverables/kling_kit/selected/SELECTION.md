@@ -25,4 +25,4 @@ Notes: crop the "KlingAI 3.0" watermark (bottom-right) before using any pick as 
 | 1 | SF1_establishing_PICK | KURIR REAL | ⏳ |
 | 2 | SF2_tracking_PICK | KURIR REAL | ⏳ |
 | 3 | SF3_arrival_PICK | KURIR REAL | ⏳ |
-| 4 | SF4_handover_PICK | KURIR REAL + WARGA | ⏳ |
+| 4 | SF4_handover_PICK | KURIR REAL + WARGA | ✅ take 1 usable (0–3.5 s); has KlingAI watermark – re-download without watermark if possible |
