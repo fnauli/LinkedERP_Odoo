@@ -16,4 +16,13 @@ Notes: crop the "KlingAI 3.0" watermark (bottom-right) before using any pick as 
 | SF1 establishing | Option 2 of 3 (wide, courier small in frame, glowing mosque far away, fog + receding lamps, cat on right – best depth, room for push-in) | SF1_establishing_PICK.webp | ✅ chosen |
 | SF2 tracking | Option 2 of 3 (natural mango tree, two moths at the lamp; option 3 had a swarm of oversized insects) | SF2_tracking_PICK.webp | ✅ chosen |
 | SF3 arrival | Option 2 of 3 (three-quarter profile facing right, presses bell, parcel visible, warung shutter on right; matches SF4 screen direction. Option 1 had garbled sign text) | SF3_arrival_PICK.webp | ✅ chosen (porch lamp already on – adjust motion prompt) |
-| SF4 handover | Option 1 so far (both hands on the box, both smiling, gate + door + lamp) – waiting for options 2-3 | SF4_handover_PICK_provisional.webp | ⏳ provisional |
+| SF4 handover | Option 3 of 3 (plain red box, both hands on it, both smiling, white bag label visible for the H8KI logo; option 2 had a gift ribbon) | SF4_handover_PICK.webp | ✅ chosen |
+
+## Stage 3 – video clips (Video Generation, VIDEO 3.0, 1080p, 5 s, 1 output, Native Audio off, end frame empty)
+
+| Clip | Start frame | Elements | Status |
+|---|---|---|---|
+| 1 | SF1_establishing_PICK | KURIR REAL | ⏳ |
+| 2 | SF2_tracking_PICK | KURIR REAL | ⏳ |
+| 3 | SF3_arrival_PICK | KURIR REAL | ⏳ |
+| 4 | SF4_handover_PICK | KURIR REAL + WARGA | ⏳ |
