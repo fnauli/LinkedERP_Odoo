@@ -266,7 +266,7 @@ for tw, g, dd in [(NIGHT_START, 0.06, 1.8), (S4_START - 0.25, 0.07, 0.6), (S4_EN
     place(night, wsh * g, tw)
 
 # heartbeats for "Satu paket, satu penghasilan."
-for th in [T3[0] + 0.05, T3[0] + 1.25]:
+for th in ([] if REAL else [T3[0] + 0.05, T3[0] + 1.25]):
     for off, g in [(0, 1.0), (0.2, 0.7)]:
         tt = T(0.3)
         hb = np.sin(2 * np.pi * (45 + 25 * np.exp(-tt * 25)) * tt) * env_exp(0.3, 0.07)
@@ -282,7 +282,7 @@ place(night, rus * 0.10, RUSTLE_T - 0.2)
 tt = T(0.2)
 
 # doorbell ting-tong
-for i, m in enumerate([76, 72]):
+for i, m in enumerate([76, 69] if REAL else [76, 72]):
     d = 1.4
     tt = T(d)
     f = midi(m)
@@ -426,8 +426,9 @@ for i, m in enumerate([81, 88]):
     tt = T(d)
     f = midi(m)
     harm = (np.sin(2 * np.pi * f * tt) + 0.18 * np.sin(2 * np.pi * 2 * f * tt)) * env_exp(d, 0.9, 0.004)
-    place(fx_bright, harm * 0.13, CHIME_T + i * 0.24, pan=-0.15 + 0.3 * i)
-    place(fx_bright, pluck(m, 3.0, 0.8) * 0.25, CHIME_T + i * 0.24)
+    dt = i * (BEAT / 2 if REAL else 0.24)
+    place(fx_bright, harm * 0.13, CHIME_T + dt, pan=-0.15 + 0.3 * i)
+    place(fx_bright, pluck(m, 3.0, 0.8) * 0.25, CHIME_T + dt)
 
 # ---------------------------------------------------------------- mix
 dig = digital + reverb(digital, 1.2, 5, lo=300, hi=5000) * 0.18

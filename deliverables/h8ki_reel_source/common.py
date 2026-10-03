@@ -83,20 +83,24 @@ REAL = os.environ.get("REAL") == "1"
 if REAL:
     FPS = 24                     # native frame rate of the Kling footage: no 24->30 judder
     # four Kling clips replace the drawn night + delivery scenes: (film start, film end, source offset)
-    CLIPS = {1: (10.9, 14.4, 0.6), 2: (14.4, 17.6, 0.8), 3: (17.6, 22.1, 0.3), 4: (22.1, 26.1, 0.2)}
+    # One musical grid for the whole night: 96 bpm, beat k at GRID_A + k * BEAT, bars of 4 from GRID_A.
+    # Source offsets were chosen so his footfalls, the house light and the handover land on beats;
+    # the graphics (badge, recap, flips, logo) are placed on the same grid.
+    BEAT, GRID_A = 0.625, 11.19
+    CLIPS = {1: (10.9, 14.4, 0.82), 2: (14.4, 17.6, 0.625), 3: (17.6, 22.1, 0.185), 4: (22.1, 26.19, 0.41)}
     NIGHT_START, WALK_START, S3_END = 10.9, 10.9, 17.6
-    T1, T2, T3 = (11.4, 14.3), (14.6, 17.5), (19.7, 22.0)
+    T1, T2, T3 = (11.5, 14.3), (14.94, 17.5), (19.94, 22.0)
     S4_START = WALKIN_END = 17.6
-    BELL_REACH, BELL_T = 17.55, 17.7
-    STEP_FWD_T, REC_OUT = 18.8, (18.9, 19.0)
-    LIGHT_T, DOOR_OPEN_T = 19.2, 19.7
-    GIVE_T, RUSTLE_T, BADGE_T = 23.9, 23.6, 24.0
-    LINE1_T, LINE2_T = 24.6, 25.1
-    S4_END = RECAP_T = 26.1
-    FLIP_TS = [26.5 + 0.2 * k for k in range(5)]
-    RECAP_OK = 27.55
-    LOGO_T, CHIME_T, TAG_T = 28.6, 28.7, 29.15
-    DUR = 30.8
+    BELL_REACH, BELL_T = 17.665, 17.815              # clip-3 events follow its footage (offset -0.115)
+    STEP_FWD_T, REC_OUT = 18.915, (19.015, 19.115)
+    LIGHT_T, DOOR_OPEN_T = 19.315, 19.815            # light = beat 13
+    GIVE_T, RUSTLE_T, BADGE_T = 23.69, 23.39, 23.69  # handover + badge = bar 5 downbeat (beat 20)
+    LINE1_T, LINE2_T = 24.315, 24.94                 # beats 21, 22
+    S4_END = RECAP_T = 26.19                         # bar 6 downbeat (beat 24)
+    FLIP_TS = [26.19 + 0.3125 + 0.15625 * k for k in range(5)]   # 16ths from the off-beat
+    RECAP_OK = 27.44                                 # beat 26
+    LOGO_T, CHIME_T, TAG_T = 28.59, 28.69, 29.315    # chime = bar 7 downbeat (beat 28), tag = beat 29
+    DUR = 30.94
 
 
 def footsteps_s3():
@@ -121,8 +125,9 @@ def footsteps_s4():
 if REAL:
     # heel strikes measured from the Kling footage (clips 1-2): the backpack's walking bob, checked frame by
     # frame against the feet. Clip 3 has no steps (he stands at the gate), only a small weight shift.
-    FOOT_TS = [11.451, 12.058, 12.701, 13.321, 13.879, 14.707, 15.364, 16.042, 16.696, 17.383]
-    SHIFT_T = 18.34
+    # Each sound is moved at most one frame (42 ms) towards the beat, so the steps and the music agree.
+    FOOT_TS = [11.19, 11.815, 12.44, 13.065, 13.69, 14.315, 14.924, 15.565, 16.19, 16.829]
+    SHIFT_T = 18.455
 
     def footsteps_s3():
         return list(FOOT_TS)
