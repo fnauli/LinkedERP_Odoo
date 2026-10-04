@@ -223,9 +223,23 @@ def cricket(f, t0, t1, period, pan, gain):
         t += period * rng.uniform(0.85, 1.15)
 
 
-cricket(4650, 10.75, DUR - 3.4, 0.82, -0.55, 0.030)
-cricket(5200, 11.2, DUR - 3.4, 1.07, 0.6, 0.022)
-cricket(3900, 12.3, DUR - 3.4, 1.33, 0.1, 0.014)
+if not V2:
+    cricket(4650, 10.75, DUR - 3.4, 0.82, -0.55, 0.030)
+    cricket(5200, 11.2, DUR - 3.4, 1.07, 0.6, 0.022)
+    cricket(3900, 12.3, DUR - 3.4, 1.33, 0.1, 0.014)
+else:                                                          # V2: light rain instead of crickets
+    d = DUR - NIGHT_START
+    tt = T(d)
+    hiss = fft_filter(noise(d), 900, 9000) * (0.75 + 0.25 * np.sin(2 * np.pi * 0.13 * tt + 1.0))
+    roofs = fft_filter(noise(d), 250, 1800) * 0.5
+    env = np.clip(tt / 1.2, 0, 1) * np.clip((d - 2.6 - tt) / 1.5, 0.25, 1)
+    under = 1 - 0.45 * np.clip((tt - (S4_START - NIGHT_START)) / 0.6, 0, 1) * np.clip((RECAP_T - NIGHT_START - tt) / 0.4, 0, 1)
+    place(night, (hiss * 0.016 + roofs * 0.010) * env * under, NIGHT_START)
+    for k in range(int(d * 9)):                                # drips on puddles and the awning
+        t0 = NIGHT_START + rng.uniform(0.3, d - 3.0)
+        dd = 0.05
+        drip = np.sin(2 * np.pi * rng.uniform(1800, 4200) * T(dd) * (1 - T(dd) * 6)) * env_exp(dd, 0.012)
+        place(night, drip * rng.uniform(0.004, 0.012), t0, pan=rng.uniform(-0.7, 0.7))
 
 
 def gravel_step(gain, pan):
@@ -253,7 +267,8 @@ def concrete_step(gain):
 for i, ts in enumerate(footsteps_s4()):
     place(night, concrete_step(0.16), ts, pan=-0.3 + 0.1 * i)
 if REAL:
-    place(night, concrete_step(0.05), SHIFT_T, pan=-0.1)       # soft scuff as he shifts his weight
+    if SHIFT_T is not None:
+        place(night, concrete_step(0.05), SHIFT_T, pan=-0.1)   # soft scuff as he shifts his weight
 else:
     place(night, concrete_step(0.10), STEP_FWD_T, pan=0.0)
     place(night, concrete_step(0.07), REC_OUT[0] + 0.25, pan=0.3)
@@ -309,7 +324,7 @@ place(fx_bright, ding * 0.13, BADGE_T)
 place(fx_bright, np.sin(2 * np.pi * 1760 * tt) * env_exp(d, 0.35, 0.002) * 0.07, BADGE_T + 0.09)
 
 if REAL:
-    exec(open("score_real.py").read())
+    exec(open("score_v2.py" if V2 else "score_real.py").read())
 else:
     # ---------------- Music: acoustic guitar + strings
     beat = 0.75   # 80 bpm
@@ -476,7 +491,7 @@ h = h / np.max(np.abs(h)) * 0.85
 h[-300:] *= np.linspace(1, 0.3, 300)
 mix = np.concatenate([np.stack([h, h], 1), mix])
 pcm = (mix * 32767).astype(np.int16)
-with wave.open("audio_real.wav" if REAL else "audio.wav", "wb") as w:
+with wave.open("audio_v2.wav" if V2 else "audio_real.wav" if REAL else "audio.wav", "wb") as w:
     w.setnchannels(2)
     w.setsampwidth(2)
     w.setframerate(SR)

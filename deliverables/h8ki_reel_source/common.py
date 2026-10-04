@@ -136,6 +136,51 @@ if REAL:
         return []
 
 
+V2 = os.environ.get("V2") == "1"
+if V2:
+    # Kling v2 cut: one 96 bpm grid (beat k = GRID_A + k * BEAT); every shot boundary sits on a beat.
+    BEAT, GRID_A = 0.625, 11.15
+
+    def bt(k):
+        return GRID_A + k * BEAT
+
+    # (timeline start, timeline end, frame folder, first source frame)  - frames are 24 fps
+    SHOTS = [
+        (10.9, bt(4), "../new/a", 1),        # mosque, night (Clip A shot 1)
+        (bt(4), bt(8), "../new/a", 92),      # under the trees, the landmark (Clip A shot 2)
+        (bt(8), bt(13), "../new/d", 46),     # dead end: stops, wipes his sweat, turns back determined
+        (bt(13), bt(17), "../new/a", 240),   # the ibu points the way, he walks on smiling (Clip A shot 4)
+        (bt(17), bt(20), "../new/b", 1),     # rings the bell under the awning (Clip B shot 1)
+        (bt(20), 26.05, "../new/b", 64),     # the gate opens (Clip B shot 2)
+        (26.05, bt(31), "../new/h", 1),      # handover: bow, she takes it on beat 28, hand on chest
+        (bt(31), bt(35), "../new/b", 209),   # the family in the warm doorway (Clip B shot 4)
+    ]
+    NIGHT_START, WALK_START = 10.9, 10.9
+    T1 = (bt(12) + 0.2, bt(17) - 0.2)                 # "Kurir kami tidak." as he turns back determined
+    T2 = (bt(17) + 0.3, 26.0)                          # "Buat yang kirim..." at the bell and gate
+    T3 = (bt(29), bt(31) - 0.1)                        # "Satu paket, satu penghasilan." after he takes... 
+    S4_START = WALKIN_END = S3_END = bt(17)
+    BELL_REACH, BELL_T = bt(17), bt(17) + 0.25
+    LIGHT_T = bt(20) + 0.05
+    DOOR_OPEN_T = bt(20) + (100 - 64) / 24             # gate latch in Clip B shot 2
+    GIVE_T = BADGE_T = bt(28)                          # she takes the parcel = badge = key lift
+    RUSTLE_T = bt(28) - 0.15
+    LINE1_T, LINE2_T = bt(31) + 0.2, bt(32)
+    S4_END = RECAP_T = bt(35)
+    FLIP_TS = [bt(35.5) + 0.15625 * k for k in range(5)]
+    RECAP_OK = bt(37)
+    LOGO_T, CHIME_T, TAG_T = bt(39) - 0.1, bt(39), bt(40)
+    DUR = bt(39) + 2.3
+    FOOT_TS, SHIFT_T = [], None
+    STEP_FWD_T, REC_OUT = bt(20), (bt(20), bt(20) + 0.1)
+
+    def footsteps_s3():
+        return []
+
+    def footsteps_s4():
+        return []
+
+
 def clamp(x, a=0.0, b=1.0):
     return a if x < a else b if x > b else x
 
