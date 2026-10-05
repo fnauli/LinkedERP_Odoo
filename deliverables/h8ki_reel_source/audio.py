@@ -4,6 +4,10 @@ import wave
 from common import *
 
 SR = 44100
+import os
+TRACK = "track_piano.wav" if V2 and os.path.exists("track_piano.wav") else None
+TRACK_SWELL = 50.69          # the track's swell downbeat (s); it lands on the handover (BADGE_T)
+
 N = int(DUR * SR)
 rng = np.random.default_rng(7)
 
@@ -325,7 +329,15 @@ place(fx_bright, ding * 0.13, BADGE_T)
 place(fx_bright, np.sin(2 * np.pi * 1760 * tt) * env_exp(d, 0.35, 0.002) * 0.07, BADGE_T + 0.09)
 
 if REAL:
-    exec(open("score_v2.py" if V2 else "score_real.py").read())
+    if TRACK:
+        cache = {}
+        def pluck(m, d=3.2, bright=0.45):
+            key = (m, d, bright)
+            if key not in cache:
+                cache[key] = karplus(midi(m), d, bright)
+            return cache[key]
+    else:
+        exec(open("score_v2.py" if V2 else "score_real.py").read())
 else:
     # ---------------- Music: acoustic guitar + strings
     beat = 0.75   # 80 bpm
@@ -431,14 +443,14 @@ else:
 
 # recap: each X->check flip gets a rising pluck + tick, then a success ding
 for k, tf in enumerate(FLIP_TS):
-    flip_notes = [76, 78, 80, 83, 85] if REAL else [74, 76, 78, 81, 83]   # REAL: the motif, in E
+    flip_notes = [79, 81, 83, 86, 88] if TRACK else [76, 78, 80, 83, 85] if REAL else [74, 76, 78, 81, 83]   # REAL: the motif, in E
     place(fx_bright, pluck(flip_notes[k], 2.0, 0.8) * 0.22, tf, pan=-0.4 + 0.2 * k)
     d = 0.02
     place(night, fft_filter(noise(d), 2500, 9000) * env_exp(d, 0.004) * 0.25, tf)
 if REAL:                                                       # F#6: a chord tone of the B chord under KETEMU
     d = 1.6
     tt = T(d)
-    f = 1479.98
+    f = 1174.66 if TRACK else 1479.98                          # TRACK (G major): D6
     ding_ok = (np.sin(2 * np.pi * f * tt) + 0.5 * np.sin(2 * np.pi * 2 * f * tt) * np.exp(-tt * 5)
                + 0.25 * np.sin(2 * np.pi * 3 * f * tt) * np.exp(-tt * 9)) * env_exp(d, 0.45, 0.002)
     place(fx_bright, ding_ok * 0.11, RECAP_OK)
@@ -447,7 +459,7 @@ else:
 
 # brand chime: two-note harmonic (A5 -> E6), bell-clean
 if V2:                                                         # the logo answers with the SAME doorbell, resolved home
-    for i, m in enumerate([83, 76]):                           # B5 -> E5: the bell's falling fifth, landing on the tonic
+    for i, m in enumerate([86, 79] if TRACK else [83, 76]):     # TRACK: D6 -> G5, home in G major                           # B5 -> E5: the bell's falling fifth, landing on the tonic
         d = 2.6
         tt = T(d)
         f = midi(m)
@@ -482,9 +494,27 @@ mix[se:se + ramp] *= np.linspace(0, 1, ramp)[:, None]
 fo = int(0.8 * SR)
 mix[-fo:] *= np.linspace(1, 0, fo)[:, None] ** 1.5
 
+if TRACK:
+    with wave.open(TRACK) as tw:
+        trk = np.frombuffer(tw.readframes(tw.getnframes()), np.int16).reshape(-1, 2).astype(np.float64) / 32768
+    off = TRACK_SWELL - BADGE_T                                # track time = timeline + off
+    t0 = NIGHT_START - 0.2
+    i0, j0 = int(t0 * SR), int((t0 + off) * SR)
+    seg = trk[j0:j0 + (N - i0)].copy()
+    n = len(seg)
+    tt = np.arange(n) / SR
+    g = np.clip(tt / 2.0, 0, 1) ** 1.5                         # fades in as the phone dies
+    g *= np.clip((n / SR - tt) / 2.6, 0, 1)                    # gentle fade at the very end
+    b0 = BELL_T - 0.35 - t0                                    # make room for the doorbell
+    duck = 1 - 0.55 * np.clip((tt - b0) / 0.3, 0, 1) * np.clip((b0 + 1.9 - tt) / 0.9, 0, 1)
+    seg *= (g * duck)[:, None]
+    mix[i0:i0 + n] += seg * 0.62
 peak = np.max(np.abs(mix))
-mix = mix / peak * 1.25
-mix = np.tanh(mix) * 0.89
+if TRACK:
+    mix = mix / peak * 0.97                                    # clean: no saturation on a real recording
+else:
+    mix = mix / peak * 1.25
+    mix = np.tanh(mix) * 0.89
 # cold-open hook: the error hits on frame one
 hn = int(HOOK * SR)
 tt = np.arange(hn) / SR
