@@ -9,6 +9,7 @@ from PIL import Image
 import imageio_ffmpeg
 from common import *
 from gfx import to_img, to_arr, draw_text, draw_chip, font, pop, paste_layer
+from interp import between
 import scene_digital as SD
 import scene_house as SH
 
@@ -36,8 +37,8 @@ def _lum(a):
 
 
 _means = []
-for a, b, folder, f0 in SHOTS:
-    mid = f0 + int((b - a) * CLIP_FPS / 2)
+for a, b, folder, f0, sp in SHOTS:
+    mid = f0 + int((b - a) * CLIP_FPS * sp / 2)
     _means.append(_lum(load(folder, mid)))
 _target = float(np.median(_means))
 GAIN = [float(np.clip((_target / m) ** 0.55, 0.85, 1.45)) for m in _means]
@@ -54,10 +55,15 @@ def grade(a, gain=1.0):
 
 
 def live(t):
-    for k, (a, b, folder, f0) in enumerate(SHOTS):
+    for k, (a, b, folder, f0, sp) in enumerate(SHOTS):
         if a <= t < b or (k == len(SHOTS) - 1 and t >= a):
-            idx = f0 + int(round((t - a) * CLIP_FPS))
-            arr = grade(load(folder, idx), GAIN[k])
+            pos = f0 + (t - a) * CLIP_FPS * sp
+            if sp == 1.0:
+                frm = load(folder, int(round(pos)))
+            else:                                          # slow motion: motion-compensated in-betweens
+                i0 = int(np.floor(pos))
+                frm = between(load(folder, i0), load(folder, i0 + 1), pos - i0)
+            arr = grade(frm, GAIN[k])
             if k == 0 and t < a + 0.6:                     # up from the black "GPS menyerah." screen
                 arr = arr * ease_io(lin(t, a, a + 0.6))
             return arr
@@ -92,21 +98,17 @@ def overlays(img, t):
     if t >= BADGE_T:
         a, s, dy = pop(t, BADGE_T, 0.5, rise=30)
         paste_layer(img, SH.badge(), 540, 250 + dy, a, 0.6 + 0.4 * s if s < 1 else s)
-    for k, (txt, y, dt) in enumerate([("Satu paket,", 420, 0.0), ("satu penghasilan.", 505, 0.45)]):
+    for k, (txt, y, dt) in enumerate([("Satu paket,", 430, 0.0), ("satu penghasilan.", 515, 0.45)]):
         a, s, dy = pop(t, T3[0] + dt, 0.5, T3[1])
         draw_text(img, txt, font("xb", 74), 540, y + dy, (255, 255, 255) if k == 0 else (255, 56, 64), a, s, blur=18)
-    a, s, dy = pop(t, LINE1_T, 0.5)
-    draw_text(img, "Alamatnya ketemu.", font("xb", 70), 540, 440 + dy, (255, 255, 255), a, s, blur=16)
-    a, s, dy = pop(t, LINE2_T, 0.5)
-    draw_text(img, "Sejauh apa pun alamatnya.", font("xb", 52), 540, 522 + dy, (255, 56, 64), a, s, blur=16)
 
 
 _RBG = None
 
 
 def recap_bg():
-    a, b, folder, f0 = SHOTS[-1]
-    arr = grade(load(folder, f0 + int((b - a) * CLIP_FPS) - 1), GAIN[-1])
+    a, b, folder, f0, sp = SHOTS[-1]
+    arr = grade(load(folder, f0 + int((b - a) * CLIP_FPS * sp) - 1), GAIN[-1])
     g = arr.mean(axis=2, keepdims=True)
     return (arr * 0.5 + g * 0.5) * 0.28 + np.array([4, 6, 16], np.float32)
 
@@ -154,7 +156,7 @@ if __name__ == "__main__":
     n = int((DUR + HOOK) * FPS)
     ff = imageio_ffmpeg.get_ffmpeg_exe()
     cmd = [ff, "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS),
-           "-i", "-", "-i", "audio_v2.wav", "-c:v", "libx264", "-preset", "slow", "-b:v", "7M", "-maxrate", "9M",
+           "-i", "-", "-i", "audio_v2.wav", "-c:v", "libx264", "-preset", "slow", "-b:v", "5.6M", "-maxrate", "7.5M",
            "-bufsize", "14M", "-pix_fmt", "yuv420p", "-profile:v", "high", "-c:a", "aac", "-b:a", "192k",
            "-movflags", "+faststart", "-shortest", out]
     p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
