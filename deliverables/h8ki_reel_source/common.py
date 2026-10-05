@@ -171,7 +171,7 @@ if V2:
     FLIP_TS = [bt(34.5) + 0.15625 * k for k in range(5)]
     RECAP_OK = bt(36)
     LOGO_T, CHIME_T, TAG_T = bt(38) - 0.1, bt(38), bt(39)
-    DUR = bt(38) + 2.4
+    DUR = bt(38) + 3.2                                 # room for the comment invitation
     FOOT_TS, SHIFT_T = [], None
     STEP_FWD_T, REC_OUT = bt(20), (bt(20), bt(20) + 0.1)
 

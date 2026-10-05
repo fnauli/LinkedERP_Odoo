@@ -303,7 +303,7 @@ for i, m in enumerate([76, 69] if REAL else [76, 72]):
     tt = T(d)
     f = midi(m)
     b = (np.sin(2 * np.pi * f * tt) + 0.35 * np.sin(2 * np.pi * 2.76 * f * tt) * np.exp(-tt * 6)) * env_exp(d, 0.5, 0.003)
-    place(fx_bright, b * 0.10, BELL_T + i * 0.38, pan=0.25)
+    place(fx_bright, b * (0.17 if V2 else 0.10), BELL_T + i * 0.38, pan=0.25)   # V2: the hero sound, in silence
 
 # door latch as the recipient opens up
 d = 0.03
@@ -446,7 +446,14 @@ else:
     place(fx_bright, ding * 0.12, RECAP_OK)
 
 # brand chime: two-note harmonic (A5 -> E6), bell-clean
-for i, m in enumerate([83, 88] if REAL else [81, 88]):        # REAL: B5 -> E6 resolves the E-major ending
+if V2:                                                         # the logo answers with the SAME doorbell, resolved home
+    for i, m in enumerate([83, 76]):                           # B5 -> E5: the bell's falling fifth, landing on the tonic
+        d = 2.6
+        tt = T(d)
+        f = midi(m)
+        b = (np.sin(2 * np.pi * f * tt) + 0.35 * np.sin(2 * np.pi * 2.76 * f * tt) * np.exp(-tt * 6)) * env_exp(d, 0.8, 0.003)
+        place(fx_bright, b * 0.19, CHIME_T + i * 0.42, pan=-0.1 + 0.2 * i)
+for i, m in enumerate([] if V2 else [83, 88] if REAL else [81, 88]):
     d = 3.0
     tt = T(d)
     f = midi(m)

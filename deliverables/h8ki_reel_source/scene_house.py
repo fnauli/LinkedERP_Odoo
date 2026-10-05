@@ -642,7 +642,7 @@ def badge():
         im.alpha_composite(check_icon(104, (0, 160, 72)), (40 + 30, 40 + 33))
         d = ImageDraw.Draw(im)
         d.text((40 + 158, 40 + 70), "PAKET DITERIMA", font=font("xb", 56), fill=(0, 140, 64), anchor="lm")
-        d.text((40 + 160, 40 + 128), "Diterima  ·  23:48  ·  H8KI Logistik Lionindo", font=font("m", 26), fill=(90, 100, 110), anchor="lm")
+        d.text((40 + 160, 40 + 128), "Diterima  ·  18:52  ·  H8KI Logistik Lionindo", font=font("m", 26), fill=(90, 100, 110), anchor="lm")
         _badge = im
     return _badge
 

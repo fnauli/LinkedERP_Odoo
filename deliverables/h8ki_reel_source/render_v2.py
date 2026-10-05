@@ -98,6 +98,11 @@ def shot_frame(k, t):
         frm = load(folder, i0) if pos - i0 < 0.02 or i0 + 1 > last + 0.5 else between(load(folder, i0), load(folder, i0 + 1), pos - i0)
     if k == 0:
         frm = lift_night(frm)
+    if k == 5:
+        z = 1.26
+        cw, ch = int(W / z), int(H / z)
+        y0 = int((H - ch) * 0.35)
+        frm = cv2.resize(frm[y0:y0 + ch, 0:cw], (W, H), interpolation=cv2.INTER_CUBIC)
     arr = grade(frm, GAIN[k])
     if k == 0:
         arr = atmos(arr, t, a, b)
@@ -182,7 +187,9 @@ def overlays(img, t):
     draw_chip(img, "Rumah cat hijau, pagar hitam", 60, 600, t, bt(19) + 0.5, 1.8, anchor="l")
     draw_chip(img, "Sebelah warung Bu Ani", 1040, 940, t, bt(20.6) + 0.3, 1.6, anchor="r")
     a, s, dy = pop(t, T1[0], 0.6, T1[1])
-    draw_text(img, "Kurir kami tidak.", font("xb", 88), 540, 420 + dy, (255, 255, 255), a, s, blur=16)
+    draw_text(img, "GPS menyerah.", font("sb", 58), 540, 360 + dy, (255, 255, 255), a, s, blur=14)
+    a, s, dy = pop(t, T1[0] + 0.5, 0.6, T1[1])
+    draw_text(img, "Kurir kami tidak.", font("xb", 92), 540, 450 + dy, (255, 56, 64), a, s, blur=18)
     a, s, dy = pop(t, T2[0], 0.55, T2[1])
     draw_text(img, "Buat yang kirim, ini order", font("sb", 54), 540, 390 + dy, (255, 255, 255), a, s, blur=14)
     a, s, dy = pop(t, T2[0] + 0.45, 0.55, T2[1])
@@ -237,7 +244,12 @@ def frame(i):
         if p < 1:
             rec = to_img(live(t - 0.001) * (1 - p) + to_arr(rec) * p)
         return np.asarray(rec, np.uint8).tobytes()
-    return np.asarray(SH.scene5(t), np.uint8).tobytes()
+    img = SH.scene5(t)
+    a, s, dy = pop(t, TAG_T + 0.7, 0.5)                    # invite the comment: engagement drives reach
+    draw_text(img, "Pernah dapat alamat kayak gini?", font("sb", 44), 540, 1445 + dy, (60, 68, 84), a, s, shadow=0.1, blur=8)
+    a, s, dy = pop(t, TAG_T + 1.0, 0.5)
+    draw_text(img, "Ceritain di komentar, ya!", font("xb", 46), 540, 1500 + dy, (0, 150, 70), a, s, shadow=0.1, blur=8)
+    return np.asarray(img, np.uint8).tobytes()
 
 
 if __name__ == "__main__":
