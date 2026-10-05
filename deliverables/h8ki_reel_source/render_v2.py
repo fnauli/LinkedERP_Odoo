@@ -5,7 +5,7 @@ os.environ["V2"] = "1"
 import sys, subprocess
 import numpy as np, cv2
 from multiprocessing import Pool
-from PIL import Image
+from PIL import Image, ImageDraw
 import imageio_ffmpeg
 from common import *
 from gfx import to_img, to_arr, draw_text, draw_chip, font, pop, paste_layer
@@ -61,9 +61,7 @@ def atmos(arr, t, a, b):
     wy = np.clip(1.2 - np.arange(H, dtype=np.float32) / (H * 0.5), 0, 1)[:, None]
     k = (0.10 + 0.22 * m) * wy
     arr = arr * (1 - k[..., None]) + np.array([150, 168, 190], np.float32) * k[..., None]
-    oy = int((t - a) * 1500) % H
-    r = _rain[oy:oy + H]
-    return np.clip(arr + r[..., None] * np.array([70, 80, 95], np.float32), 0, 255)
+    return np.clip(arr, 0, 255)
 
 
 # one look for all shots: bring each shot part-way to the median exposure, then a gentle shared grade
@@ -113,14 +111,60 @@ def live(t):
             if dz > 0 and t < a + dz and k > 0:            # soft dissolve from the previous shot
                 w = ease_io((t - a) / dz)
                 arr = arr * w + shot_frame(k - 1, t) * (1 - w)
-            if k == 0 and t < a + 0.8:                     # up from the black "GPS menyerah." screen
-                arr = arr * ease_io(lin(t, a, a + 0.8))
             return arr
     raise ValueError(t)
 
 
 _ys = np.arange(H, dtype=np.float32)
 SCRIM = (np.clip(1 - np.abs(_ys - 430) / 400, 0, 1) ** 1.5)[:, None, None]
+
+
+# --- the GPS story is HIS phone: the app UI sits on a phone glowing in the dark, rainy alley blurred behind
+_PH = {}
+
+
+def _phone_assets():
+    if not _PH:
+        bg = lift_night(load("../new/a", 20)).astype(np.float32)
+        bg = cv2.GaussianBlur(bg, (0, 0), 22) * 0.62 * np.array([0.9, 0.97, 1.1], np.float32)
+        _PH["bg"] = bg
+        sw, sh = int(W * 0.80), int(H * 0.80)
+        m = Image.new("L", (sw, sh), 0)
+        ImageDraw.Draw(m).rounded_rectangle((0, 0, sw - 1, sh - 1), 62, fill=255)
+        _PH["mask"] = np.asarray(m, np.float32)[..., None] / 255.0
+        b = 18
+        bm = Image.new("L", (sw + 2 * b, sh + 2 * b), 0)
+        ImageDraw.Draw(bm).rounded_rectangle((0, 0, sw + 2 * b - 1, sh + 2 * b - 1), 78, fill=255)
+        _PH["bezel"] = np.asarray(bm, np.float32)[..., None] / 255.0
+        yy, xx = np.mgrid[0:sh, 0:sw].astype(np.float32)
+        _PH["sheen"] = np.clip(1 - np.abs((xx / sw - yy / sh) - 0.15) * 3.2, 0, 1)[..., None] * 0.07
+        _PH["size"] = (sw, sh, b)
+    return _PH
+
+
+def phone(ui, t, zoom_k=1.0):
+    A = _phone_assets()
+    sw, sh, b = A["size"]
+    scr = cv2.resize(np.clip(ui, 0, 255).astype(np.float32), (sw, sh), interpolation=cv2.INTER_AREA)
+    scr = scr + 255 * A["sheen"]
+    dev = np.zeros((sh + 2 * b, sw + 2 * b, 3), np.float32) + np.array([10, 11, 14], np.float32)
+    dev[b:b + sh, b:b + sw] = scr * A["mask"] + dev[b:b + sh, b:b + sw] * (1 - A["mask"])
+    out = A["bg"].copy()
+    glow_c = scr.reshape(-1, 3).mean(0) * 1.6
+    gx, gy = 540 + 5 * np.sin(1.3 * t), 960 + 7 * np.sin(0.9 * t)
+    ang = 0.7 * np.sin(0.7 * t)
+    hh, ww = dev.shape[:2]
+    canvas = np.zeros_like(out)
+    alpha = np.zeros(out.shape[:2] + (1,), np.float32)
+    x0, y0 = int(gx - ww / 2), int(gy - hh / 2)
+    canvas[y0:y0 + hh, x0:x0 + ww] = dev
+    alpha[y0:y0 + hh, x0:x0 + ww] = A["bezel"]
+    M = cv2.getRotationMatrix2D((gx, gy), ang, zoom_k)
+    canvas = cv2.warpAffine(canvas, M, (W, H), flags=cv2.INTER_LINEAR)
+    alpha = cv2.warpAffine(alpha, M, (W, H), flags=cv2.INTER_LINEAR)[..., None]
+    halo = cv2.GaussianBlur(alpha, (0, 0), 70)[..., None] if alpha.ndim == 2 else cv2.GaussianBlur(alpha[..., 0], (0, 0), 70)[..., None]
+    out = out + halo * glow_c * 0.55
+    return np.clip(out * (1 - alpha) + canvas * alpha, 0, 255)
 
 
 def text_strength(t):
@@ -135,6 +179,8 @@ def overlays(img, t):
     draw_chip(img, "Dekat masjid", 540, 760, t, bt(1), 2.0)
     draw_chip(img, "Depan pohon mangga", 60, 640, t, bt(5) + 0.4, 1.8, anchor="l")
     draw_chip(img, "Masuk gang, mentok, belok kiri", 540, 600, t, bt(9) + 0.4, 2.2)
+    draw_chip(img, "Rumah cat hijau, pagar hitam", 60, 600, t, bt(19) + 0.5, 1.8, anchor="l")
+    draw_chip(img, "Sebelah warung Bu Ani", 1040, 940, t, bt(20.6) + 0.3, 1.6, anchor="r")
     a, s, dy = pop(t, T1[0], 0.6, T1[1])
     draw_text(img, "Kurir kami tidak.", font("xb", 88), 540, 420 + dy, (255, 255, 255), a, s, blur=16)
     a, s, dy = pop(t, T2[0], 0.55, T2[1])
@@ -163,17 +209,18 @@ def frame(i):
     hf = int(HOOK * FPS)
     if i < hf:
         th = i / FPS
-        return np.asarray(zoom(to_img(SD.hook(th)), 1.06 - 0.06 * ease_out(th / HOOK)), np.uint8).tobytes()
+        return np.asarray(zoom(to_img(phone(SD.hook(th), th - HOOK)), 1.06 - 0.06 * ease_out(th / HOOK)), np.uint8).tobytes()
     t = (i - hf) / FPS
     if t < S1_END:
-        return np.asarray(zoom(to_img(SD.scene1(t)), 1 + 0.035 * ease_io(t / S1_END)), np.uint8).tobytes()
+        return np.asarray(to_img(phone(SD.scene1(t), t, 1 + 0.04 * ease_io(t / S1_END))), np.uint8).tobytes()
     if t < NIGHT_START:
-        return np.asarray(to_img(SD.scene2(t)), np.uint8).tobytes()
+        return np.asarray(to_img(phone(SD.scene2(t), t, 1.04 + 0.03 * lin(t, S1_END, NIGHT_START))), np.uint8).tobytes()
     if t < S4_END:
         arr = live(t)
-        if t < NIGHT_START + 0.45:
-            txt = SD.scene2(NIGHT_START - 0.01)
-            arr = np.maximum(arr, txt * (1 - lin(t, NIGHT_START, NIGHT_START + 0.45)))
+        if t < NIGHT_START + 0.9:                          # the phone dissolves into his night
+            p = ease_io(lin(t, NIGHT_START, NIGHT_START + 0.9))
+            ph = phone(SD.scene2(NIGHT_START - 0.01), NIGHT_START, 1.07 + 0.35 * p)
+            arr = ph * (1 - p) + arr * p
         k = text_strength(t)
         if k > 0:
             arr = arr * (1 - (0.8 if t >= BADGE_T - 0.1 else 0.55) * k * SCRIM)

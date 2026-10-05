@@ -6,15 +6,16 @@ DUR = 32.3
 HOOK = 1.0                         # cold open prepended before the timeline
 
 # Scene 1 - digital breakdown
+# ONE parcel whose address is only landmarks: the GPS tries each clue and fails on every one
 QUERIES = [
-    "Rumah cat hijau, sebelah warung Bu Ani",
+    "Dekat masjid",
     "Depan pohon mangga",
     "Masuk gang, mentok, belok kiri",
-    "Pagar hitam",
-    "Dekat masjid",
+    "Rumah cat hijau, pagar hitam",
+    "Sebelah warung Bu Ani",
 ]
 Q_START = 0.25
-Q_DURS = [1.75, 1.55, 1.40, 1.25, 1.15]
+Q_DURS = [1.10, 1.30, 1.70, 1.60, 1.40]
 TYPE_FRAC, SEARCH_FRAC = 0.55, 0.12
 
 

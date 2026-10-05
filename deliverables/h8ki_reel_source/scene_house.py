@@ -715,7 +715,7 @@ def recap_frame(t):
     d = ImageDraw.Draw(panel)
     d.rounded_rectangle((px0, py0, px1, py1), 28, fill=(14, 20, 36, int(235 * alpha)),
                         outline=(52, 70, 110, int(255 * alpha)), width=3)
-    d.text((px0 + 44, py0 + 58), "RIWAYAT PENCARIAN", font=font("mono", 28), fill=(110, 140, 200, int(255 * alpha)), anchor="lm")
+    d.text((px0 + 44, py0 + 58), "PETUNJUK ALAMAT", font=font("mono", 28), fill=(110, 140, 200, int(255 * alpha)), anchor="lm")
     img.paste(panel, (0, 0), panel)
     d = ImageDraw.Draw(img, "RGBA")
     for k, q in enumerate(QUERIES):
@@ -735,7 +735,7 @@ def recap_frame(t):
             tw = d.textlength(q, font=f)
             d.line([(px0 + 118, y + 2), (px0 + 118 + tw, y + 2)], fill=(228, 60, 72, int(230 * alpha)), width=4)
     # verdict
-    draw_text(img, "5 dari 5 alamat", font("b", 64), 540, 1120 + dy, (240, 244, 250), alpha, blur=14)
+    draw_text(img, "5 dari 5 petunjuk", font("b", 64), 540, 1120 + dy, (240, 244, 250), alpha, blur=14)
     if t >= RECAP_OK:
         q = t - RECAP_OK
         pop = 0.7 + 0.3 * back_in_out(q / 0.45, 1.3)

@@ -163,7 +163,7 @@ def scene1(t, glitch=0.0, overlay_final=False):
         d.line([(90 + 26 * math.cos(ang), 190 + 26 * math.sin(ang)), (90 + 38 * math.cos(ang), 190 + 38 * math.sin(ang))],
                fill=BLUE, width=5)
     d.text((140, 190), "Sistem Pencarian Alamat", font=font("sb", 44), fill=(232, 238, 248), anchor="lm")
-    d.text((142, 244), "GPS NAV  •  MODE PRESISI", font=font("mono", 24), fill=(100, 118, 150), anchor="lm")
+    d.text((142, 244), "PAKET #H8-2348  •  ALAMAT: 5 PETUNJUK", font=font("mono", 24), fill=(100, 118, 150), anchor="lm")
     # status chip
     chip_col = RED if found_fail else (60, 76, 104)
     txt = f"{found_fail}/5 GAGAL"
@@ -193,7 +193,7 @@ def scene1(t, glitch=0.0, overlay_final=False):
         d.text((158, 360), "Cari alamat tujuan...", font=font("mono", 33), fill=(90, 105, 135), anchor="lm")
 
     # log
-    d.text((70, 1180), "RIWAYAT PENCARIAN", font=font("mono", 24), fill=(100, 118, 150), anchor="lm")
+    d.text((70, 1180), "PETUNJUK ALAMAT", font=font("mono", 24), fill=(100, 118, 150), anchor="lm")
     d.line([(70, 1208), (1010, 1208)], fill=(40, 52, 78), width=2)
     row = 0
     for qq in QW:
@@ -275,7 +275,7 @@ def scene2(t):
         img = to_img(arr)
         # the verdict stays legible on top of the breakdown
         jit = np.random.default_rng(int(t * 60)).uniform(-1, 1, 2) * 8 * amt
-        draw_text(img, "5 dari 5 alamat", font("b", 76), 540 + jit[0], 880 + jit[1], (255, 255, 255), blur=14)
+        draw_text(img, "5 dari 5 petunjuk", font("b", 76), 540 + jit[0], 880 + jit[1], (255, 255, 255), blur=14)
         draw_text(img, "TIDAK DITEMUKAN", font("xb", 104), 540 - jit[1], 1000 + jit[0], (255, 50, 62), blur=18,
                   glow=(255, 0, 30))
         arr = to_arr(img)
@@ -335,7 +335,7 @@ def hook(t):
         draw_text(img, txt, font("xb", sz), 540 + jx, y + jy, (255, 255, 255), 1.0, s, shadow=0.35, blur=18)
     d = ImageDraw.Draw(img)
     rrect(d, (130 + jx, 1380 + jy, 950 + jx, 1466 + jy), 43, fill=(120, 8, 20))
-    d.text((540 + jx, 1423 + jy), "Rumah cat hijau, sebelah warung Bu Ani", font=font("mono", 30),
+    d.text((540 + jx, 1423 + jy), "Dekat masjid, depan pohon mangga, mentok...", font=font("mono", 28),
            fill=(255, 205, 205), anchor="mm")
     arr = to_arr(img)
     arr = rgb_split(arr, 4 + 10 * math.exp(-t / 0.05))

@@ -228,13 +228,14 @@ if not V2:
     cricket(5200, 11.2, DUR - 3.4, 1.07, 0.6, 0.022)
     cricket(3900, 12.3, DUR - 3.4, 1.33, 0.1, 0.014)
 else:                                                          # V2: light rain instead of crickets
-    d = DUR - NIGHT_START
+    R0 = POWER_END - 0.2
+    d = DUR - R0
     tt = T(d)
     hiss = fft_filter(noise(d), 900, 9000) * (0.75 + 0.25 * np.sin(2 * np.pi * 0.13 * tt + 1.0))
     roofs = fft_filter(noise(d), 250, 1800) * 0.5
-    env = np.clip(tt / 1.2, 0, 1) * np.clip((d - 2.6 - tt) / 1.5, 0.25, 1)
-    under = 1 - 0.25 * np.clip((tt - (S4_START - NIGHT_START)) / 0.6, 0, 1) * np.clip((RECAP_T - NIGHT_START - tt) / 0.4, 0, 1)
-    place(night, (hiss * 0.016 + roofs * 0.010) * env * under, NIGHT_START)
+    env = np.clip(tt / 1.6, 0, 1) * np.clip((d - 2.6 - tt) / 1.5, 0.25, 1)
+    under = 1 - 0.25 * np.clip((tt - (S4_START - R0)) / 0.6, 0, 1) * np.clip((RECAP_T - R0 - tt) / 0.4, 0, 1)
+    place(night, (hiss * 0.013 + roofs * 0.008) * env * under, R0)
     for k in range(int(d * 9)):                                # drips on puddles and the awning
         t0 = NIGHT_START + rng.uniform(0.3, d - 3.0)
         dd = 0.05
@@ -466,6 +467,8 @@ mix = dig * 0.6 + night * 1.1 + music * 1.15 + fx_bright + wet
 # enforce the 1s of complete silence
 si, se = int(POWER_END * SR), int(10.65 * SR)
 mix[si:se] = 0
+if V2:                                                         # keep only the soft rain in the silence
+    mix[si:se] += night[si:se] * 1.1
 ramp = int(0.2 * SR)
 mix[se:se + ramp] *= np.linspace(0, 1, ramp)[:, None]
 # end fade
