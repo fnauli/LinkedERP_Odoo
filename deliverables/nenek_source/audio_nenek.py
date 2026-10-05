@@ -116,7 +116,7 @@ place(fx, sw, NOTE_IN, 0.035, -0.5)
 place(fx, fft_filter(noise(0.3), 1500, 7000) * np.sin(np.pi * T(0.3) / 0.3) ** 1.5, NOTE_OUT - 0.4, 0.025, -0.5)
 
 # ---------------- clue ticks: pen stroke + a rising G-major bell (B5, D6, G6)
-for tk, m in zip(TICKS, [83, 86, 91]):
+for tk, m in zip(TICKS, [81, 84, 88]):
     pen = fft_filter(noise(0.18), 2500, 9000) * np.interp(T(0.18), [0, 0.03, 0.12, 0.18], [0, 1, 0.6, 0])
     place(fx, pen, tk, 0.03, -0.4)
     place(ui, bell(m, 1.6), tk + 0.06, 0.06)
@@ -134,31 +134,17 @@ creak = np.sin(2 * np.pi * np.cumsum(fcr) / SR) * (0.5 + 0.5 * np.sign(np.sin(2 
 creak = fft_filter(creak, 250, 2600) * np.sin(np.pi * tt / 0.8) ** 2
 place(fx, creak, CREAK_T, 0.03, 0.3)
 
-# ---------------- delivered: bright ding (D6 over G)
-place(ui, bell(86, 2.2) + 0.6 * bell(91, 2.2), BADGE_T, 0.07)
+# ---------------- delivered: soft bell, C6 over A (the cello is in A minor)
+place(ui, bell(84, 2.2) + 0.6 * bell(88, 2.2), BADGE_T, 0.06)
 
-# ---------------- his steps leaving + cardboard flaps opening
-for k, st in enumerate(np.arange(15.25, 16.7, 0.48)):
-    tt = T(0.12)
-    step = fft_filter(noise(0.12), 120, 1600) * np.exp(-tt * 40)
-    place(fx, step, st, 0.05 * (1 - k * 0.15), -0.6)
-for k in range(5):
-    d = rng.uniform(0.15, 0.3)
-    rs = fft_filter(noise(d), 600, 5000) * np.sin(np.pi * T(d) / d)
-    place(fx, rs, RUSTLE_T + k * 0.27 + rng.uniform(0, 0.08), 0.05, 0.1)
+# (no Foley from the handover to the end: the cello carries the reveal on its own)
 
-# ---------------- a soft rising shimmer into the swell (the photo reveal)
-d = 1.3
-tt = T(d)
-sh = fft_filter(noise(d), 3000, 11000) * (tt / d) ** 3
-place(ui, sh, REVEAL_T - d, 0.03)
-
-# ---------------- end: logo ting-tong, doorbell timbre resolving to G
-for k, m in enumerate([86, 79]):
-    place(ui, bell(m, 2.6), CARD_T + k * 0.31, 0.085)
+# ---------------- end: logo ting-tong, E6 -> A5, home in A minor
+for k, m in enumerate([88, 81]):
+    place(ui, bell(m, 2.6), CARD_T + k * 0.31, 0.08)
 
 # ---------------- music
-f = wave.open("track_piano.wav")
+f = wave.open(TRACK)
 trk = np.frombuffer(f.readframes(f.getnframes()), np.int16).astype(np.float32).reshape(-1, f.getnchannels()) / 32768
 if trk.shape[1] == 1:
     trk = np.repeat(trk, 2, 1)
@@ -166,7 +152,7 @@ j0 = int(OFF * SR)
 seg = trk[j0:j0 + N].astype(np.float64)
 seg = np.pad(seg, ((0, N - len(seg)), (0, 0)))
 tt = np.arange(N) / SR
-gain = np.interp(tt, [0, 0.5, DUR - 2.2, DUR], [0, 1, 1, 0])
+gain = np.interp(tt, [0, 1.0, DUR - 2.6, DUR], [0, 1, 1, 0])
 seg *= gain[:, None]
 
 mix = seg * 0.62 + amb + fx + ui * 0.85 + reverb(ui) * 0.35

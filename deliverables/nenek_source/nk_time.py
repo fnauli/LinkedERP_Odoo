@@ -8,7 +8,7 @@ SEGS = [("k1", 1, 72, 1.0),      # shot 1: GPS fails at the alley mouth
         ("k1", 216, 269, 1.0),   # shot 4: blue door, knocks
         ("k1", 270, 350, 1.0),   # shot 5: Nenek opens, two-handed handover
         ("k2", 2, 96, 1.0),      # clip 2: he bows and leaves, she opens the box (seamless join)
-        ("k2", 97, 121, 0.5)]    # the photo against her heart, lingered at half speed
+        ("k2", 97, 121, 0.4)]    # the photo held to her, eyes closed: lingered at 0.4x
 
 SRC = []                          # output frame -> (clip, fractional src frame, segment)
 for si, (c, a, b, sp) in enumerate(SEGS):
@@ -22,22 +22,24 @@ for si, (c, a, b, sp) in enumerate(SEGS):
     _k += round((b - a + 1) / sp)
 FOOT_END = len(SRC) / FPS          # 20.625 s
 
-TRACK_SWELL = 50.69
+TRACK = "trk_emotional-cello.wav"
+TRACK_SWELL = 35.782               # the cello's entry after its one-beat silence
 REVEAL_T = 18.0                    # clip 2 frame 84: the photo frame faces camera
 OFF = TRACK_SWELL - REVEAL_T       # track time = video time + OFF
 
+# every text and accent sits on a cello onset
 NOTIF_T = 0.03
-T1A, T1B, T1_OUT = 1.9, 2.64, 4.5
-NOTE_IN, NOTE_OUT = 3.31, 10.92
-TICKS = [5.59, 7.5, 9.48]          # tanya warga / dekat masjid / pintu biru
+T1A, T1B, T1_OUT = 1.4, 1.93, 4.4
+NOTE_IN, NOTE_OUT = 3.72, 10.9
+TICKS = [5.18, 7.64, 9.43]         # tanya warga / dekat masjid / pintu biru
+STAKE_A, STAKE_B, STAKE_OUT = 9.97, 10.51, 12.6     # who is behind the door, and why it matters
 KNOCKS = [8.958 + 20 / 24, 8.958 + 25 / 24]
 LATCH_T, CREAK_T = 11.5, 11.62
-BADGE_T, BADGE_OUT = 13.56, 15.9
-RUSTLE_T = 16.3
-GIFT_A, GIFT_B, GIFT_OUT = 18.67, 19.28, 20.45
-DIM_T = 20.03
-WAIT_A, WAIT_B = 20.58, 21.01
-CARD_T = 22.56                     # white logo card + chime
-TAG_A, TAG_B = 23.08, 23.34
-CTA_T = 24.13
-DUR = 26.4
+BADGE_T, BADGE_OUT = 13.37, 15.6
+GIFT_A, GIFT_B, GIFT_OUT = 18.72, 19.96, 21.75      # the payoff
+DIM_T = 21.92
+WAIT_A, WAIT_B = 22.27, 23.0       # 23.0 is the track's biggest hit
+CARD_T = 24.43                     # white logo card + chime
+TAG_A, TAG_B = 24.79, 25.13
+CTA_T = 25.69
+DUR = 28.2

@@ -51,7 +51,7 @@ def grade(a, s):
 
 yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
 VIG = (1 - 0.28 * np.clip(np.sqrt(((xx - 540) / 620) ** 2 + ((yy - 960) / 1100) ** 2), 0, 1.4) ** 2.2)[..., None]
-SCRIM_LOW = np.clip((yy - 1000) / 700, 0, 1)[..., None] ** 1.3
+SCRIM_LOW = np.clip((yy - 950) / 700, 0, 1)[..., None] ** 1.2
 WHITE_BG = (255 - 12 * np.clip(np.sqrt(((xx - 540) / 900.0) ** 2 + ((yy - 900) / 1300.0) ** 2), 0, 1) ** 2)[..., None].repeat(3, 2)
 
 
@@ -203,6 +203,7 @@ def frame(k):
         arr = (arr * (1 - p) + bl * p) * (1 - 0.5 * p)
     # lower scrim behind the big lines
     sl = max(clamp(min((t - T1A + 0.2) / 0.4, (T1_OUT + 0.2 - t) / 0.4)),
+             clamp(min((t - STAKE_A + 0.2) / 0.4, (STAKE_OUT + 0.2 - t) / 0.4)),
              clamp(min((t - GIFT_A + 0.2) / 0.4, (GIFT_OUT + 0.3 - t) / 0.4)))
     if sl > 0 and t < DIM_T + 0.3:
         arr = arr * (1 - 0.62 * sl * SCRIM_LOW)
@@ -239,11 +240,18 @@ def frame(k):
         a, s, dy = pop(t, BADGE_T, 0.5, BADGE_OUT, 0.4, rise=30)
         paste_layer(img, badge(), 540, 300 + dy, a, 0.6 + 0.4 * s if s < 1 else s)
 
-    # ---- the reveal
+    # ---- the stakes: who waits behind the blue door
+    a, s, dy = pop(t, STAKE_A, 0.55, STAKE_OUT)
+    draw_text(img, "Anaknya merantau di Jakarta.", font("sb", 58), 540, 1330 + dy, (255, 255, 255), a, s, blur=14)
+    a, s, dy = pop(t, STAKE_B, 0.55, STAKE_OUT)
+    draw_text(img, "3 Lebaran belum pulang.", font("xb", 70), 540, 1425 + dy, GOLD, a, s, blur=18)
+
+    # ---- the payoff
     a, s, dy = pop(t, GIFT_A, 0.55, GIFT_OUT)
-    draw_text(img, "Kiriman dari anak", font("sb", 64), 540, 1360 + dy, (255, 255, 255), a, s, blur=14)
-    a, s, dy = pop(t, GIFT_B, 0.55, GIFT_OUT)
-    draw_text(img, "di Jakarta.", font("xb", 90), 540, 1460 + dy, GOLD, a, s, blur=18)
+    draw_text(img, "Isinya foto keluarga anaknya,", font("sb", 56), 540, 1350 + dy, (255, 255, 255), a, s, blur=14)
+    a, s, dy = pop(t, GIFT_B, 0.6, GIFT_OUT)
+    draw_text(img, "dan cucu yang belum", font("xb", 76), 540, 1440 + dy, GOLD, a, s, blur=18)
+    draw_text(img, "pernah ia peluk.", font("xb", 76), 540, 1530 + dy, GOLD, a, s, blur=18)
 
     # ---- closing line over the softened last frame
     if WAIT_A <= t < CARD_T + 0.3:

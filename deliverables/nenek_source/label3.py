@@ -28,7 +28,9 @@ def _stabilise(Q):
     return sm
 
 
-QS = _stabilise(_Q)
+# texture-locked: frame-to-frame ECC homographies chained from frame 144 (see ecc3.py), so the
+# print rides on the fabric exactly instead of being re-detected (and jittering) every frame
+QS = np.array(json.load(open("shot3_ecc.json"))["quads"], np.float32)
 
 
 def _logo():
@@ -60,8 +62,8 @@ def ink(w, h):
     return _ink[key]
 
 
-W_C = float(np.percentile(np.linalg.norm(QS[:, 1] - QS[:, 0], axis=1), 90))
-H_C = float(np.median(np.linalg.norm(QS[:, 3] - QS[:, 0], axis=1)))
+W_C = float(np.linalg.norm(QS[0, 1] - QS[0, 0]))
+H_C = float(np.linalg.norm(QS[0, 3] - QS[0, 0]))
 
 
 def apply(frame, src_idx):
