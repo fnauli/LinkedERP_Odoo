@@ -233,7 +233,7 @@ else:                                                          # V2: light rain 
     hiss = fft_filter(noise(d), 900, 9000) * (0.75 + 0.25 * np.sin(2 * np.pi * 0.13 * tt + 1.0))
     roofs = fft_filter(noise(d), 250, 1800) * 0.5
     env = np.clip(tt / 1.2, 0, 1) * np.clip((d - 2.6 - tt) / 1.5, 0.25, 1)
-    under = 1 - 0.45 * np.clip((tt - (S4_START - NIGHT_START)) / 0.6, 0, 1) * np.clip((RECAP_T - NIGHT_START - tt) / 0.4, 0, 1)
+    under = 1 - 0.25 * np.clip((tt - (S4_START - NIGHT_START)) / 0.6, 0, 1) * np.clip((RECAP_T - NIGHT_START - tt) / 0.4, 0, 1)
     place(night, (hiss * 0.016 + roofs * 0.010) * env * under, NIGHT_START)
     for k in range(int(d * 9)):                                # drips on puddles and the awning
         t0 = NIGHT_START + rng.uniform(0.3, d - 3.0)

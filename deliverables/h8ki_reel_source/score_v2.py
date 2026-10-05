@@ -77,16 +77,20 @@ ARP = {"D": [62, 66, 69, 74], "A/C#": [61, 64, 69, 73], "Bm": [59, 62, 66, 71], 
 BASS = {"G": 43, "A": 45, "Bsus4": 47, "B": 47, "E": 52, "C#m": 49}   # warm strings, from the light on
 # V2 cut (beats from GRID_A): walk 0-8, dead end 8-13, the ibu points 13-17, bell 17-20, gate 20-23.4,
 # handover 23.4-31 (she takes it on beat 28), family 31-35, recap 35-39, logo 39.
-PROG = [(0, "D", 2), (2, "A/C#", 2), (4, "Bm", 2), (6, "Gadd9", 2), (8, "Em7", 2), (10, "Asus4", 2), (12, "A", 1),
-        (13, "G", 3), (16, "Em7", 2), (18, "A", 2), (20, "Bm", 2), (22, "G", 2), (24, "A", 1), (25, "B", 1),
-        (26, "E", 2), (28, "C#m", 2), (30, "A", 1), (31, "B", 1), (32, "A", 2), (34, "B", 2)]
-FINAL = 36
-BREATHS = [(25.5, 26.0), (35.5, 36.0)]                            # half-beat pull-backs before the landings
+# final cut (beats from GRID_A): mosque 0-5, trees 5-9, dead end 9-15 (turns back ~14), the ibu 15-19,
+# bell 19-23 (music falls silent), gate opens 23-27.9 (music returns), handover 27.9-34 (she holds it on 28),
+# recap 34-38, logo 38.
+PROG = [(0, "D", 3), (3, "A/C#", 2), (5, "Bm", 2), (7, "Gadd9", 2), (9, "Em7", 3), (12, "Asus4", 2), (14, "A", 1),
+        (15, "G", 2), (17, "D", 2), (23, "G", 2), (25, "A", 2), (27, "Bsus4", 0.5), (27.5, "B", 0.5),
+        (28, "E", 2), (30, "C#m", 2), (32, "A", 2), (34, "A", 2), (36, "B", 2)]
+FINAL = 38
+SILENT = (19.0, 23.0)                                              # the bell rings into near-silence
+BREATHS = [(27.5, 28.0), (37.5, 38.0)]                            # half-beat pull-backs before the landings
 
 
 def energy(k):
     """0 = the quiet walk, 1 = the handover; every layer follows the same curve."""
-    return float(np.interp(k, [0, 8, 12.5, 17, 25, 26, 32, 36], [0.14, 0.2, 0.05, 0.42, 0.72, 1.0, 0.82, 1.0]))
+    return float(np.interp(k, [0, 9, 13.5, 15, 19, 23, 27, 28, 34, 38], [0.14, 0.2, 0.05, 0.32, 0.38, 0.4, 0.72, 1.0, 0.85, 1.0]))
 
 
 def in_breath(k):
@@ -171,45 +175,48 @@ for k, ch, ln in PROG:
     pat = [0, 1, 2, 3, 2, 1, 2, 3]
     for j in range(int(ln * 2)):                                   # steady 8ths (quarters land on his steps)
         kk = k + j * 0.5
-        if kk < 1 or in_breath(kk) or (8 <= kk < 12.5 and j % 2):
+        if kk < 23 or in_breath(kk):
             continue
         m = ARP[ch][pat[j % 8]]
         g = (0.16 + 0.24 * e) * (1.0 if j % 2 == 0 else 0.6)
         place(music, piano(m, 1.4, 0.4 + 0.3 * e), bt(kk) + rng.uniform(0, 0.004), g, -0.3 + 0.6 * (pat[j % 8] / 3))
 
 # melody: the rising motif three times, each higher and fuller (midi, beat, length)
-MEL = [(74, 4, 0.5), (76, 4.5, 0.5), (78, 5, 1), (81, 6, 2), (78, 8, 1.5), (76, 10, 1.5), (73, 12, 1),
-       (74, 13, 0.5), (76, 13.5, 0.5), (78, 14, 1), (83, 15, 1), (79, 16, 2), (76, 18, 1), (73, 19, 1),
-       (78, 20, 2), (74, 22, 2), (76, 24, 1), (75, 25, 0.5),
-       (76, 26, 0.5), (78, 26.5, 0.5), (80, 27, 1), (83, 28, 1.5), (80, 29.5, 0.5), (81, 30, 1), (78, 31, 1),
-       (76, 32, 1), (81, 33, 1), (78, 34, 1), (75, 35, 0.5)]
+MEL = [(74, 1, 0.5), (76, 1.5, 0.5), (78, 2, 1), (81, 3, 2), (78, 5, 1.5), (76, 6.5, 1.5), (74, 8, 1),
+       (73, 11, 2),
+       (74, 14, 0.5), (76, 14.5, 0.5), (78, 15, 1), (83, 16, 1), (81, 17, 2),
+       (78, 23, 2), (76, 25, 1), (78, 26, 1), (75, 27, 0.5),
+       (76, 28, 0.5), (78, 28.5, 0.5), (80, 29, 1), (83, 30, 1.5), (80, 31.5, 0.5), (81, 32, 1.5), (78, 33.5, 0.5),
+       (76, 34, 1), (81, 35, 1), (78, 36, 1), (75, 37, 0.5)]
 for m, k, ln in MEL:
     e = energy(k)
     place(music, piano(m, ln * BEAT + 1.6, 0.55 + 0.25 * e), bt(k), 0.8 + 0.45 * e, 0.1)
-    if k >= 26:                                                    # strings sing the tune an octave up at the peak
-        ens([m + 12, m], k, k + ln, 1.0 if k < 32 else 0.8, att=0.18, hi=6000)
+    if k >= 28:                                                    # strings sing the tune an octave up at the peak
+        ens([m + 12, m], k, k + ln, 1.0 if k < 34 else 0.8, att=0.18, hi=6000)
 
+# in the silence before the door: one soft high string note holds the thread
+ens([69, 74], 19.4, 23.0, 0.32, att=1.2, hi=5000)
 # the choir enters with the key lift, and again under the logo
-choir([64, 68, 71, 76], 26, 30, 1.0)
-choir([64, 69, 73, 76], 30, 32, 0.8)
+choir([64, 68, 71, 76], 28, 32, 1.0)
+choir([64, 69, 73, 76], 32, 34, 0.85)
 choir([64, 68, 71, 76, 80], FINAL, FINAL + (DUR - bt(FINAL)) / BEAT - 1.4, 1.1)
 # deep cinematic hit under the key lift: the moment she holds the parcel
 tt = T(2.4)
 hit = np.sin(2 * np.pi * (38 + 30 * np.exp(-tt * 6)) * tt) * np.exp(-tt / 0.7) + fft_filter(noise(2.4), 60, 400) * np.exp(-tt / 0.25) * 0.25
-place(music, hit * 0.5, bt(26))
+place(music, hit * 0.5, bt(28))
 # sparkle on the two turning points (light, badge)
-for k, notes in [(13, [86, 91]), (26, [88, 92, 95]), (36, [88, 95])]:
+for k, notes in [(14, [86, 90, 93]), (28, [88, 92, 95]), (38, [88, 95])]:
     for i, m in enumerate(notes):
         place(music, glock(m) * 0.06, bt(k) + i * BEAT / 2, pan=0.35 - 0.7 * i)
 
 # heartbeat kick from the light (half-time), every beat in the recap; soft shaker 8ths from the badge
-for k in range(18, FINAL):
-    if (k < 32 and k % 2) or in_breath(k):
+for k in range(23, FINAL):
+    if (k < 34 and k % 2) or in_breath(k):
         continue
     tt = T(0.4)
     kick = np.sin(2 * np.pi * (52 + 60 * np.exp(-tt * 30)) * tt) * env_exp(0.4, 0.11)
     place(music, kick * (0.11 + 0.1 * energy(k)), bt(k))
-for j in range(52, 2 * FINAL):
+for j in range(56, 2 * FINAL):
     if in_breath(j * 0.5):
         continue
     d = 0.06
@@ -217,7 +224,7 @@ for j in range(52, 2 * FINAL):
     place(music, sh * (0.028 if j % 2 else 0.016), bt(j * 0.5), pan=0.3)
 # risers into the landings (kept out of the breath dip), soft cymbal bloom on them
 rise = buf()
-for k_to, g in [(26, 0.07), (FINAL, 0.065)]:
+for k_to, g in [(28, 0.07), (FINAL, 0.065)]:
     d = 2 * BEAT
     tt = T(d)
     sig = fft_filter(noise(d), 2500, 11000) * (tt / d) ** 3 * g
@@ -247,7 +254,7 @@ music += rise
 for ch in range(2):
     music[:, ch] += fft_filter(music[:, ch], 2500, 14000) * 1.6 + fft_filter(music[:, ch], 6000, 16000) * 1.2
 # the dead end is the quietest, most intimate moment, so the turn back and the handover feel earned
-i0, i1, i2 = int(bt(8) * SR), int(bt(9) * SR), int(bt(12.5) * SR)
+i0, i1, i2 = int(bt(9) * SR), int(bt(10) * SR), int(bt(13.6) * SR)
 duck = np.ones(len(music))
 duck[i0:i1] = np.linspace(1, 0.62, i1 - i0)
 duck[i1:i2] = 0.62

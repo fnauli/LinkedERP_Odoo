@@ -31,15 +31,50 @@ def load(folder, idx):
     return cv2.resize(im, (W, H), interpolation=cv2.INTER_CUBIC)
 
 
+# --- the mosque shot was locked-off and far darker than the rest (mean 13 vs 35-64): lift it to the same
+# blue dusk, give it a slow push-in, drifting mist over the mosque and fine rain, so it lives like the others
+def lift_night(a):
+    x = (a.astype(np.float32) / 255.0) ** 0.62
+    x = x * np.array([0.96, 1.0, 1.06], np.float32)
+    return np.clip(x * 255.0, 0, 255).astype(np.uint8)
+
+
+_rs = np.random.default_rng(3)
+_mist = cv2.GaussianBlur(_rs.random((H // 8, W // 4)).astype(np.float32), (0, 0), 6)
+_mist = cv2.resize((_mist - _mist.min()) / (np.ptp(_mist) + 1e-6), (W * 2, H), interpolation=cv2.INTER_CUBIC)
+_rain = np.zeros((H * 2, W), np.float32)
+for _ in range(900):
+    x0, y0 = _rs.integers(0, W), _rs.integers(0, H * 2)
+    L = _rs.integers(25, 70)
+    cv2.line(_rain, (int(x0), int(y0)), (int(x0 - L * 0.18), int(y0 + L)), float(_rs.uniform(0.35, 1.0)), 1)
+_rain = cv2.GaussianBlur(_rain, (0, 0), 0.8)
+
+
+def atmos(arr, t, a, b):
+    """Push-in + drifting mist (strongest around the mosque) + fine rain for the opening shot."""
+    p = (t - a) / (b - a)
+    z = 1.0 + 0.09 * p
+    img = Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8))
+    arr = np.asarray(zoom(img, z, fy=0.42), np.float32)
+    ox = int((t - a) * 38) % W
+    m = _mist[:, ox:ox + W]
+    wy = np.clip(1.2 - np.arange(H, dtype=np.float32) / (H * 0.5), 0, 1)[:, None]
+    k = (0.10 + 0.22 * m) * wy
+    arr = arr * (1 - k[..., None]) + np.array([150, 168, 190], np.float32) * k[..., None]
+    oy = int((t - a) * 1500) % H
+    r = _rain[oy:oy + H]
+    return np.clip(arr + r[..., None] * np.array([70, 80, 95], np.float32), 0, 255)
+
+
 # one look for all shots: bring each shot part-way to the median exposure, then a gentle shared grade
 def _lum(a):
     return float(cv2.cvtColor(a, cv2.COLOR_RGB2GRAY).mean())
 
 
 _means = []
-for a, b, folder, f0, sp in SHOTS:
+for k, (a, b, folder, f0, sp, dz) in enumerate(SHOTS):
     mid = f0 + int((b - a) * CLIP_FPS * sp / 2)
-    _means.append(_lum(load(folder, mid)))
+    _means.append(_lum(lift_night(load(folder, mid)) if k == 0 else load(folder, mid)))
 _target = float(np.median(_means))
 GAIN = [float(np.clip((_target / m) ** 0.55, 0.85, 1.45)) for m in _means]
 
@@ -54,18 +89,32 @@ def grade(a, gain=1.0):
     return np.clip(a, 0, 255)
 
 
+def shot_frame(k, t):
+    a, b, folder, f0, sp, dz = SHOTS[k]
+    last = f0 + (b - a) * CLIP_FPS * sp
+    pos = min(f0 + (t - a) * CLIP_FPS * sp, last)
+    if sp == 1.0:
+        frm = load(folder, int(round(pos)))
+    else:                                                  # slow motion: motion-compensated in-betweens
+        i0 = int(np.floor(pos))
+        frm = load(folder, i0) if pos - i0 < 0.02 or i0 + 1 > last + 0.5 else between(load(folder, i0), load(folder, i0 + 1), pos - i0)
+    if k == 0:
+        frm = lift_night(frm)
+    arr = grade(frm, GAIN[k])
+    if k == 0:
+        arr = atmos(arr, t, a, b)
+    return arr
+
+
 def live(t):
-    for k, (a, b, folder, f0, sp) in enumerate(SHOTS):
+    for k, (a, b, folder, f0, sp, dz) in enumerate(SHOTS):
         if a <= t < b or (k == len(SHOTS) - 1 and t >= a):
-            pos = f0 + (t - a) * CLIP_FPS * sp
-            if sp == 1.0:
-                frm = load(folder, int(round(pos)))
-            else:                                          # slow motion: motion-compensated in-betweens
-                i0 = int(np.floor(pos))
-                frm = between(load(folder, i0), load(folder, i0 + 1), pos - i0)
-            arr = grade(frm, GAIN[k])
-            if k == 0 and t < a + 0.6:                     # up from the black "GPS menyerah." screen
-                arr = arr * ease_io(lin(t, a, a + 0.6))
+            arr = shot_frame(k, t)
+            if dz > 0 and t < a + dz and k > 0:            # soft dissolve from the previous shot
+                w = ease_io((t - a) / dz)
+                arr = arr * w + shot_frame(k - 1, t) * (1 - w)
+            if k == 0 and t < a + 0.8:                     # up from the black "GPS menyerah." screen
+                arr = arr * ease_io(lin(t, a, a + 0.8))
             return arr
     raise ValueError(t)
 
@@ -83,12 +132,9 @@ def text_strength(t):
 
 def overlays(img, t):
     # the landmarks GPS could not use, shown as he passes them
-    draw_chip(img, "Dekat masjid", 540, 690, t, bt(0) + 0.3, 1.7)
-    draw_chip(img, "Depan pohon mangga", 60, 640, t, bt(4) + 0.2, 1.8, anchor="l")
-    draw_chip(img, "Masuk gang, mentok, belok kiri", 540, 600, t, bt(8) + 0.2, 1.9)
-    draw_chip(img, "Rumah cat hijau", 60, 560, t, bt(17) + 0.1, 1.6, anchor="l")
-    draw_chip(img, "Pagar hitam", 60, 860, t, bt(17) + 0.5, 1.4, anchor="l")
-    draw_chip(img, "Warung Bu Ani", 1040, 900, t, bt(17) + 0.9, 1.2, anchor="r")
+    draw_chip(img, "Dekat masjid", 540, 760, t, bt(1), 2.0)
+    draw_chip(img, "Depan pohon mangga", 60, 640, t, bt(5) + 0.4, 1.8, anchor="l")
+    draw_chip(img, "Masuk gang, mentok, belok kiri", 540, 600, t, bt(9) + 0.4, 2.2)
     a, s, dy = pop(t, T1[0], 0.6, T1[1])
     draw_text(img, "Kurir kami tidak.", font("xb", 88), 540, 420 + dy, (255, 255, 255), a, s, blur=16)
     a, s, dy = pop(t, T2[0], 0.55, T2[1])
@@ -107,7 +153,7 @@ _RBG = None
 
 
 def recap_bg():
-    a, b, folder, f0, sp = SHOTS[-1]
+    a, b, folder, f0, sp, dz = SHOTS[-1]
     arr = grade(load(folder, f0 + int((b - a) * CLIP_FPS * sp) - 1), GAIN[-1])
     g = arr.mean(axis=2, keepdims=True)
     return (arr * 0.5 + g * 0.5) * 0.28 + np.array([4, 6, 16], np.float32)
