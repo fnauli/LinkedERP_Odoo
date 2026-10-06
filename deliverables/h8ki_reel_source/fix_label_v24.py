@@ -86,24 +86,46 @@ def _logo():
 
 
 def panel_texture(pw=1400, ph=600):
-    """Albedo-relative texture of the printed panel (1 = white), in panel space."""
+    """Albedo-relative texture of a SEWN-ON patch (1 = white twill), in panel space:
+    merrowed (overlocked) navy border with its diagonal wrap stitches, a running stitch just inside it,
+    twill weave, and embroidered letters with a hint of relief."""
     tex = Image.new("RGB", (pw, ph), (255, 255, 255))
     lg = _logo()
     asp = lg.width / lg.height
-    lw = int(min(pw * 0.86, ph * 0.80 * asp))
+    lw = int(min(pw * 0.76, ph * 0.66 * asp))
     lh = int(lw / asp)
     lg = lg.resize((lw, lh), Image.LANCZOS)
     tex.paste(lg, ((pw - lw) // 2, (ph - lh) // 2), lg)
-    t = np.asarray(tex, np.float32) / 255.0
-    t = lin(t * 255.0)                              # ink albedo in linear light
-    t = 1 - (1 - t) * 0.9                           # ink soaks into fabric: slightly translucent
-    b = int(ph * 0.035)                             # stitched seam just inside the edge
-    seam = np.ones((ph, pw), np.float32)
-    seam[b:b + 3, b:-b] = seam[-b - 3:-b, b:-b] = 0.9
-    seam[b:-b, b:b + 3] = seam[b:-b, -b - 3:-b] = 0.9
-    for k in range(b + 8, pw - b, 18):              # dashed: stitches, not a drawn line
-        seam[:, k:k + 5] = np.maximum(seam[:, k:k + 5], 0.95)
-    return t * seam[..., None]
+    t = lin(np.asarray(tex, np.float32))
+    ink = 1 - np.clip(t.mean(2), 0, 1)                                   # 0 = twill, ~1 = thread
+    # embroidered letters: thread sits slightly proud of the twill (lit from above)
+    gy = np.gradient(cv2.GaussianBlur(ink, (0, 0), 3), axis=0)
+    t = t * (1 - 3.0 * gy[..., None]).clip(0.85, 1.15)
+    yy, xx = np.mgrid[0:ph, 0:pw].astype(np.float32)
+    t = t * (1 + 0.035 * np.sin((xx + yy) * 2 * np.pi / 9))[..., None]  # twill weave
+    navy = lin(np.float32([[[48, 62, 112]]]))[0, 0]
+    bw = int(ph * 0.075)                                                  # merrowed border
+    d = np.minimum(np.minimum(xx, pw - 1 - xx), np.minimum(yy, ph - 1 - yy))
+    border = d < bw
+    wrap = 0.82 + 0.18 * (0.5 + 0.5 * np.sin((xx - yy) * 2 * np.pi / 22))  # diagonal wrap stitches
+    roll = 1.10 - 0.25 * ((d - bw / 2) / (bw / 2)) ** 2                    # rounded, rolled edge
+    t[border] = (navy[None, :] * (wrap * roll)[border][:, None])
+    # bevel: the padded patch catches light on its top edge, falls off at the bottom
+    t[border & (yy < ph / 2)] *= 1.12
+    t[border & (yy > ph / 2)] *= 0.86
+    # running stitch inside the border (navy thread, dashed)
+    si = bw + int(ph * 0.035)
+    th = max(6, int(ph * 0.014))
+    run = np.zeros((ph, pw), bool)
+    for (y0, y1, x0, x1, horiz) in [(si, si + th, si, pw - si, True), (ph - si - th, ph - si, si, pw - si, True),
+                                    (si, ph - si, si, si + th, False), (si, ph - si, pw - si - th, pw - si, False)]:
+        seg = np.zeros((ph, pw), bool)
+        seg[y0:y1, x0:x1] = True
+        pos = xx if horiz else yy
+        seg &= ((pos - si) % 34) < 22
+        run |= seg
+    t[run] = navy[None, :] * 1.1
+    return t
 
 
 TEX = panel_texture()
@@ -190,10 +212,18 @@ def apply(clip, i, frame=None):
     pan = pan * min(1.0, float(np.min(0.8 * kw / np.maximum(pin, 1e-6))))
     th, tw = TEX.shape[:2]
     Mp = cv2.getPerspectiveTransform(np.float32([[0, 0], [tw, 0], [tw, th], [0, th]]), Pq - off)
-    tex = cv2.warpPerspective(TEX, Mp, (X1 - X0, Y1 - Y0), flags=cv2.INTER_AREA, borderValue=(1, 1, 1))
+    tex = cv2.warpPerspective(TEX, Mp, (X1 - X0, Y1 - Y0), flags=cv2.INTER_AREA, borderMode=cv2.BORDER_REPLICATE)
     pan = pan * tex * (1 + rel[..., None] * 0.05)
 
     pa = cv2.GaussianBlur(pan_m.astype(np.float32) / 255, (0, 0), 0.7)[..., None]
+    # the padded patch stands ~2 mm off the bag: a soft contact shadow below it, and the cloth
+    # puckers slightly where the stitches pull it
+    sc = max(1.0, (Pq[2, 1] - Pq[1, 1]) / 60.0)                   # shadow scale ~ patch size on screen
+    Ms = np.float32([[1, 0, 0.6 * sc], [0, 1, 1.6 * sc]])
+    sh = cv2.warpAffine(pan_m.astype(np.float32) / 255, Ms, (pan_m.shape[1], pan_m.shape[0]))
+    sh = cv2.GaussianBlur(sh, (0, 0), 1.3 * sc)[..., None] * (1 - pa)
+    ring = cv2.GaussianBlur(cv2.dilate(pan_m, np.ones((5, 5), np.uint8)).astype(np.float32) / 255, (0, 0), 2.0 * sc)[..., None] * (1 - pa)
+    cloth = cloth * (1 - 0.45 * sh) * (1 - 0.10 * ring * (0.5 + 0.5 * np.sign(rel[..., None])))
     out = cloth * (1 - pa) + pan * pa
     out = cv2.GaussianBlur(out, (0, 0), 0.75)                    # same softness as the footage
     fa = cv2.GaussianBlur(fill_m.astype(np.float32) / 255, (0, 0), 1.2)[..., None]
