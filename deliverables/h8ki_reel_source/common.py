@@ -148,12 +148,12 @@ if V2:
     # (timeline start, timeline end, frame folder, first source frame, speed, dissolve-in seconds)
     H_START = bt(28) - (53 - 41) / 0.75 / 24          # handover: she holds it fully (src 53) exactly on beat 28
     SHOTS = [
-        (10.9, bt(5), "../new/a", 1, 0.885, 0.0),        # mosque, rebuilt: dusk exposure, push-in, mist, rain
-        (bt(5), bt(9), "../new/a", 92, 1.0, 0.35),       # under the trees, the landmark
+        (10.9, bt(5), "../new/a2", 1, 0.885, 0.0),        # mosque, rebuilt: dusk exposure, push-in, mist, rain
+        (bt(5), bt(9), "../new/a2", 92, 1.0, 0.35),       # under the trees, the landmark
         (bt(9), bt(15), "../new/d", 46, 0.833, 0.35),    # dead end, gentle slow motion: stops, wipes sweat, turns
-        (bt(15), bt(19), "../new/a", 240, 1.0, 0.0),     # the ibu points the way, he walks on smiling
-        (bt(19), bt(23), "../new/b", 1, 1.0, 0.0),       # rings the bell: the music falls silent
-        (bt(23), H_START, "../new/b", 64, 1.0, 0.0),     # the gate opens: the music returns, warm
+        (bt(15), bt(19), "../new/a2", 240, 1.0, 0.0),     # the ibu points the way, he walks on smiling
+        (bt(19), bt(23), "../new/b2", 1, 1.0, 0.0),       # rings the bell: the music falls silent
+        (bt(23), H_START, "../new/b2", 64, 1.0, 0.0),     # the gate opens: the music returns, warm
         (H_START, bt(34), "../new/h", 41, 0.75, 0.0),    # handover, gentle 0.75x: release, bow, hand on chest
     ]
     NIGHT_START, WALK_START = 10.9, 10.9
@@ -161,7 +161,7 @@ if V2:
     T2 = (bt(23) + 0.15, H_START - 0.1)               # "Buat yang kirim..." as the gate opens
     T3 = (bt(30.5), bt(34) - 0.15)                    # "Satu paket, satu penghasilan." over his hand on chest
     S4_START = WALKIN_END = S3_END = bt(19)
-    BELL_REACH, BELL_T = bt(19), bt(19) + 0.2
+    BELL_REACH, BELL_T = bt(19), bt(19) + 0.35        # ding-dong on finger contact (frame 7-17 of clip B)
     LIGHT_T = bt(23) + 0.05
     DOOR_OPEN_T = bt(23) + (100 - 64) / 24             # gate latch in Clip B shot 2
     GIVE_T = BADGE_T = bt(28)                          # she holds the parcel = badge = key lift
