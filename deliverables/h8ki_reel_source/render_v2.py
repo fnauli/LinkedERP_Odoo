@@ -91,22 +91,7 @@ def shot_frame(k, t):
     a, b, folder, f0, sp, dz = SHOTS[k]
     last = f0 + (b - a) * CLIP_FPS * sp
     pos = min(f0 + (t - a) * CLIP_FPS * sp, last)
-    if k == 2:                                             # dead end: skip Kling's turn (the bag morphs while it rotates)
-        u, LA, D = t - a, 0.75, b - a
-        def at(p):
-            i0 = int(np.floor(p))
-            return load(folder, i0) if p - i0 < 0.02 else between(load(folder, i0), load(folder, i0 + 1), p - i0)
-        pa = min(46 + u * 24 * 0.6, 56.0)                          # arrives at the wall, back view
-        sB = 37.0 / ((D - (LA - 0.2)) * 24)
-        pb = min(84 + max(0.0, u - (LA - 0.2)) * 24 * sB, 121.0)   # already turned: wipes sweat, walks back
-        if u < LA - 0.2:
-            frm = at(pa)
-        elif u > LA + 0.2:
-            frm = at(pb)
-        else:
-            w = ease_io((u - (LA - 0.2)) / 0.4)
-            frm = (at(pa).astype(np.float32) * (1 - w) + at(pb).astype(np.float32) * w).astype(np.uint8)
-    elif sp == 1.0:
+    if sp == 1.0:
         frm = load(folder, int(round(pos)))
     else:                                                  # slow motion: motion-compensated in-betweens
         i0 = int(np.floor(pos))

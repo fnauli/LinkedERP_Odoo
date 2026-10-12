@@ -150,9 +150,9 @@ if V2:
     SHOTS = [
         (10.9, bt(5), "../new/a2", 1, 0.885, 0.0),        # mosque, rebuilt: dusk exposure, push-in, mist, rain
         (bt(5), bt(10), "../new/a2", 77, 1.0, 0.35),      # under the trees, the landmark (one beat longer)
-        (bt(10), bt(15), "../new/d2", 46, 0.6, 0.35),     # dead end: arrives (back view) -> dissolve -> turned, wipes sweat, walks back
+        (bt(10), bt(15), "../new/d2", 84, 0.5, 0.35),     # dead end: one continuous take, already turned: wipes sweat, looks up, walks back
         (bt(15), bt(19), "../new/a2", 240, 1.0, 0.0),     # the ibu points the way, he walks on smiling
-        (bt(19), bt(23), "../new/b2", 1, 1.0, 0.0),       # rings the bell: the music falls silent
+        (bt(19), bt(23), "../new/b2", 1, 0.4, 0.0),       # rings the bell in slow motion; ends before Kling's smeared hand pull-back
         (bt(23), H_START, "../new/b2", 64, 1.0, 0.0),     # the gate opens: the music returns, warm
         (H_START, bt(34), "../new/h", 41, 0.75, 0.0),    # handover, gentle 0.75x: release, bow, hand on chest
     ]
@@ -161,7 +161,7 @@ if V2:
     T2 = (bt(23) + 0.15, H_START - 0.1)               # "Buat yang kirim..." as the gate opens
     T3 = (bt(30.5), bt(34) - 0.15)                    # "Satu paket, satu penghasilan." over his hand on chest
     S4_START = WALKIN_END = S3_END = bt(19)
-    BELL_REACH, BELL_T = bt(19), bt(19) + 0.35        # ding-dong on finger contact (frame 7-17 of clip B)
+    BELL_REACH, BELL_T = bt(19), bt(19) + 0.63        # ding-dong on finger contact (clip B frame 7, played at 0.4x)
     LIGHT_T = bt(23) + 0.05
     DOOR_OPEN_T = bt(23) + (100 - 64) / 24             # gate latch in Clip B shot 2
     GIVE_T = BADGE_T = bt(28)                          # she holds the parcel = badge = key lift
