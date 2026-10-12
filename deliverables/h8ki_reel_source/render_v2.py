@@ -91,7 +91,22 @@ def shot_frame(k, t):
     a, b, folder, f0, sp, dz = SHOTS[k]
     last = f0 + (b - a) * CLIP_FPS * sp
     pos = min(f0 + (t - a) * CLIP_FPS * sp, last)
-    if sp == 1.0:
+    if k == 2:                                             # dead end: skip Kling's turn (the bag morphs while it rotates)
+        u, LA, D = t - a, 0.75, b - a
+        def at(p):
+            i0 = int(np.floor(p))
+            return load(folder, i0) if p - i0 < 0.02 else between(load(folder, i0), load(folder, i0 + 1), p - i0)
+        pa = min(46 + u * 24 * 0.6, 56.0)                          # arrives at the wall, back view
+        sB = 37.0 / ((D - (LA - 0.2)) * 24)
+        pb = min(84 + max(0.0, u - (LA - 0.2)) * 24 * sB, 121.0)   # already turned: wipes sweat, walks back
+        if u < LA - 0.2:
+            frm = at(pa)
+        elif u > LA + 0.2:
+            frm = at(pb)
+        else:
+            w = ease_io((u - (LA - 0.2)) / 0.4)
+            frm = (at(pa).astype(np.float32) * (1 - w) + at(pb).astype(np.float32) * w).astype(np.uint8)
+    elif sp == 1.0:
         frm = load(folder, int(round(pos)))
     else:                                                  # slow motion: motion-compensated in-betweens
         i0 = int(np.floor(pos))
@@ -183,7 +198,7 @@ def overlays(img, t):
     # the landmarks GPS could not use, shown as he passes them
     draw_chip(img, "Dekat masjid", 540, 760, t, bt(1), 2.0)
     draw_chip(img, "Depan pohon mangga", 60, 640, t, bt(5) + 0.4, 1.8, anchor="l")
-    draw_chip(img, "Masuk gang, mentok, belok kiri", 540, 600, t, bt(9) + 0.4, 2.2)
+    draw_chip(img, "Masuk gang, mentok, belok kiri", 540, 600, t, bt(10) + 0.3, 2.2)
     draw_chip(img, "Rumah cat hijau, pagar hitam", 60, 600, t, bt(19) + 0.5, 1.8, anchor="l")
     draw_chip(img, "Sebelah warung Bu Ani", 1040, 940, t, bt(20.6) + 0.3, 1.6, anchor="r")
     a, s, dy = pop(t, T1[0], 0.6, T1[1])

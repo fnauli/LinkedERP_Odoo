@@ -149,8 +149,8 @@ if V2:
     H_START = bt(28) - (53 - 41) / 0.75 / 24          # handover: she holds it fully (src 53) exactly on beat 28
     SHOTS = [
         (10.9, bt(5), "../new/a2", 1, 0.885, 0.0),        # mosque, rebuilt: dusk exposure, push-in, mist, rain
-        (bt(5), bt(9), "../new/a2", 92, 1.0, 0.35),       # under the trees, the landmark
-        (bt(9), bt(15), "../new/d2", 46, 0.833, 0.35),    # dead end, gentle slow motion: stops, wipes sweat, turns
+        (bt(5), bt(10), "../new/a2", 77, 1.0, 0.35),      # under the trees, the landmark (one beat longer)
+        (bt(10), bt(15), "../new/d2", 46, 0.6, 0.35),     # dead end: arrives (back view) -> dissolve -> turned, wipes sweat, walks back
         (bt(15), bt(19), "../new/a2", 240, 1.0, 0.0),     # the ibu points the way, he walks on smiling
         (bt(19), bt(23), "../new/b2", 1, 1.0, 0.0),       # rings the bell: the music falls silent
         (bt(23), H_START, "../new/b2", 64, 1.0, 0.0),     # the gate opens: the music returns, warm

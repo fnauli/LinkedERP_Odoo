@@ -17,7 +17,8 @@ PILLAR_EDGE = 230
 TIP = [284, 279, 272, 267, 262, 256, 252, 249, 246, 243, 242, 241, 241, 243, 246, 250, 254, 259, 264, 269,
        272, 273, 277, 279, 287, 289, 306, 313, 341]
 TIP_Y = 867
-SHIFT = 27
+SHIFT = 20
+HAND = 95                                       # fingertip..wrist stays rigid: only the dark sleeve stretches
 ARM_END = 455                                   # displacement tapers to 0 here (before the shoulder)
 
 
@@ -84,7 +85,7 @@ def apply(i, frame=None):
     pressed = 0.0
     if i <= len(TIP):
         tip = TIP[i - 1]
-        s = SHIFT * float(np.clip((29 - i) / 6.0, 0, 1))      # ease out while the arm retracts
+        s = SHIFT * float(np.clip((i - 2) / 5.0, 0, 1)) * float(np.clip((29 - i) / 6.0, 0, 1))   # ease in as he reaches, out as he retracts
         if s > 0.3:
             raw = _rd(i).astype(np.float32)
             band = (slice(780, 1000), slice(200, ARM_END + 40))
@@ -100,8 +101,8 @@ def apply(i, frame=None):
                 arm = (lab == k).astype(np.uint8)
             H, W = f.shape[:2]
             gx, gy = np.meshgrid(np.arange(W, dtype=np.float32), np.arange(H, dtype=np.float32))
-            span = max(120.0, ARM_END - tip)
-            w = np.clip(1 - (gx - tip) / span, 0, 1)
+            span = max(60.0, ARM_END - tip - HAND)
+            w = np.clip(1 - (gx - (tip + HAND)) / span, 0, 1)
             w[:, :int(tip - s - 40)] = 1.0
             mapx = gx + s * w
             warped = cv2.remap(raw, mapx, gy, cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
