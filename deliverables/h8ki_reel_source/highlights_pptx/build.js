@@ -98,10 +98,12 @@ const CONTENT = {
     items: [
       ["[ISI: layanan 1, mis. Reguler]", "[ISI: keterangan & estimasi waktu]"],
       ["[ISI: layanan 2, mis. Same Day]", "[ISI: keterangan & estimasi waktu]"],
-      ["[ISI: layanan 3, mis. Kargo]", "[ISI: keterangan singkat]"],
+      ["[ISI: layanan 3, mis. Kargo]", "[ISI: keterangan & estimasi waktu]"],
+      ["[ISI: layanan 4]", "[ISI: keterangan & estimasi waktu]"],
+      ["[ISI: layanan 5]", "[ISI: keterangan & estimasi waktu]"],
     ],
     note: "Alamat cuma pakai patokan? Kurir kami cari sampai ketemu.",
-    todo: ["nama 3 layanan", "keterangan + estimasi waktu tiap layanan", "nomor WhatsApp (tombol hijau)"],
+    todo: ["nama 5 layanan (1 kartu = 1 layanan)", "keterangan + estimasi waktu tiap layanan", "nomor WhatsApp (tombol hijau)"],
   },
   Area: {
     kicker: "Di mana kami melayani", accent: INDIGO,
@@ -133,16 +135,19 @@ const TODO_TAIL = ["Kalau teks terlalu panjang, persingkat; jangan kecilkan huru
 function story(sec, spec) {
   const s = pres.addSlide({ masterName: "Story", sectionTitle: sec });
   header(s, sec, spec.kicker, spec.accent);
-  const k = spec.items.length, ch = k <= 3 ? 230 : 190, gap = k <= 3 ? 30 : 22;
-  let y = 700;
+  // card height / gap / start / title & body px for 3, 4 or 5 cards (all end above the note + WhatsApp button)
+  const k = spec.items.length;
+  const [ch, gap, y0, ft, fb, pad] = { 3: [230, 30, 700, 38, 30, 24], 4: [190, 22, 700, 34, 27, 24],
+    5: [146, 16, 676, 32, 26, 16] }[k];
+  let y = y0;
   spec.items.forEach(([t, b], i) => {
     card(s, 60, y, 960, ch);
     s.addShape(pres.ShapeType.roundRect, { x: P(60), y: P(y), w: P(16), h: P(ch), rectRadius: P(8),
       fill: { color: spec.accent }, line: { type: "none" }, objectName: name("Penanda kartu") });
     s.addText([
-      { text: t, options: { bold: true, fontSize: PT(k <= 3 ? 38 : 34), color: C.text1, breakLine: true } },
-      { text: b, options: { fontSize: PT(k <= 3 ? 30 : 27), color: C.text2, paraSpaceBefore: 6 } },
-    ], { x: P(120), y: P(y + 24), w: P(860), h: P(ch - 48), margin: 0, valign: "middle", fit: "shrink",
+      { text: t, options: { bold: true, fontSize: PT(ft), color: C.text1, breakLine: true } },
+      { text: b, options: { fontSize: PT(fb), color: C.text2, paraSpaceBefore: 6 } },
+    ], { x: P(120), y: P(y + pad), w: P(860), h: P(ch - 2 * pad), margin: 0, valign: "middle", fit: "shrink",
       isTextBox: true, objectName: name(`Isi kartu ${i + 1}`) });
     y += ch + gap;
   });
