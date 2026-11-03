@@ -6,7 +6,7 @@ Instagram + Facebook: Kamis, 5 November 2026, 18.00 WIB · TikTok + YouTube Shor
 
 | Hal | Isi |
 | --- | --- |
-| Video | `H8KI_Reel3_Tracking_v4.mp4` (16 detik, 9:16, dengan musik) dan `H8KI_Reel3_Tracking_v4_NO_MUSIC.mp4` (sama, hanya efek suara, untuk dipasangi lagu trending) |
+| Video | `H8KI_Reel3_Tracking_v5.mp4` (14,6 detik, 9:16, dengan musik) dan `H8KI_Reel3_Tracking_v5_NO_MUSIC.mp4` (sama, hanya efek suara, untuk dipasangi lagu trending) |
 | Sampul | `COVER_H8KI_Reel3_Tracking.jpg` |
 | Ide | Format "Di aplikasi vs Kenyataannya". Atas: titik kurir diam 10 menit di aplikasi. Bawah: kurir sebenarnya di gang buntu, tanya warga, lalu paketnya sampai. |
 | Asal ide | Komentar @heyyyy_dump di Reels #1: "Ga relate, saya mah tim nonton tracking kurir aja" |
@@ -43,7 +43,7 @@ Instagram + Facebook: Kamis, 5 November 2026, 18.00 WIB · TikTok + YouTube Shor
 ## 4. Persiapan (Rabu, 4 November)
 
 - [ ] **Izin tag:** DM ke @heyyyy_dump: *"Kak, komentar kakak di video kami jadi inspirasi video berikutnya 😄 Boleh kami tag di caption?"* Kalau sampai Kamis 17.00 tidak dibalas atau tidak boleh: hapus bagian "(halo @heyyyy_dump 👋)" dari caption.
-- [ ] **File:** unduh `H8KI_Reel3_Tracking_v4.mp4`, `H8KI_Reel3_Tracking_v4_NO_MUSIC.mp4` dan `COVER_H8KI_Reel3_Tracking.jpg` ke galeri HP admin lewat **Google Drive** (jangan lewat WhatsApp, kualitasnya turun).
+- [ ] **File:** unduh `H8KI_Reel3_Tracking_v5.mp4`, `H8KI_Reel3_Tracking_v5_NO_MUSIC.mp4` dan `COVER_H8KI_Reel3_Tracking.jpg` ke galeri HP admin lewat **Google Drive** (jangan lewat WhatsApp, kualitasnya turun).
 - [ ] Putar video sekali di galeri: suara ada, tidak patah-patah, durasi 16 detik.
 - [ ] **Profil siap:** bio berisi layanan, area, dan link WhatsApp; 4 Highlights (Layanan, Area, Cara Order, Testimoni) sudah tampil; Reels #1 dan #2 disematkan.
 - [ ] **Kolaborator** (gunardi.minah dan 3 akun lainnya) dikabari bahwa besok jam 18.00 ada undangan kolaborasi yang perlu diterima.
@@ -63,7 +63,7 @@ Instagram + Facebook: Kamis, 5 November 2026, 18.00 WIB · TikTok + YouTube Shor
 ## 6. Posting di Instagram (Kamis, tepat 18.00)
 
 1. Buka Instagram, tekan **+** di bawah, pilih **Reel**.
-2. Pilih video `H8KI_Reel3_Tracking_v4_NO_MUSIC.mp4` dari galeri (kalau tidak ada lagu trending yang cocok, pakai `H8KI_Reel3_Tracking_v4.mp4` dan lewati langkah 3), tekan **Berikutnya** (Next).
+2. Pilih video `H8KI_Reel3_Tracking_v5_NO_MUSIC.mp4` dari galeri (kalau tidak ada lagu trending yang cocok, pakai `H8KI_Reel3_Tracking_v5.mp4` dan lewati langkah 3), tekan **Berikutnya** (Next).
 3. Di layar edit: tambahkan **lagu trending** dan (opsional) **suara admin** sesuai bagian 6b. **Jangan** memotong, menambah filter, teks, atau stiker. Tekan **Berikutnya**.
 4. **Caption:** tempel caption di bawah ini persis.
 5. **Sampul:** tekan **Edit sampul** lalu **Tambahkan dari rol kamera**, pilih `COVER_H8KI_Reel3_Tracking.jpg`. Cek di tab **Kisi profil** (profile grid): tulisan "Titik kurir diem 10 menit?" dan wajah kurir harus terlihat.
@@ -114,7 +114,7 @@ Kurir Tangerang · Ekspedisi Tangerang · Jasa kirim paket Tangerang
 4. Atur **bagian lagu** supaya bagian yang paling dikenal mulai di detik 0.
 5. Tekan **Kontrol/Volume**: **Audio kamera (original audio) 100%**, **musik 35-45%**. Bunyi getar HP, notifikasi dan detak jam harus tetap terdengar.
 6. Putar sekali dari awal. Kalau terlalu ramai, turunkan musik.
-7. Kalau dalam 5 menit tidak ada lagu yang cocok: batalkan, pakai `H8KI_Reel3_Tracking_v4.mp4` (sudah ada musik kami).
+7. Kalau dalam 5 menit tidak ada lagu yang cocok: batalkan, pakai `H8KI_Reel3_Tracking_v5.mp4` (sudah ada musik kami).
 
 **Suara admin (opsional, menambah kesan manusia):**
 
@@ -128,7 +128,7 @@ Titik kurir diem sepuluh menit? Eits, tunggu dulu... ini yang sebenarnya terjadi
 3. Dengarkan hasilnya. Kalau suara kurang jelas atau ada bising, rekam ulang di ruangan yang tenang.
 4. Volume voiceover 100%, musik diturunkan sedikit (sekitar 30%) supaya suaranya jelas.
 
-Untuk **TikTok**, cara yang sama: upload `H8KI_Reel3_Tracking_v4_NO_MUSIC.mp4`, tekan **Tambah suara** (Add sound), pilih lagu trending dari daftar yang tersedia untuk akun bisnis, atur volume: suara asli 100%, lagu 35-45%. Untuk **YouTube Shorts**, pakai `H8KI_Reel3_Tracking_v4.mp4` (dengan musik kami).
+Untuk **TikTok**, cara yang sama: upload `H8KI_Reel3_Tracking_v5_NO_MUSIC.mp4`, tekan **Tambah suara** (Add sound), pilih lagu trending dari daftar yang tersedia untuk akun bisnis, atur volume: suara asli 100%, lagu 35-45%. Untuk **YouTube Shorts**, pakai `H8KI_Reel3_Tracking_v5.mp4` (dengan musik kami).
 
 ## 7. Sepuluh menit pertama (18.01 sampai 18.10)
 
@@ -189,8 +189,8 @@ Terima kasih banyak!
 
 ## 10. TikTok (Jumat, 6 November, 19.00)
 
-1. Buka TikTok, tekan **+**, lalu **Upload**, pilih **file asli** `H8KI_Reel3_Tracking_v4_NO_MUSIC.mp4` (jangan pakai unduhan dari Instagram karena ada watermark).
-2. Tambahkan **lagu trending** sesuai bagian 6b (atau upload `H8KI_Reel3_Tracking_v4.mp4` tanpa lagu tambahan). Jangan tambah efek. Tekan **Berikutnya**.
+1. Buka TikTok, tekan **+**, lalu **Upload**, pilih **file asli** `H8KI_Reel3_Tracking_v5_NO_MUSIC.mp4` (jangan pakai unduhan dari Instagram karena ada watermark).
+2. Tambahkan **lagu trending** sesuai bagian 6b (atau upload `H8KI_Reel3_Tracking_v5.mp4` tanpa lagu tambahan). Jangan tambah efek. Tekan **Berikutnya**.
 3. **Sampul:** pilih frame pertama (tulisan "Titik kurir diem 10 menit?").
 4. Tempel caption di bawah ini.
 5. **Lokasi:** Kota Tangerang.
@@ -219,7 +219,7 @@ Kurir & ekspedisi Tangerang · cek resi · lacak paket · video dibuat dengan ba
 
 ## 11. YouTube Shorts (Jumat, 6 November, 19.30)
 
-1. Buka aplikasi YouTube, tekan **+**, lalu **Upload a video** (atau **Create a Short** lalu pilih dari galeri). Pilih **file asli** `H8KI_Reel3_Tracking_v4.mp4`.
+1. Buka aplikasi YouTube, tekan **+**, lalu **Upload a video** (atau **Create a Short** lalu pilih dari galeri). Pilih **file asli** `H8KI_Reel3_Tracking_v5.mp4`.
 2. Jangan tambah musik. Tekan **Next**.
 3. Isi **judul** dan **deskripsi** di bawah ini (ganti `[ISI: link wa.me Hoki]` dengan link WhatsApp Hoki).
 4. **Altered or synthetic content: YES** (footage kurir dibuat dengan AI).
@@ -295,7 +295,7 @@ Angka yang paling penting: **Views, Skip rate, rata-rata ditonton, Reels tab %, 
 
 ## 16. Checklist akhir (centang saat posting)
 
-- [ ] Video v4 (dua versi) dan sampul ada di galeri
+- [ ] Video v5 (dua versi) dan sampul ada di galeri
 - [ ] Lagu trending dipasang (atau pakai versi dengan musik kami), volume dicek
 - [ ] Caption ditempel, tag @heyyyy_dump hanya kalau sudah diizinkan
 - [ ] Sampul dari rol kamera, terlihat utuh di kisi profil

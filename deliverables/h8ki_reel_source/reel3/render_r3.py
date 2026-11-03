@@ -13,13 +13,13 @@ from common import clamp, lin, ease_io, ease_out
 import interp
 
 W, H, FPS = 1080, 1920, 24
-DUR = 16.0
+DUR = 14.6
 PANEL = 900                                  # top: the app; bottom: the reality
 INK, GREY, LINE = (24, 28, 40), (104, 112, 124), (226, 229, 235)
 RED, GREEN, BLUE, BG = (227, 24, 30), (4, 152, 68), (24, 119, 242), (244, 245, 248)
 END_T = 13.2
-TRANS = 0.6                                   # soft blur-to-white into the end card
-CARD_T = END_T + 0.55                         # end-card elements start once the white has settled
+TRANS = 0.35                                  # soft blur-to-white into the short logo flash
+CARD_T = END_T + 0.3                          # logo flash starts once the white has settled
 
 # (t0, t1, clip, first src frame, last src frame, crop centre x, crop centre y, crop width)
 SHOTS = [
@@ -27,10 +27,10 @@ SHOTS = [
     (2.4, 4.8, "a2", 236, 290, 540, 860, 1080),   # an ibu peeks out and points the way
     (4.8, 5.8, "a2", 290, 313, 560, 820, 900),    # he walks on, smiling
     (5.8, 7.2, "a2", 80, 110, 590, 820, 780),     # under the trees, almost there
-    (7.2, 9.6, "b2", 64, 120, 540, 860, 1080),    # the gate opens, warm light
-    (9.6, END_T, "h", 41, 121, 540, 900, 1080),   # handover, both smiling
+    (7.2, 8.4, "b2", 84, 112, 540, 860, 1080),    # the gate opens, warm light (short: the dark shot only bridges)
+    (8.4, END_T, "h", 41, 121, 540, 900, 1080),   # handover, both smiling: more time on the bright, happy faces
 ]
-PH = [0.0, 2.4, 4.8, 7.2, 9.6]                # status phases follow the cuts
+PH = [0.0, 2.4, 4.8, 7.2, 8.4]                # status phases follow the cuts
 
 
 @lru_cache(maxsize=6)
@@ -60,7 +60,7 @@ def footage(t):
 
 
 # ------------------------------------------------------------------ the app (top panel)
-MX, MY, MW, MH = 30, 335, 1020, 365          # map box on screen
+MX, MY, MW, MH = 30, 375, 1020, 325          # map box on screen
 S2 = 2                                        # map supersampling
 DEAD, J, TURN, HOUSE = (290, 62), (290, 200), (780, 200), (780, 86)
 PATH = [DEAD, J, TURN, HOUSE]
@@ -92,13 +92,13 @@ def map_base():
         x, y = rng.uniform(0, MW), rng.uniform(0, MH)
         bw, bh = rng.uniform(40, 110), rng.uniform(30, 70)
         d.rounded_rectangle((q(x), q(y), q(x + bw), q(y + bh)), q(6), fill=(224, 226, 220))
-    d.rounded_rectangle((q(560), q(232), q(720), q(300)), q(18), fill=(205, 232, 200))     # little park
+    d.rounded_rectangle((q(560), q(228), q(720), q(272)), q(18), fill=(205, 232, 200))     # little park
     # alleys: white with a soft edge
     for (a, b, wd) in [((0, 200), (MW, 200), 30), ((290, 200), (290, 50), 24), ((780, 200), (780, 70), 24),
-                       ((520, 200), (520, MH), 24), ((120, 200), (120, MH), 24), ((0, 325), (MW, 325), 38)]:
+                       ((520, 200), (520, MH), 24), ((120, 200), (120, MH), 24), ((0, 305), (MW, 305), 30)]:
         d.line([(q(a[0]), q(a[1])), (q(b[0]), q(b[1]))], fill=(214, 216, 212), width=q(wd + 6))
     for (a, b, wd) in [((0, 200), (MW, 200), 30), ((290, 200), (290, 50), 24), ((780, 200), (780, 70), 24),
-                       ((520, 200), (520, MH), 24), ((120, 200), (120, MH), 24), ((0, 325), (MW, 325), 38)]:
+                       ((520, 200), (520, MH), 24), ((120, 200), (120, MH), 24), ((0, 305), (MW, 305), 30)]:
         d.line([(q(a[0]), q(a[1])), (q(b[0]), q(b[1]))], fill=(255, 255, 255), width=q(wd))
     d.line([(q(270), q(48)), (q(310), q(48))], fill=(150, 150, 150), width=q(6))        # dead-end wall
     # landmarks: mosque, mango tree, warung
@@ -106,10 +106,10 @@ def map_base():
     d.rectangle((q(mx - 34), q(my), q(mx + 34), q(my + 34)), fill=(196, 214, 204))
     d.ellipse((q(mx - 24), q(my - 26), q(mx + 24), q(my + 18)), fill=(150, 196, 170))
     d.rectangle((q(mx + 40), q(my - 30), q(mx + 48), q(my + 34)), fill=(150, 196, 170))
-    d.ellipse((q(640 - 22), q(255 - 22), q(640 + 22), q(255 + 22)), fill=(120, 184, 110))
-    d.rounded_rectangle((q(400), q(240), q(450), q(278)), q(6), fill=(252, 196, 120))
+    d.ellipse((q(640 - 20), q(250 - 20), q(640 + 20), q(250 + 20)), fill=(120, 184, 110))
+    d.rounded_rectangle((q(400), q(228), q(450), q(256)), q(6), fill=(252, 196, 120))
     f = font("m", 22 * S2)
-    for txt, x, y in [("Masjid", mx, my + 58), ("Warung", 425, 296), ("Jl. Raya", 900, 325)]:
+    for txt, x, y in [("Masjid", mx, my + 58), ("Warung", 425, 272), ("Jl. Raya", 900, 305)]:
         tw = f.getlength(txt)
         d.text((q(x) - tw / 2, q(y) - 14 * S2), txt, font=f, fill=(128, 134, 140))
     # planned route (dashed): junction -> house
@@ -226,7 +226,7 @@ def status_card(img, t):
     ic = check_icon(96) if kind == "check" else icon(kind, 96, col)
     card.alpha_composite(ic, (58, 48))
     d.text((180, 46), title, font=font("b", 44), fill=INK)
-    d.text((180, 108), sub, font=font("m", 30), fill=GREY)
+    d.text((180, 104), sub, font=font("m", 34), fill=GREY)
     if k == 0:                                         # the stuck timer, ticking up to 10:00
         secs = 597 + min(3, int(t / 0.6))
         tm = f"{secs // 60:02d}:{secs % 60:02d}"
@@ -240,18 +240,18 @@ def header(img, t):
     if t < 2.4:                                        # the hook, readable from frame 1
         a = 1 - ease_out(lin(t, 2.15, 2.4))
         s = 1.1 - 0.1 * ease_out(lin(t, 0, 0.2))      # lands like a stamp
-        draw_text(img, "Titik kurir diem", font("xb", 80), W / 2, 188, INK, a, s, shadow=0)
-        draw_text(img, "10 menit?", font("xb", 92), W / 2, 280, RED, a, s, shadow=0)
-    elif t < 9.6:
+        draw_text(img, "Titik kurir diem", font("xb", 80), W / 2, 215, INK, a, s, shadow=0)
+        draw_text(img, "10 menit?", font("xb", 92), W / 2, 307, RED, a, s, shadow=0)
+    elif t < 8.4:
         a = ease_out(lin(t, 2.4, 2.65))
-        draw_text(img, "Lacak Paketmu", font("b", 50), 40, 200, INK, a, 1.0, shadow=0, anchor="l")
-        draw_text(img, "Diantar hari ini · Resi H8KI", font("m", 30), 40, 262, GREY, a, 1.0, shadow=0, anchor="l")
-        paste_layer(img, LOGO_S, W - 40, 228, a, 1.0, anchor="r")
+        draw_text(img, "Lacak Paketmu", font("b", 50), 40, 225, INK, a, 1.0, shadow=0, anchor="l")
+        draw_text(img, "Diantar hari ini · Resi H8KI", font("m", 32), 40, 290, GREY, a, 1.0, shadow=0, anchor="l")
+        paste_layer(img, LOGO_S, W - 40, 255, a, 1.0, anchor="r")
     else:                                              # the punchline
-        a1, s1, dy1 = pop(t, 9.75, 0.5)
-        a2, s2, dy2 = pop(t, 10.35, 0.5)
-        draw_text(img, "Titiknya diem.", font("xb", 72), W / 2, 188 + dy1, INK, a1, s1, shadow=0)
-        draw_text(img, "Kurirnya nggak nyerah.", font("xb", 72), W / 2, 280 + dy2, RED, a2, s2, shadow=0)
+        a1, s1, dy1 = pop(t, 8.55, 0.5)
+        a2, s2, dy2 = pop(t, 9.15, 0.5)
+        draw_text(img, "Titiknya diem.", font("xb", 72), W / 2, 215 + dy1, INK, a1, s1, shadow=0)
+        draw_text(img, "Kurirnya nggak nyerah.", font("xb", 72), W / 2, 307 + dy2, RED, a2, s2, shadow=0)
 
 
 def label(img, txt, x, y, fg, bgc):
@@ -281,33 +281,45 @@ def heart(size, col=RED):
 
 
 def end_card(t):
+    """Short logo flash; loops cleanly back into frame 1."""
     img = Image.new("RGB", (W, H), (255, 255, 255))
-    p = ease_out(lin(t, CARD_T + 0.05, CARD_T + 0.45))
-    paste_layer(img, LOGO_M, W / 2, 610, p, 0.92 + 0.08 * back_in_out(p, 1.2))
-    a, s, dy = pop(t, CARD_T + 0.3, 0.5)
-    draw_text(img, "Kurir yang", font("xb", 88), W / 2, 930 + dy, INK, a, s, shadow=0.1, blur=10)
-    a, s, dy = pop(t, CARD_T + 0.5, 0.5)
-    draw_text(img, "nggak nyerah.", font("xb", 100), W / 2, 1040 + dy, RED, a, s, shadow=0.12, blur=10)
-    a, s, dy = pop(t, CARD_T + 0.8, 0.5)                 # ask for the like
+    p = ease_out(lin(t, CARD_T, CARD_T + 0.3))
+    paste_layer(img, LOGO_M, W / 2, 720, p, 0.92 + 0.08 * back_in_out(p, 1.2))
+    a, s, dy = pop(t, CARD_T + 0.12, 0.4)
+    draw_text(img, "Kurir yang", font("xb", 88), W / 2, 1040 + dy, INK, a, s, shadow=0.1, blur=10)
+    a, s, dy = pop(t, CARD_T + 0.28, 0.4)
+    draw_text(img, "nggak nyerah.", font("xb", 100), W / 2, 1150 + dy, RED, a, s, shadow=0.12, blur=10)
+    return img
+
+
+def cta(img, t):
+    """The asks, while people are still watching: like, then follow. They sit on the map (its job is done
+    once the parcel is delivered), so the happy faces below stay clear and Instagram's buttons never cover them."""
+    if t >= 10.75:
+        k = ease_out(lin(t, 10.75, 11.05))
+        veil = Image.new("RGBA", (MW, MH), (0, 0, 0, 0))
+        ImageDraw.Draw(veil).rounded_rectangle((0, 0, MW - 1, MH - 1), 28, fill=BG + (int(205 * k),))
+        img.alpha_composite(veil, (MX, MY))
+    a, s, dy = pop(t, 10.9, 0.5)
     if a > 0:
         f = font("b", 42); txt = "Tim nonton tracking? Tap"
         tw = f.getlength(txt)
-        L = Image.new("RGBA", (int(tw) + 80, 80), (0, 0, 0, 0))
-        ImageDraw.Draw(L).text((0, 10), txt, font=f, fill=INK)
-        beat = 1 + 0.12 * max(0.0, math.sin(max(0, t - CARD_T - 1.1) * 7)) ** 8
-        hz_ = heart(int(62 * beat))
-        L.alpha_composite(hz_, (int(tw) + 14 + (62 - hz_.width) // 2, 8 + (62 - hz_.height) // 2))
-        paste_layer(img, L, W / 2, 1215 + dy, a, s)
-    a, s, dy = pop(t, CARD_T + 1.1, 0.5)                 # and the follow
+        L = Image.new("RGBA", (int(tw) + 150, 96), (0, 0, 0, 0))
+        ImageDraw.Draw(L).rounded_rectangle((0, 0, L.width - 1, 95), 48, fill=INK + (215,))
+        ImageDraw.Draw(L).text((40, 20), txt, font=f, fill=(255, 255, 255))
+        beat = 1 + 0.14 * max(0.0, math.sin(max(0, t - 11.3) * 7)) ** 8
+        hz_ = heart(int(60 * beat))
+        L.alpha_composite(hz_, (int(tw) + 58 + (60 - hz_.width) // 2, 18 + (60 - hz_.height) // 2))
+        paste_layer(img, L, W / 2, MY + 105 + dy, a, s)
+    a, s, dy = pop(t, 11.5, 0.5)
     if a > 0:
         f = font("b", 40); txt = "Follow buat cerita kurir berikutnya"
         tw = f.getlength(txt)
         L = Image.new("RGBA", (int(tw) + 90, 96), (0, 0, 0, 0))
         ImageDraw.Draw(L).rounded_rectangle((0, 0, L.width - 1, 95), 48, fill=GREEN + (255,))
         ImageDraw.Draw(L).text((45, 20), txt, font=f, fill=(255, 255, 255))
-        breathe = 1 + 0.02 * math.sin(max(0, t - CARD_T - 1.5) * 4.2)
-        paste_layer(img, L, W / 2, 1370 + dy, a, s * breathe)
-    return img
+        breathe = 1 + 0.02 * math.sin(max(0, t - 11.9) * 4.2)
+        paste_layer(img, L, W / 2, MY + 225 + dy, a, s * breathe)
 
 
 def notif(img, t):
@@ -348,6 +360,7 @@ def frame(k):
         m = m.crop((int(x0), int(y0), int(x0 + w), int(y0 + h))).resize((MW, MH), Image.LANCZOS)
     img.paste(m, (MX, MY), mask)
     label(img, "DI APLIKASI", MX + 18, MY + 18, (255, 255, 255), INK + (230,))
+    cta(img, t)
     status_card(img, t)
     fo = footage(min(t, END_T - 1e-3))
     img.paste(Image.fromarray(fo), (0, PANEL))
