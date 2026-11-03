@@ -1,25 +1,28 @@
 # Panduan Lengkap Posting Reels #3: "Titik kurir diem 10 menit?"
 
-Instagram + Facebook: Kamis, 5 November 2026, 18.00 WIB · TikTok + YouTube Shorts: Jumat, 6 November 2026 · akun @hokilogistiklionindo
+Instagram + Facebook · **Rabu, 4 November 2026, pukul 19.30 WIB** (setelah Isya) · akun @hokilogistiklionindo
 
 ## 1. Ringkasan
 
 | Hal | Isi |
 | --- | --- |
-| Video | `H8KI_Reel3_Tracking_v5.mp4` (14,6 detik, 9:16, dengan musik) dan `H8KI_Reel3_Tracking_v5_NO_MUSIC.mp4` (sama, hanya efek suara, untuk dipasangi lagu trending) |
+| Video yang diposting | **`H8KI_Reel3_Tracking_v5_NO_MUSIC.mp4`** (14,6 detik, vertikal 9:16). Hanya berisi efek suara, **musiknya memakai lagu trending dari Instagram**. |
+| Video cadangan | `H8KI_Reel3_Tracking_v5.mp4` (sudah ada musik kami). Dipakai hanya kalau tidak ada lagu trending yang cocok. |
 | Sampul | `COVER_H8KI_Reel3_Tracking.jpg` |
+| Jadwal | **Rabu, 4 November 2026, pukul 19.30 WIB**, posting langsung (bukan dijadwalkan) |
+| Platform | Instagram, dan Facebook lewat "Bagikan ke Facebook" |
 | Ide | Format "Di aplikasi vs Kenyataannya". Atas: titik kurir diam 10 menit di aplikasi. Bawah: kurir sebenarnya di gang buntu, tanya warga, lalu paketnya sampai. |
 | Asal ide | Komentar @heyyyy_dump di Reels #1: "Ga relate, saya mah tim nonton tracking kurir aja" |
-| Hook (3 detik pertama) | Wajah kurir dari frame pertama, tulisan "Titik kurir diem 10 menit?" yang muncul seperti stempel, notifikasi "Kurir kamu belum bergerak 10 menit", peta zoom ke titik yang diam, HP bergetar + bunyi notifikasi. Ditambah **lagu trending** dan (opsional) **suara admin** (bagian 6b). |
+| Kenapa 19.30 | Setelah Maghrib (sekitar 17.48) dan Isya (sekitar 19.00). Satu jam pertama (19.30 sampai 20.30) bebas jeda salat dan masuk jam ramai malam. |
 | Target 7 hari | Lebih dari **1.000 views** (Instagram + Facebook), skip rate **di bawah 50%**, rata-rata ditonton **lebih dari 9 detik**, **follower baru** dari Reels |
 
 ## 2. Siapa mengerjakan apa
 
 | Peran | Tugas |
 | --- | --- |
-| **Admin Instagram** | Posting, sampul, caption, komentar pertama, balas semua komentar, Story, laporan screenshot |
-| **Admin cadangan** | Siaga di jam 17.45 sampai 19.15 kalau admin utama terganggu (HP mati, sinyal hilang) |
-| **Koordinator grup** | Kirim link ke grup pendukung paling lambat 18.02, mengingatkan anggota |
+| **Admin Instagram** | Memilih lagu trending, posting, sampul, caption, komentar pertama, balas semua komentar, Story, laporan screenshot |
+| **Admin cadangan** | Siaga pukul 19.15 sampai 20.45 kalau admin utama terganggu (HP mati, sinyal hilang) |
+| **Koordinator grup** | Kirim link ke grup pendukung paling lambat 19.32, mengingatkan anggota |
 | **Kepala cabang** | Teruskan pesan ke staf dan kurir cabang, share dari akun cabang |
 | **LinkedERP** | Menganalisis laporan, menyiapkan Reels #4 |
 
@@ -27,60 +30,92 @@ Instagram + Facebook: Kamis, 5 November 2026, 18.00 WIB · TikTok + YouTube Shor
 
 | Kapan | Kegiatan | Siapa |
 | --- | --- | --- |
-| Rabu 4 Nov | Persiapan (bagian 4) | Admin |
-| Rabu 4 Nov, 19.00 | Kirim pesan persiapan ke grup dan kepala cabang (bagian 9) | Koordinator |
-| Kamis 5 Nov, 17.30 | Cek akhir HP dan file (bagian 5) | Admin |
-| **Kamis 5 Nov, 18.00** | **Posting di Instagram + Facebook (bagian 6)** | Admin |
-| Kamis 18.01 sampai 18.10 | Komentar pertama, link ke grup, Story, Status WhatsApp (bagian 7) | Admin, Koordinator |
-| Kamis 18.00 sampai 19.00 | Balas semua komentar (bagian 8) | Admin |
-| Kamis 19.00 | Laporan 1 jam (bagian 13) | Admin |
-| Jumat 6 Nov, 18.00 | Story kuis + laporan 24 jam | Admin |
-| Jumat 6 Nov, 19.00 | Posting TikTok (bagian 10) | Admin |
-| Jumat 6 Nov, 19.30 | Posting YouTube Shorts (bagian 11) | Admin |
-| Sabtu 7 Nov | Story komentar terlucu, balas komentar di 4 platform | Admin |
-| Minggu 8 Nov, 18.00 | Laporan 72 jam + Account insights 7 hari | Admin |
+| Selasa 3 Nov (hari ini) | Pilih dan simpan 2-3 lagu trending (bagian 5) | Admin |
+| Selasa 3 Nov, malam | Kirim pesan persiapan ke grup dan kepala cabang (bagian 11) | Koordinator |
+| Rabu 4 Nov, siang | Persiapan (bagian 4) | Admin |
+| Rabu 4 Nov, 18.30 | Cek akhir HP dan file (bagian 6), setelah Maghrib | Admin |
+| Rabu 4 Nov, 19.15 | Pengingat ke grup: "15 menit lagi" | Koordinator |
+| **Rabu 4 Nov, 19.30** | **Posting di Instagram + Facebook (bagian 7)** | Admin |
+| Rabu 19.31 sampai 19.40 | Komentar pertama, link ke grup, Story, Status WhatsApp (bagian 8) | Admin, Koordinator |
+| Rabu 19.35 | Cek Facebook (bagian 9) | Admin |
+| Rabu 19.30 sampai 20.30 | Balas semua komentar (bagian 10) | Admin |
+| Rabu 20.30 | Laporan 1 jam (bagian 14) | Admin |
+| Kamis 5 Nov, 19.30 | Story kuis + laporan 24 jam | Admin |
+| Jumat 6 Nov | Story komentar terlucu | Admin |
+| Sabtu 7 Nov, 19.30 | Laporan 72 jam + Account insights 7 hari | Admin |
 
-## 4. Persiapan (Rabu, 4 November)
+## 4. Persiapan (Selasa malam sampai Rabu siang)
 
-- [ ] **Izin tag:** DM ke @heyyyy_dump: *"Kak, komentar kakak di video kami jadi inspirasi video berikutnya 😄 Boleh kami tag di caption?"* Kalau sampai Kamis 17.00 tidak dibalas atau tidak boleh: hapus bagian "(halo @heyyyy_dump 👋)" dari caption.
-- [ ] **File:** unduh `H8KI_Reel3_Tracking_v5.mp4`, `H8KI_Reel3_Tracking_v5_NO_MUSIC.mp4` dan `COVER_H8KI_Reel3_Tracking.jpg` ke galeri HP admin lewat **Google Drive** (jangan lewat WhatsApp, kualitasnya turun).
-- [ ] Putar video sekali di galeri: suara ada, tidak patah-patah, durasi sekitar 14,6 detik.
+- [ ] **Izin tag:** DM ke @heyyyy_dump: *"Kak, komentar kakak di video kami jadi inspirasi video berikutnya 😄 Boleh kami tag di caption?"* Kalau sampai Rabu 18.30 tidak dibalas atau tidak boleh: hapus bagian "(halo @heyyyy_dump 👋)" dari caption.
+- [ ] **File:** unduh `H8KI_Reel3_Tracking_v5_NO_MUSIC.mp4`, `H8KI_Reel3_Tracking_v5.mp4` (cadangan) dan `COVER_H8KI_Reel3_Tracking.jpg` ke galeri HP admin lewat **Google Drive** (jangan lewat WhatsApp, kualitasnya turun).
+- [ ] Putar `v5_NO_MUSIC` sekali di galeri: terdengar getar HP, bunyi notifikasi, detak jam, suara hujan dan langkah kaki. Tidak ada musik, itu memang benar.
+- [ ] **Lagu trending sudah dipilih dan disimpan** (bagian 5).
 - [ ] **Profil siap:** bio berisi layanan, area, dan link WhatsApp; 4 Highlights (Layanan, Area, Cara Order, Testimoni) sudah tampil; Reels #1 dan #2 disematkan.
-- [ ] **Kolaborator** (gunardi.minah dan 3 akun lainnya) dikabari bahwa besok jam 18.00 ada undangan kolaborasi yang perlu diterima.
-- [ ] Simpan caption dan komentar di bagian 6 dan 7 di aplikasi Catatan HP, supaya tinggal salin.
-- [ ] Aplikasi Instagram, TikTok, dan YouTube sudah versi terbaru.
-- [ ] **Pilih lagu trending sekarang** (bagian 6b) dan simpan (ikon bookmark) supaya Kamis tinggal pakai.
-- [ ] Kalau mau pakai suara admin: latihan membaca naskah di bagian 6b 2-3 kali.
+- [ ] **Kolaborator** (gunardi.minah dan 3 akun lainnya) dikabari bahwa Rabu 19.30 ada undangan kolaborasi yang perlu diterima.
+- [ ] Simpan caption dan komentar di bagian 7 dan 8 di aplikasi Catatan HP, supaya tinggal salin.
+- [ ] Aplikasi Instagram sudah versi terbaru.
 
-## 5. Cek akhir (Kamis, 17.30)
+## 5. Memilih lagu trending (Selasa malam, sebelum hari posting)
+
+1. Buka Instagram, masuk ke tab **Reels**, tonton beberapa Reels yang sedang ramai.
+2. Kalau di bawah Reels ada nama lagu dengan **tanda panah naik ↗**, artinya lagu itu sedang **trending**. Tekan nama lagunya.
+3. Di halaman lagu, tekan **Simpan audio** (ikon bookmark).
+4. Simpan **2-3 lagu** sebagai pilihan. Kriteria lagu yang cocok:
+   - **ceria atau lucu**, tempo sedang sampai cepat
+   - tidak sedih, tidak ada lirik kasar atau yang tidak pantas untuk brand
+   - bagian lagu yang paling dikenal enak dipakai di 15 detik pertama
+5. Akun bisnis hanya bisa memakai lagu dari koleksi komersial Instagram. Kalau sebuah lagu tidak bisa dipilih atau bertuliskan tidak tersedia, pilih lagu lain. Itu normal.
+6. Lagu yang disimpan bisa ditemukan lagi di menu **Audio, tab Disimpan** saat posting.
+
+## 6. Cek akhir (Rabu, 18.30, setelah Maghrib)
 
 - [ ] Baterai HP di atas 70% dan sedang di-charge, Wi-Fi atau sinyal kuat.
 - [ ] Mode Jangan Ganggu aktif untuk panggilan, tapi notifikasi Instagram tetap menyala.
-- [ ] Video dan sampul ada di galeri, caption siap di Catatan.
+- [ ] Video dan sampul ada di galeri, caption siap di Catatan, lagu trending tersimpan.
 - [ ] Admin cadangan siap.
-- [ ] Pukul 17.45 koordinator mengingatkan grup: *"15 menit lagi ya, siap-siap 🙏"*.
+- [ ] Pukul 19.15 koordinator mengingatkan grup: *"15 menit lagi ya, siap-siap 🙏"*.
 
-## 6. Posting di Instagram (Kamis, tepat 18.00)
+## 7. Posting di Instagram (Rabu, tepat 19.30)
+
+**A. Pilih video**
 
 1. Buka Instagram, tekan **+** di bawah, pilih **Reel**.
-2. Pilih video `H8KI_Reel3_Tracking_v5_NO_MUSIC.mp4` dari galeri (kalau tidak ada lagu trending yang cocok, pakai `H8KI_Reel3_Tracking_v5.mp4` dan lewati langkah 3), tekan **Berikutnya** (Next).
-3. Di layar edit: tambahkan **lagu trending** dan (opsional) **suara admin** sesuai bagian 6b. **Jangan** memotong, menambah filter, teks, atau stiker. Tekan **Berikutnya**.
-4. **Caption:** tempel caption di bawah ini persis.
-5. **Sampul:** tekan **Edit sampul** lalu **Tambahkan dari rol kamera**, pilih `COVER_H8KI_Reel3_Tracking.jpg`. Cek di tab **Kisi profil** (profile grid): tulisan "Titik kurir diem 10 menit?" dan wajah kurir harus terlihat.
-6. **Tandai orang** lalu **Undang kolaborator**: undang akun yang sama seperti Reels #1 dan #2. Tandai juga akun cabang (@hokilogistiklionindotg, @hoki.cibubur).
-7. **Tambahkan lokasi:** Kota Tangerang.
-8. **Ganti nama audio** (hanya kalau memakai versi dengan musik kami, tanpa lagu trending): tekan nama audio, ubah menjadi `Titik kurir diem 10 menit? · H8KI`.
-9. **Bagikan ke Facebook:** aktif.
-10. Buka **Opsi lainnya** (More options), lalu cek satu per satu:
+2. Pilih video **`H8KI_Reel3_Tracking_v5_NO_MUSIC.mp4`** dari galeri, tekan **Berikutnya** (Next).
+
+**B. Tambahkan lagu trending**
+
+3. Di layar edit, tekan ikon **Audio** (ikon not musik).
+4. Buka tab **Disimpan** (Saved), pilih salah satu lagu trending yang sudah disimpan.
+5. Geser bagian lagu sehingga **bagian yang paling dikenal mulai di detik 0**. Tekan **Selesai** (Done).
+6. Tekan ikon **Kontrol / Volume** (biasanya tulisan "Kontrol" atau ikon garis pengatur):
+   - **Audio kamera / Audio asli: 100%**
+   - **Musik: 35-45%**
+7. Putar dari awal dan dengarkan. Yang harus tetap terdengar: **getar HP dan bunyi notifikasi di detik pertama**, detak jam, dan suara langkah. Kalau tertutup musik, turunkan musik sampai sekitar 35%.
+8. **Jangan** memotong video, jangan menambah filter, teks, atau stiker. Tekan **Berikutnya**.
+
+Kalau dalam 5 menit tidak ada lagu yang cocok atau lagu tidak bisa dipakai: kembali, pilih **`H8KI_Reel3_Tracking_v5.mp4`** (sudah ada musik kami), lewati langkah 3-7, dan di langkah 13 ganti nama audionya. **Jangan** menambah lagu Instagram ke file `v5.mp4`, nanti musiknya bertabrakan.
+
+**C. Caption, sampul, dan pengaturan**
+
+9. **Caption:** tempel caption di bawah ini persis.
+10. **Sampul:** tekan **Edit sampul** lalu **Tambahkan dari rol kamera**, pilih `COVER_H8KI_Reel3_Tracking.jpg`. Cek di tab **Kisi profil** (profile grid): tulisan "Titik kurir diem 10 menit?" dan wajah kurir harus terlihat.
+11. **Tandai orang** lalu **Undang kolaborator**: undang akun yang sama seperti Reels #1 dan #2. Tandai juga akun cabang (@hokilogistiklionindotg, @hoki.cibubur).
+12. **Tambahkan lokasi:** Kota Tangerang.
+13. (Hanya kalau memakai cadangan `v5.mp4`) **Ganti nama audio** menjadi `Titik kurir diem 10 menit? · H8KI`.
+14. **Bagikan ke Facebook: AKTIF.**
+15. Buka **Opsi lainnya** (More options), lalu cek satu per satu:
     - **Tambahkan label AI: AKTIF** (wajib, footage kurir dibuat dengan AI)
     - **Upload at highest quality: AKTIF**
     - Trial reels: nonaktif
     - Schedule: nonaktif
     - "Don't let others use this reel as a template": nonaktif
     - Hide like count: nonaktif
-11. Tekan **Bagikan** (Share). Tunggu sampai upload selesai 100%, jangan tutup aplikasi.
-12. Buka Reels yang sudah tayang: cek suara, sampul, caption, label AI.
-13. Tekan **...** lalu **Sematkan ke profil** (Pin to profile).
+
+**D. Bagikan**
+
+16. Tekan **Bagikan** (Share). Tunggu sampai upload selesai 100%, jangan tutup aplikasi.
+17. Buka Reels yang sudah tayang: cek lagu dan efek suara terdengar, sampul benar, caption benar, label AI ada.
+18. Tekan **...** lalu **Sematkan ke profil** (Pin to profile).
 
 Posting sebagai **Reels biasa**, bukan "Reply with reel", karena stiker komentarnya akan menutupi peta di bagian atas video.
 
@@ -104,57 +139,42 @@ Kurir Tangerang · Ekspedisi Tangerang · Jasa kirim paket Tangerang
 #kurir #ekspedisi #trackingpaket #belanjaonline #H8KI #tangerang
 ```
 
-## 6b. Hook suara: lagu trending + suara admin (opsional)
+## 8. Sepuluh menit pertama (19.31 sampai 19.40)
 
-**Lagu trending (Instagram):**
-
-1. Di layar edit Reels, tekan ikon **Audio** (ikon not musik).
-2. Cari lagu yang ada **tanda panah naik ↗** (artinya sedang trending). Akun bisnis hanya bisa memakai lagu dari koleksi komersial, itu normal.
-3. Pilih lagu yang **ceria atau lucu**, temponya sedang sampai cepat. Hindari lagu sedih atau lirik yang tidak cocok.
-4. Atur **bagian lagu** supaya bagian yang paling dikenal mulai di detik 0.
-5. Tekan **Kontrol/Volume**: **Audio kamera (original audio) 100%**, **musik 35-45%**. Bunyi getar HP, notifikasi dan detak jam harus tetap terdengar.
-6. Putar sekali dari awal. Kalau terlalu ramai, turunkan musik.
-7. Kalau dalam 5 menit tidak ada lagu yang cocok: batalkan, pakai `H8KI_Reel3_Tracking_v5.mp4` (sudah ada musik kami).
-
-**Suara admin (opsional, menambah kesan manusia):**
-
-1. Di layar edit, tekan **Audio** lalu **Voiceover** (ikon mikrofon), letakkan di **detik 0**.
-2. Tekan tombol rekam dan ucapkan dengan nada heran dan ceria, sekitar 3 detik:
-
-```
-Titik kurir diem sepuluh menit? Eits, tunggu dulu... ini yang sebenarnya terjadi!
-```
-
-3. Dengarkan hasilnya. Kalau suara kurang jelas atau ada bising, rekam ulang di ruangan yang tenang.
-4. Volume voiceover 100%, musik diturunkan sedikit (sekitar 30%) supaya suaranya jelas.
-
-Untuk **TikTok**, cara yang sama: upload `H8KI_Reel3_Tracking_v5_NO_MUSIC.mp4`, tekan **Tambah suara** (Add sound), pilih lagu trending dari daftar yang tersedia untuk akun bisnis, atur volume: suara asli 100%, lagu 35-45%. Untuk **YouTube Shorts**, pakai `H8KI_Reel3_Tracking_v5.mp4` (dengan musik kami).
-
-## 7. Sepuluh menit pertama (18.01 sampai 18.10)
-
-1. **18.01, komentar pertama Hoki**, lalu tekan lama komentarnya dan pilih **Sematkan** (Pin):
+1. **19.31, komentar pertama Hoki**, lalu tekan lama komentarnya dan pilih **Sematkan** (Pin):
 
 ```
 Jujur aja nih, kamu tim 1 atau tim 2? 😄 Tulis di sini!
 ```
 
-2. **18.02, link ke grup:** di Reels, tekan ikon pesawat kertas, **Salin link**, kirim ke grup pendukung bersama pesan di bagian 9.
-3. **18.03, balas komentar @heyyyy_dump di Reels #1:**
+2. **19.32, link ke grup:** di Reels, tekan ikon pesawat kertas, **Salin link**, kirim ke grup pendukung bersama pesan di bagian 11.
+3. **19.33, balas komentar @heyyyy_dump di Reels #1:**
 
 ```
 Kak, ini khusus buat tim nonton tracking 😄 Cek Reels terbaru kami ya!
 ```
 
-4. **18.05, Story Instagram:**
+4. **19.35, Story Instagram:**
    - Di Reels, tekan ikon pesawat kertas lalu **Tambahkan ke cerita** (Add to story).
    - Tambahkan **stiker Polling**: pertanyaan *"Kamu tim mana?"*, pilihan *"Refresh tiap 5 menit"* dan *"Santai aja"*.
    - Tekan **Cerita kamu** (Your story).
-5. **18.05, Status WhatsApp Business Hoki:** tempel link Reels dengan tulisan *"Video baru kami 😄 Buka di aplikasi Instagram ya"*.
-6. **18.10:** cek undangan kolaborasi sudah diterima. Kalau belum, ingatkan lewat DM.
+5. **19.35, Status WhatsApp Business Hoki:** tempel link Reels dengan tulisan *"Video baru kami 😄 Buka di aplikasi Instagram ya"*.
+6. **19.40:** cek undangan kolaborasi sudah diterima. Kalau belum, ingatkan lewat DM.
 
-## 8. Jam pertama: membalas komentar (18.00 sampai 19.00)
+## 9. Facebook (Rabu, 19.35)
 
-Balas **setiap** komentar dalam beberapa menit. Usahakan balasan diakhiri pertanyaan supaya obrolan berlanjut. Contoh:
+1. Buka **Halaman Facebook Hoki** (atau Meta Business Suite), menu **Reels**.
+2. Pastikan Reels #3 sudah ikut tayang, **suaranya ada** (lagu dan efek), dan caption benar.
+3. Tulis komentar pertama yang sama: *"Jujur aja nih, kamu tim 1 atau tim 2? 😄 Tulis di sini!"*
+4. Balas komentar di Facebook juga, sama seperti di Instagram.
+5. **Kalau Reels tidak muncul di Facebook, atau suaranya dibisukan** (bisa terjadi kalau lagu trending tidak berlisensi untuk Facebook):
+   - Buka **Meta Business Suite**, pilih **Buat Reel** (Create reel) untuk Halaman Facebook.
+   - Upload **`H8KI_Reel3_Tracking_v5.mp4`** (versi dengan musik kami, aman untuk Facebook).
+   - Tempel caption yang sama, aktifkan label AI kalau tersedia, lalu **Bagikan** paling lambat 19.50.
+
+## 10. Jam pertama: membalas komentar (19.30 sampai 20.30)
+
+Balas **setiap** komentar dalam beberapa menit, di Instagram dan Facebook. Usahakan balasan diakhiri pertanyaan supaya obrolan berlanjut. Contoh:
 
 | Jenis komentar | Contoh balasan |
 | --- | --- |
@@ -168,15 +188,15 @@ Balas **setiap** komentar dalam beberapa menit. Usahakan balasan diakhiri pertan
 
 **Jangan** mengubah caption, sampul, atau audio selama jam pertama.
 
-## 9. Pesan untuk grup pendukung dan kepala cabang
+## 11. Pesan untuk grup pendukung dan kepala cabang
 
-Pesan persiapan (Rabu, 19.00):
+Pesan persiapan (Selasa malam):
 
 ```
-Halo semua 🙏 Besok Kamis jam 18.00 Reels ketiga H8KI tayang: "Titik kurir diem 10 menit?" Mohon luangkan 5 menit jam 18.00-18.30 ya. Link akan saya kirim di sini. Terima kasih!
+Halo semua 🙏 Besok Rabu jam 19.30 (setelah Isya) Reels ketiga H8KI tayang: "Titik kurir diem 10 menit?" Mohon luangkan 5 menit jam 19.30-20.00 ya. Link akan saya kirim di sini. Terima kasih!
 ```
 
-Pesan saat tayang (Kamis, 18.02, tempel link Reels di bawahnya):
+Pesan saat tayang (Rabu, 19.32, tempel link Reels di bawahnya):
 
 ```
 Sudah tayang! 🎉 Mohon bantu di 1 jam pertama:
@@ -187,97 +207,43 @@ Sudah tayang! 🎉 Mohon bantu di 1 jam pertama:
 Terima kasih banyak!
 ```
 
-## 10. TikTok (Jumat, 6 November, 19.00)
-
-1. Buka TikTok, tekan **+**, lalu **Upload**, pilih **file asli** `H8KI_Reel3_Tracking_v5_NO_MUSIC.mp4` (jangan pakai unduhan dari Instagram karena ada watermark).
-2. Tambahkan **lagu trending** sesuai bagian 6b (atau upload `H8KI_Reel3_Tracking_v5.mp4` tanpa lagu tambahan). Jangan tambah efek. Tekan **Berikutnya**.
-3. **Sampul:** pilih frame pertama (tulisan "Titik kurir diem 10 menit?").
-4. Tempel caption di bawah ini.
-5. **Lokasi:** Kota Tangerang.
-6. **Pengaturan lainnya** (More options):
-   - **Konten yang dibuat AI** (AI-generated content): **AKTIF**
-   - Izinkan Duet dan Stitch: aktif
-   - Komentar: aktif
-7. Tekan **Posting**, lalu langsung tulis komentar pertama: *"Kamu tim 1 atau tim 2? 😄"* dan sematkan.
-8. Balas komentar di jam pertama.
-
-Caption TikTok (salin persis):
-
-```
-Titik kurir diem 10 menit?? Ternyata ini yang terjadi 😅📦
-
-Kamu tim mana?
-1️⃣ Refresh tracking tiap 5 menit
-2️⃣ Santai, nanti juga sampai
-
-Tag temen yang suka ngomel liat tracking 👇
-
-Kurir & ekspedisi Tangerang · cek resi · lacak paket · video dibuat dengan bantuan AI
-
-#trackingpaket #kurir #paketku #belanjaonline #kurirpaket #ekspedisi #tangerang #fyp
-```
-
-## 11. YouTube Shorts (Jumat, 6 November, 19.30)
-
-1. Buka aplikasi YouTube, tekan **+**, lalu **Upload a video** (atau **Create a Short** lalu pilih dari galeri). Pilih **file asli** `H8KI_Reel3_Tracking_v5.mp4`.
-2. Jangan tambah musik. Tekan **Next**.
-3. Isi **judul** dan **deskripsi** di bawah ini (ganti `[ISI: link wa.me Hoki]` dengan link WhatsApp Hoki).
-4. **Altered or synthetic content: YES** (footage kurir dibuat dengan AI).
-5. **Audience: No, it's not made for kids.**
-6. Kategori: **People & Blogs**. Bahasa video: **Indonesian**. Komentar: aktif.
-7. Thumbnail: pilih frame pertama.
-8. Tekan **Upload Short**. Setelah tayang, tulis komentar pertama *"Kamu tim 1 atau tim 2? 😄"* lalu **Pin**.
-
-Judul (maksimal 100 karakter):
-
-```
-Titik kurir diem 10 menit? Ini yang sebenarnya terjadi 😅📦 #shorts
-```
-
-Deskripsi:
-
-```
-Buat yang suka mantengin tracking paket: kadang titik kurir diem karena kurirnya lagi tanya warga, putar balik di gang buntu, atau cari "rumah pagar hitam sebelah warung". Tapi paketnya tetap sampai 📦
-
-Kamu tim mana?
-1️⃣ Refresh tracking tiap 5 menit
-2️⃣ Santai, nanti juga sampai
-Tulis di komentar 👇
-
-H8KI Logistik Lionindo, kurir & ekspedisi Tangerang. Cek resi, lacak paket, kirim paket.
-Order via WhatsApp: [ISI: link wa.me Hoki]
-Video dibuat dengan bantuan AI.
-
-#shorts #trackingpaket #kurir #belanjaonline #tangerang
-```
-
 ## 12. Hari berikutnya
 
 | Kapan | Kegiatan |
 | --- | --- |
-| Jumat 6 Nov, 18.00 | Story Instagram dengan **stiker kuis**: *"Kenapa titik kurir bisa diem lama?"* A. Kurirnya istirahat · B. Lagi cari alamat (benar) · C. Sinyal hilang. Tempel link Reels #3. |
-| Jumat 6 Nov | Cek Facebook: Reels ikut tayang di Halaman Facebook Hoki, balas komentar di sana juga |
-| Sabtu 7 Nov | Story: screenshot 2-3 komentar terlucu (tutup nama kalau belum izin) |
-| Setiap hari | Balas komentar di Instagram, Facebook, TikTok, YouTube minimal 2 kali sehari (pagi dan malam) |
-| Senin 9 Nov, 18.00 | Reels #4 (LinkedERP siapkan) |
+| Kamis 5 Nov, 19.30 | Story Instagram dengan **stiker kuis**: *"Kenapa titik kurir bisa diem lama?"* A. Kurirnya istirahat · B. Lagi cari alamat (benar) · C. Sinyal hilang. Tempel link Reels #3. |
+| Jumat 6 Nov | Story: screenshot 2-3 komentar terlucu (tutup nama kalau belum izin) |
+| Setiap hari | Balas komentar di Instagram dan Facebook minimal 2 kali sehari (pagi dan malam) |
+| Minggu depan | Reels #4 (jadwal menyusul dari LinkedERP) |
 
-## 13. Laporan ke LinkedERP
+## 13. Yang tidak boleh dilakukan
+
+- Membeli like, view, atau followers, atau ikut grup "saling like".
+- Spam link ke grup yang tidak berhubungan.
+- Menghapus lalu memposting ulang video.
+- Memotong video, atau menambah lagu ke file `v5.mp4` (yang sudah ada musik).
+- Memposting video yang sama dua kali di akun Instagram yang sama.
+
+## 14. Laporan ke LinkedERP
 
 Kirim screenshot pada waktu berikut:
 
 | Waktu | Yang dikirim |
 | --- | --- |
-| **Kamis 5 Nov, 19.00** (1 jam) | Instagram Reel insights: tab **Overview** (gulir sampai bawah), **Engagement**, **Audience** |
-| **Jumat 6 Nov, 18.00** (24 jam) | Sama seperti di atas |
-| **Minggu 8 Nov, 18.00** (72 jam) | Sama seperti di atas, plus **Account insights 7 hari terakhir** (Dasbor profesional), plus statistik TikTok dan YouTube Shorts |
+| **Rabu 4 Nov, 20.30** (1 jam) | Instagram Reel insights: tab **Overview** (gulir sampai bawah), **Engagement**, **Audience** |
+| **Kamis 5 Nov, 19.30** (24 jam) | Sama seperti di atas |
+| **Sabtu 7 Nov, 19.30** (72 jam) | Sama seperti di atas, plus **Account insights 7 hari terakhir** (Dasbor profesional) |
 
-Angka yang paling penting: **Views, Skip rate, rata-rata ditonton, Reels tab %, Non-followers %, Shares, Follows, Profile visits.**
+Sebutkan juga **judul lagu trending** yang dipakai. Angka yang paling penting: **Views, Skip rate, rata-rata ditonton, Reels tab %, Non-followers %, Shares, Follows, Profile visits.**
 
-## 14. Kalau terjadi masalah
+## 15. Kalau terjadi masalah
 
 | Masalah | Yang dilakukan |
 | --- | --- |
+| Lagu tidak bisa dipilih atau "tidak tersedia" | Pilih lagu trending lain yang tersimpan. Kalau semua tidak bisa, pakai `v5.mp4` (sudah ada musik). |
+| Efek suara tertutup lagu | Turunkan volume musik sampai sekitar 35%. Audio asli tetap 100%. |
 | Upload lama atau gagal | Pindah ke Wi-Fi, pastikan "Upload at highest quality" aktif, coba lagi. Jangan upload dua kali. |
+| Facebook tidak ikut tayang atau suaranya dibisukan | Upload `v5.mp4` lewat Meta Business Suite ke Halaman Facebook (bagian 9). |
 | Salah ketik di caption | **Edit caption** (tekan ... lalu Edit). Jangan hapus video. |
 | Sampul salah | Tekan ... lalu Edit, ganti sampul. |
 | Lupa label AI | Tekan ... lalu Edit dan aktifkan label AI kalau pilihannya ada. Caption sudah menyebut "Video dibuat dengan bantuan AI". |
@@ -285,30 +251,23 @@ Angka yang paling penting: **Views, Skip rate, rata-rata ditonton, Reels tab %, 
 | Komentar negatif | Balas sopan dan pindahkan ke DM atau WhatsApp. Jangan hapus kritik yang sopan. |
 | Views pelan di jam pertama | Normal. Jangan hapus atau posting ulang. Teruskan Story, balas komentar, dan minta grup kirim lewat DM. |
 
-## 15. Yang tidak boleh dilakukan
-
-- Membeli like, view, atau followers, atau ikut grup "saling like".
-- Spam link ke grup yang tidak berhubungan.
-- Menghapus lalu memposting ulang video.
-- Memotong video atau menambah musik dari aplikasi.
-- Memposting video yang sama dua kali di akun yang sama.
-
 ## 16. Checklist akhir (centang saat posting)
 
-- [ ] Video v5 (dua versi) dan sampul ada di galeri
-- [ ] Lagu trending dipasang (atau pakai versi dengan musik kami), volume dicek
+- [ ] `v5_NO_MUSIC`, `v5` (cadangan) dan sampul ada di galeri
+- [ ] Lagu trending dipasang, bagian lagu mulai di detik 0
+- [ ] Volume: audio asli 100%, musik 35-45%, getar dan notifikasi tetap terdengar
 - [ ] Caption ditempel, tag @heyyyy_dump hanya kalau sudah diizinkan
 - [ ] Sampul dari rol kamera, terlihat utuh di kisi profil
 - [ ] Kolaborator diundang, akun cabang ditandai
 - [ ] Lokasi Kota Tangerang
-- [ ] Nama audio diganti (hanya kalau tanpa lagu trending)
 - [ ] Bagikan ke Facebook aktif
 - [ ] Label AI aktif
 - [ ] Upload at highest quality aktif
 - [ ] Reels disematkan ke profil
-- [ ] Komentar pertama ditulis dan disematkan
-- [ ] Link dikirim ke grup paling lambat 18.02
+- [ ] Komentar pertama ditulis dan disematkan (Instagram dan Facebook)
+- [ ] Link dikirim ke grup paling lambat 19.32
 - [ ] Story dengan stiker polling tayang
 - [ ] Status WhatsApp Business tayang
+- [ ] Facebook dicek: tayang dan ada suara
 - [ ] Semua komentar jam pertama dibalas
-- [ ] Laporan 1 jam dikirim ke LinkedERP
+- [ ] Laporan 1 jam dikirim ke LinkedERP pukul 20.30
