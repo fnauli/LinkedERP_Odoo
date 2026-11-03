@@ -21,7 +21,7 @@ END_T = 13.2
 
 # (t0, t1, clip, first src frame, last src frame, crop centre x, crop centre y, crop width)
 SHOTS = [
-    (0.0, 2.4, "d2", 98, 121, 594, 860, 780),     # dead end: wipes sweat, looks up, confused
+    (0.0, 2.4, "d2", 106, 121, 560, 830, 720),    # dead end: face fully visible, looks around, worried (slow motion)
     (2.4, 4.8, "a2", 236, 290, 540, 860, 1080),   # an ibu peeks out and points the way
     (4.8, 5.8, "a2", 290, 313, 560, 820, 900),    # he walks on, smiling
     (5.8, 7.2, "a2", 80, 110, 590, 820, 780),     # under the trees, almost there
@@ -261,25 +261,48 @@ def label(img, txt, x, y, fg, bgc):
 
 LOGO_S = logo(170)
 LOGO_L = logo(600)
+LOGO_M = logo(520)
+
+
+def heart(size, col=RED):
+    S = size * 4
+    im = Image.new("RGBA", (S, S), (0, 0, 0, 0))
+    ts = np.linspace(0, 2 * np.pi, 200)
+    x = 16 * np.sin(ts) ** 3
+    y = -(13 * np.cos(ts) - 5 * np.cos(2 * ts) - 2 * np.cos(3 * ts) - np.cos(4 * ts))
+    k = S * 0.92 / 34
+    pts = [(S / 2 + xi * k, S * 0.47 + yi * k) for xi, yi in zip(x, y)]
+    ImageDraw.Draw(im).polygon(pts, fill=col)
+    return im.resize((size, size), Image.LANCZOS)
 
 
 def end_card(t):
     img = Image.new("RGB", (W, H), (255, 255, 255))
-    p = ease_out(lin(t, END_T + 0.05, END_T + 0.5))
-    paste_layer(img, LOGO_L, W / 2, 700, p, 0.92 + 0.08 * back_in_out(p, 1.2))
-    a, s, dy = pop(t, END_T + 0.35, 0.5)
-    draw_text(img, "Kurir yang", font("xb", 92), W / 2, 1060 + dy, INK, a, s, shadow=0.1, blur=10)
-    a, s, dy = pop(t, END_T + 0.6, 0.5)
-    draw_text(img, "nggak nyerah.", font("xb", 104), W / 2, 1175 + dy, RED, a, s, shadow=0.12, blur=10)
-    a, s, dy = pop(t, END_T + 1.0, 0.5)
+    p = ease_out(lin(t, END_T + 0.05, END_T + 0.45))
+    paste_layer(img, LOGO_M, W / 2, 610, p, 0.92 + 0.08 * back_in_out(p, 1.2))
+    a, s, dy = pop(t, END_T + 0.3, 0.5)
+    draw_text(img, "Kurir yang", font("xb", 88), W / 2, 930 + dy, INK, a, s, shadow=0.1, blur=10)
+    a, s, dy = pop(t, END_T + 0.5, 0.5)
+    draw_text(img, "nggak nyerah.", font("xb", 100), W / 2, 1040 + dy, RED, a, s, shadow=0.12, blur=10)
+    a, s, dy = pop(t, END_T + 0.8, 0.5)                 # ask for the like
+    if a > 0:
+        f = font("b", 42); txt = "Tim nonton tracking? Tap"
+        tw = f.getlength(txt)
+        L = Image.new("RGBA", (int(tw) + 80, 80), (0, 0, 0, 0))
+        ImageDraw.Draw(L).text((0, 10), txt, font=f, fill=INK)
+        beat = 1 + 0.12 * max(0.0, math.sin(max(0, t - END_T - 1.1) * 7)) ** 8
+        hz_ = heart(int(62 * beat))
+        L.alpha_composite(hz_, (int(tw) + 14 + (62 - hz_.width) // 2, 8 + (62 - hz_.height) // 2))
+        paste_layer(img, L, W / 2, 1215 + dy, a, s)
+    a, s, dy = pop(t, END_T + 1.1, 0.5)                 # and the follow
     if a > 0:
         f = font("b", 40); txt = "Follow buat cerita kurir berikutnya"
         tw = f.getlength(txt)
         L = Image.new("RGBA", (int(tw) + 90, 96), (0, 0, 0, 0))
         ImageDraw.Draw(L).rounded_rectangle((0, 0, L.width - 1, 95), 48, fill=GREEN + (255,))
         ImageDraw.Draw(L).text((45, 20), txt, font=f, fill=(255, 255, 255))
-        breathe = 1 + 0.02 * math.sin(max(0, t - END_T - 1.4) * 4.2)
-        paste_layer(img, L, W / 2, 1400 + dy, a, s * breathe)
+        breathe = 1 + 0.02 * math.sin(max(0, t - END_T - 1.5) * 4.2)
+        paste_layer(img, L, W / 2, 1370 + dy, a, s * breathe)
     return img
 
 

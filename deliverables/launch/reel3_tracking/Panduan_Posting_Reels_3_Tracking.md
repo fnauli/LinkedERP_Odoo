@@ -6,7 +6,7 @@ Kamis, 5 November 2026 · 18.00 WIB · akun @hokilogistiklionindo
 
 | Hal | Isi |
 | --- | --- |
-| Video | `H8KI_Reel3_Tracking_v1.mp4` (15,6 detik, vertikal 9:16) |
+| Video | `H8KI_Reel3_Tracking_v2.mp4` (15,6 detik, vertikal 9:16) |
 | Sampul | `COVER_H8KI_Reel3_Tracking.jpg` |
 | Jadwal | **Kamis, 5 November 2026, pukul 18.00 WIB**, posting langsung |
 | Ide | Format "Di aplikasi vs Kenyataannya". Atas: titik kurir diam 10 menit di aplikasi. Bawah: kurir sebenarnya sedang di gang buntu, tanya warga, lalu paketnya sampai. |
@@ -23,7 +23,7 @@ Kamis, 5 November 2026 · 18.00 WIB · akun @hokilogistiklionindo
 
 ## 3. Langkah posting (pukul 18.00)
 
-1. Tekan **+** lalu **Reels**, pilih `H8KI_Reel3_Tracking_v1.mp4`. Posting sebagai **Reels biasa** (bukan "Reply with reel", karena stiker komentarnya akan menutupi peta).
+1. Tekan **+** lalu **Reels**, pilih `H8KI_Reel3_Tracking_v2.mp4`. Posting sebagai **Reels biasa** (bukan "Reply with reel", karena stiker komentarnya akan menutupi peta).
 2. Jangan dipotong, jangan ditambah filter, stiker, atau musik Instagram. Tekan **Berikutnya**.
 3. **Caption:** salin dari bagian 4.
 4. **Sampul:** Edit sampul lalu Tambahkan dari rol kamera, pilih `COVER_H8KI_Reel3_Tracking.jpg`.
@@ -93,6 +93,29 @@ Terima kasih banyak!
 | Jumat 6 Nov | Upload file yang sama ke **TikTok** dan **YouTube Shorts** (file asli, bukan unduhan Instagram). Caption sama, tambah #fyp |
 | Sabtu 7 Nov | Bagikan 2-3 komentar terlucu ke Story |
 | Senin 9 Nov, 18.00 | Reels #4 (LinkedERP siapkan) |
+
+## 7b. TikTok (Jumat 6 Nov, sekitar 19.00 WIB)
+
+- Upload **file asli** `H8KI_Reel3_Tracking_v2.mp4` (bukan unduhan dari Instagram yang ada watermark).
+- **Settings: "AI-generated content" AKTIF.** Duet dan Stitch: aktif.
+- Sampul: pilih frame pertama (ada tulisan "Titik kurir diem 10 menit?").
+- Balas komentar di jam pertama.
+
+Caption TikTok (salin persis):
+
+```
+Titik kurir diem 10 menit?? Ternyata ini yang terjadi 😅📦
+
+Kamu tim mana?
+1️⃣ Refresh tracking tiap 5 menit
+2️⃣ Santai, nanti juga sampai
+
+Tag temen yang suka ngomel liat tracking 👇
+
+Kurir & ekspedisi Tangerang · cek resi · lacak paket · video dibuat dengan bantuan AI
+
+#trackingpaket #kurir #paketku #belanjaonline #kurirpaket #ekspedisi #tangerang #fyp
+```
 
 ## 8. Yang tidak boleh dilakukan
 
