@@ -1,6 +1,6 @@
 """Small markdown -> styled docx converter for the H8KI guides.
 Supports: '# Title' + subtitle line, '## Heading', tables, ``` code blocks, '- [ ]' checklists, '- ' bullets,
-'1. ' numbered items, and **bold**, *italic*, `code` inside text.
+'1. ' numbered items, indented '  - ' sub-bullets, and **bold**, *italic*, `code` inside text.
   python3 md2docx.py IN.md OUT.docx"""
 import re, sys
 from docx import Document
@@ -100,6 +100,10 @@ while i < len(lines):
     m = re.match(r"^- \[ \] (.*)", ln)
     if m:
         p = doc.add_paragraph(); runs(p, "☐  " + m.group(1)); p.paragraph_format.left_indent = Cm(0.4); i += 1
+        continue
+    m = re.match(r"^\s+- (.*)", ln)
+    if m:
+        p = doc.add_paragraph(style="List Bullet 2"); runs(p, m.group(1)); i += 1
         continue
     m = re.match(r"^- (.*)", ln)
     if m:
