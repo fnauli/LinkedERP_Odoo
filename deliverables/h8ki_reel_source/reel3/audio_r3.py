@@ -1,8 +1,9 @@
 """Original soundtrack for Reel #3, synthesized from scratch (no samples): a ticking clock while the dot is stuck,
 then a light 100 bpm marimba groove (Am - F - G - C, resolving on "Paket diterima"), UI pings on every status
 change and a two-note logo chime. Beat = 0.6 s, the same grid as the cuts."""
-import wave
+import os, wave
 import numpy as np
+MUSIC = os.environ.get("MUSIC", "1") == "1"   # MUSIC=0: sound effects only, for a trending sound added in the app
 
 SR, DUR = 48000, 16.0
 N = int(SR * DUR)
@@ -79,35 +80,46 @@ for k in range(8):
 dr = T(2.6)
 drone = (np.sin(2 * np.pi * hz(45) * dr) + 0.5 * np.sin(2 * np.pi * hz(52) * dr)) * (0.8 + 0.2 * np.sin(2 * np.pi * 2.5 * dr))
 drone *= np.minimum(1, dr / 0.3) * np.clip((2.6 - dr) / 0.3, 0, 1)
-put(drone, 0.0, 0.08)
+if MUSIC:
+    put(drone, 0.0, 0.08)
+# hook: phone vibration (two buzzes) and a notification ding on frame 1
+for t0 in (0.0, 0.3):
+    tt = T(0.2)
+    bz = (np.sign(np.sin(2 * np.pi * 150 * tt)) * 0.6 + np.sin(2 * np.pi * 300 * tt) * 0.4) * (0.6 + 0.4 * np.sin(2 * np.pi * 30 * tt))
+    bz = lp(bz * np.minimum(1, tt / 0.01) * np.clip((0.2 - tt) / 0.03, 0, 1), 1200)
+    put(bz, t0, 0.12)
+for k, m in enumerate([88, 93]):
+    tt = T(0.5)
+    put(np.sin(2 * np.pi * hz(m) * tt) * np.exp(-tt * 9), 0.02 + k * 0.09, 0.08)
 
-# ---------------- 2.4 - 13.2 s: the groove, one chord per bar
-CH = [(2.4, [57, 60, 64], 45), (4.8, [53, 57, 60], 41), (7.2, [55, 59, 62], 43), (9.6, [60, 64, 67], 48),
-      (12.0, [53, 57, 60], 41)]
-ARP = [0, 1, 2, 1, 2, 3, 2, 1]                     # eighth notes over the triad (+octave)
-for t0, tri, root in CH:
-    notes = tri + [tri[0] + 12]
-    for k in range(8):
-        t = t0 + k * BEAT / 2
-        if t >= 13.8:
-            break
-        put(marimba(notes[ARP[k]] + 12), t, 0.22 if k % 2 == 0 else 0.15, -0.3 + 0.6 * (k % 2))
-    for b in (0, 2):
-        if t0 + b * BEAT < 13.8:
-            put(bass(root), t0 + b * BEAT, 0.32)
-# shaker on the off-beats, claps on 2 and 4 once he is moving
-t = 2.4 + BEAT / 2
-while t < 13.2:
-    tt = T(0.06)
-    put(hp(rng.standard_normal(len(tt)), 6000) * np.exp(-tt * 70), t, 0.05, 0.4)
-    t += BEAT
-t = 4.8 + BEAT
-while t < 13.2:
-    tt = T(0.12)
-    clap = lp(hp(rng.standard_normal(len(tt)), 900), 5000) * np.exp(-tt * 35)
-    put(clap, t, 0.09, -0.1)
-    t += 2 * BEAT
-put(pad([60, 64, 67, 72], 3.6), 9.6, 0.10)        # warmth on the delivery
+if MUSIC:
+    # ---------------- 2.4 - 13.2 s: the groove, one chord per bar
+    CH = [(2.4, [57, 60, 64], 45), (4.8, [53, 57, 60], 41), (7.2, [55, 59, 62], 43), (9.6, [60, 64, 67], 48),
+          (12.0, [53, 57, 60], 41)]
+    ARP = [0, 1, 2, 1, 2, 3, 2, 1]                     # eighth notes over the triad (+octave)
+    for t0, tri, root in CH:
+        notes = tri + [tri[0] + 12]
+        for k in range(8):
+            t = t0 + k * BEAT / 2
+            if t >= 13.8:
+                break
+            put(marimba(notes[ARP[k]] + 12), t, 0.22 if k % 2 == 0 else 0.15, -0.3 + 0.6 * (k % 2))
+        for b in (0, 2):
+            if t0 + b * BEAT < 13.8:
+                put(bass(root), t0 + b * BEAT, 0.32)
+    # shaker on the off-beats, claps on 2 and 4 once he is moving
+    t = 2.4 + BEAT / 2
+    while t < 13.2:
+        tt = T(0.06)
+        put(hp(rng.standard_normal(len(tt)), 6000) * np.exp(-tt * 70), t, 0.05, 0.4)
+        t += BEAT
+    t = 4.8 + BEAT
+    while t < 13.2:
+        tt = T(0.12)
+        clap = lp(hp(rng.standard_normal(len(tt)), 900), 5000) * np.exp(-tt * 35)
+        put(clap, t, 0.09, -0.1)
+        t += 2 * BEAT
+    put(pad([60, 64, 67, 72], 3.6), 9.6, 0.10)        # warmth on the delivery
 
 # ---------------- UI: status pings, the U-turn whoosh, the delivered chime, punchline pops
 for t, m in [(2.4, 76), (4.8, 79), (7.2, 81)]:
@@ -129,7 +141,7 @@ put(air, 13.15, 0.035)
 # ---------------- end card: two-note chime and a final ringing chord
 put(bell(79, 2.0), 13.8, 0.10)
 put(bell(84, 2.4), 14.1, 0.10)
-for m in (48, 60, 64, 67, 72):
+for m in ((48, 60, 64, 67, 72) if MUSIC else ()):
     put(marimba(m, 2.0) if m > 50 else bass(m, 1.6), 13.8, 0.16)
 
 # ---------------- master: gentle saturation, fade, normalise
@@ -137,8 +149,8 @@ mix = np.tanh(mix * 1.6) / 1.6
 fo = int(0.5 * SR)
 mix[-fo:] *= np.linspace(1, 0, fo)[:, None]
 mix *= 0.89 / np.abs(mix).max()
-w = wave.open("audio_r3.wav", "wb")
+w = wave.open("audio_r3.wav" if MUSIC else "audio_r3_sfx.wav", "wb")
 w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR)
 w.writeframes((mix * 32767).astype(np.int16).tobytes())
 w.close()
-print("audio_r3.wav", DUR)
+print("audio_r3.wav" if MUSIC else "audio_r3_sfx.wav", DUR)

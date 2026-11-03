@@ -239,7 +239,7 @@ def header(img, t):
     d = ImageDraw.Draw(img)
     if t < 2.4:                                        # the hook, readable from frame 1
         a = 1 - ease_out(lin(t, 2.15, 2.4))
-        s = 0.96 + 0.04 * ease_out(lin(t, 0, 0.25))
+        s = 1.1 - 0.1 * ease_out(lin(t, 0, 0.2))      # lands like a stamp
         draw_text(img, "Titik kurir diem", font("xb", 80), W / 2, 188, INK, a, s, shadow=0)
         draw_text(img, "10 menit?", font("xb", 92), W / 2, 280, RED, a, s, shadow=0)
     elif t < 9.6:
@@ -310,6 +310,30 @@ def end_card(t):
     return img
 
 
+def notif(img, t):
+    """Push notification that buzzes in on frame 1 and slides away at 1.3 s."""
+    if t >= 1.6:
+        return
+    a = 1 - ease_out(lin(t, 1.3, 1.6))
+    dy = -60 * ease_out(lin(t, 1.3, 1.6))
+    sc = 1.04 - 0.04 * ease_out(lin(t, 0, 0.2))
+    L = Image.new("RGBA", (W, 190), (0, 0, 0, 0))
+    sh = Image.new("L", L.size, 0)
+    ImageDraw.Draw(sh).rounded_rectangle((44, 26, W - 44, 176), 34, fill=120)
+    L.paste((0, 0, 0, 255), (0, 0), sh.filter(ImageFilter.GaussianBlur(14)))
+    d = ImageDraw.Draw(L)
+    d.rounded_rectangle((40, 16, W - 40, 166), 34, fill=(255, 255, 255, 250))
+    d.rounded_rectangle((68, 44, 162, 138), 24, fill=RED + (255,))
+    pin(d, 115, 112, 20, (255, 255, 255, 255))
+    d.ellipse((107, 64, 123, 80), fill=RED + (255,))
+    d.text((186, 44), "Lacak Paket H8KI  ·  sekarang", font=font("m", 28), fill=GREY)
+    d.text((186, 84), "Kurir kamu belum bergerak 10 menit", font=font("b", 38), fill=INK)
+    paste_layer(img, L, W / 2, 595 + dy, a, sc)            # over the lower map: dot and face stay visible
+
+
+HOOK_Z = 0.7                                   # map punches in on the stuck dot, then settles
+
+
 def frame(k):
     t = k / FPS
     if t >= END_T + TRANS:
@@ -317,6 +341,11 @@ def frame(k):
     img = Image.new("RGBA", (W, H), BG + (255,))
     header(img, t)
     m, mask = draw_map(t)
+    if t < HOOK_Z:                                     # hook: punch in on the stuck dot
+        z = 1 + 0.5 * (1 - ease_out(lin(t, 0, HOOK_Z)))
+        w, h = MW / z, MH / z
+        x0 = clamp(DEAD[0] - w / 2, 0, MW - w); y0 = clamp(DEAD[1] + 40 - h / 2, 0, MH - h)
+        m = m.crop((int(x0), int(y0), int(x0 + w), int(y0 + h))).resize((MW, MH), Image.LANCZOS)
     img.paste(m, (MX, MY), mask)
     label(img, "DI APLIKASI", MX + 18, MY + 18, (255, 255, 255), INK + (230,))
     status_card(img, t)
@@ -325,8 +354,15 @@ def frame(k):
     sh = np.linspace(0.35, 0, 26)[:, None] * 255                       # soft shadow under the app panel
     img.alpha_composite(Image.fromarray(np.dstack([np.zeros((26, W, 3)), np.repeat(sh, W, 1)]).astype(np.uint8), "RGBA"),
                         (0, PANEL))
-    label(img, "KENYATAANNYA", 30, PANEL + 26, INK, (255, 255, 255, 235))
+    if t >= 1.45:
+        label(img, "KENYATAANNYA", 30, PANEL + 26, INK, (255, 255, 255, int(235 * ease_out(lin(t, 1.45, 1.7)))))
+    notif(img, t)
     out = img.convert("RGB")
+    if t < 0.6:                                        # phone-buzz shake with the vibration sound
+        dx = 10 * math.sin(t * 2 * math.pi * 21) * math.exp(-t * 6)
+        if abs(dx) > 0.3:
+            M = np.float32([[1, 0, dx], [0, 1, 0]])
+            out = Image.fromarray(cv2.warpAffine(np.asarray(out), M, (W, H), borderMode=cv2.BORDER_REPLICATE))
     if t >= END_T:                                     # soft blur + gentle push-in, dissolving into white
         p = ease_io(lin(t, END_T, END_T + TRANS))
         z = 1 + 0.04 * p
