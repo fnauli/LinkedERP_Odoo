@@ -44,7 +44,7 @@ Instagram + Facebook: Kamis, 5 November 2026, 18.00 WIB · TikTok + YouTube Shor
 
 - [ ] **Izin tag:** DM ke @heyyyy_dump: *"Kak, komentar kakak di video kami jadi inspirasi video berikutnya 😄 Boleh kami tag di caption?"* Kalau sampai Kamis 17.00 tidak dibalas atau tidak boleh: hapus bagian "(halo @heyyyy_dump 👋)" dari caption.
 - [ ] **File:** unduh `H8KI_Reel3_Tracking_v5.mp4`, `H8KI_Reel3_Tracking_v5_NO_MUSIC.mp4` dan `COVER_H8KI_Reel3_Tracking.jpg` ke galeri HP admin lewat **Google Drive** (jangan lewat WhatsApp, kualitasnya turun).
-- [ ] Putar video sekali di galeri: suara ada, tidak patah-patah, durasi 16 detik.
+- [ ] Putar video sekali di galeri: suara ada, tidak patah-patah, durasi sekitar 14,6 detik.
 - [ ] **Profil siap:** bio berisi layanan, area, dan link WhatsApp; 4 Highlights (Layanan, Area, Cara Order, Testimoni) sudah tampil; Reels #1 dan #2 disematkan.
 - [ ] **Kolaborator** (gunardi.minah dan 3 akun lainnya) dikabari bahwa besok jam 18.00 ada undangan kolaborasi yang perlu diterima.
 - [ ] Simpan caption dan komentar di bagian 6 dan 7 di aplikasi Catatan HP, supaya tinggal salin.
