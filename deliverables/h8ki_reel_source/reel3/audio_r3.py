@@ -4,7 +4,7 @@ change and a two-note logo chime. Beat = 0.6 s, the same grid as the cuts."""
 import wave
 import numpy as np
 
-SR, DUR = 48000, 15.6
+SR, DUR = 48000, 16.0
 N = int(SR * DUR)
 BEAT = 0.6
 rng = np.random.default_rng(3)
@@ -89,11 +89,11 @@ for t0, tri, root in CH:
     notes = tri + [tri[0] + 12]
     for k in range(8):
         t = t0 + k * BEAT / 2
-        if t >= 13.2:
+        if t >= 13.8:
             break
         put(marimba(notes[ARP[k]] + 12), t, 0.22 if k % 2 == 0 else 0.15, -0.3 + 0.6 * (k % 2))
     for b in (0, 2):
-        if t0 + b * BEAT < 13.2:
+        if t0 + b * BEAT < 13.8:
             put(bass(root), t0 + b * BEAT, 0.32)
 # shaker on the off-beats, claps on 2 and 4 once he is moving
 t = 2.4 + BEAT / 2
@@ -122,11 +122,15 @@ for t in (9.75, 10.35):
     tt = T(0.08)
     put(np.sin(2 * np.pi * 180 * tt) * np.exp(-tt * 50), t, 0.12)
 
+tt = T(0.7)                                          # soft air under the dissolve to the end card
+air = hp(lp(rng.standard_normal(len(tt)), 2500), 300) * np.sin(np.pi * tt / 0.7) ** 2
+put(air, 13.15, 0.035)
+
 # ---------------- end card: two-note chime and a final ringing chord
-put(bell(79, 2.0), 13.25, 0.10)
-put(bell(84, 2.4), 13.55, 0.10)
+put(bell(79, 2.0), 13.8, 0.10)
+put(bell(84, 2.4), 14.1, 0.10)
 for m in (48, 60, 64, 67, 72):
-    put(marimba(m, 2.0) if m > 50 else bass(m, 1.6), 13.25, 0.16)
+    put(marimba(m, 2.0) if m > 50 else bass(m, 1.6), 13.8, 0.16)
 
 # ---------------- master: gentle saturation, fade, normalise
 mix = np.tanh(mix * 1.6) / 1.6

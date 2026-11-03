@@ -6,7 +6,7 @@ Kamis, 5 November 2026 · 18.00 WIB · akun @hokilogistiklionindo
 
 | Hal | Isi |
 | --- | --- |
-| Video | `H8KI_Reel3_Tracking_v2.mp4` (15,6 detik, vertikal 9:16) |
+| Video | `H8KI_Reel3_Tracking_v3.mp4` (16 detik, vertikal 9:16) |
 | Sampul | `COVER_H8KI_Reel3_Tracking.jpg` |
 | Jadwal | **Kamis, 5 November 2026, pukul 18.00 WIB**, posting langsung |
 | Ide | Format "Di aplikasi vs Kenyataannya". Atas: titik kurir diam 10 menit di aplikasi. Bawah: kurir sebenarnya sedang di gang buntu, tanya warga, lalu paketnya sampai. |
@@ -23,7 +23,7 @@ Kamis, 5 November 2026 · 18.00 WIB · akun @hokilogistiklionindo
 
 ## 3. Langkah posting (pukul 18.00)
 
-1. Tekan **+** lalu **Reels**, pilih `H8KI_Reel3_Tracking_v2.mp4`. Posting sebagai **Reels biasa** (bukan "Reply with reel", karena stiker komentarnya akan menutupi peta).
+1. Tekan **+** lalu **Reels**, pilih `H8KI_Reel3_Tracking_v3.mp4`. Posting sebagai **Reels biasa** (bukan "Reply with reel", karena stiker komentarnya akan menutupi peta).
 2. Jangan dipotong, jangan ditambah filter, stiker, atau musik Instagram. Tekan **Berikutnya**.
 3. **Caption:** salin dari bagian 4.
 4. **Sampul:** Edit sampul lalu Tambahkan dari rol kamera, pilih `COVER_H8KI_Reel3_Tracking.jpg`.
@@ -96,7 +96,7 @@ Terima kasih banyak!
 
 ## 7b. TikTok (Jumat 6 Nov, sekitar 19.00 WIB)
 
-- Upload **file asli** `H8KI_Reel3_Tracking_v2.mp4` (bukan unduhan dari Instagram yang ada watermark).
+- Upload **file asli** `H8KI_Reel3_Tracking_v3.mp4` (bukan unduhan dari Instagram yang ada watermark).
 - **Settings: "AI-generated content" AKTIF.** Duet dan Stitch: aktif.
 - Sampul: pilih frame pertama (ada tulisan "Titik kurir diem 10 menit?").
 - Balas komentar di jam pertama.
@@ -115,6 +115,37 @@ Tag temen yang suka ngomel liat tracking 👇
 Kurir & ekspedisi Tangerang · cek resi · lacak paket · video dibuat dengan bantuan AI
 
 #trackingpaket #kurir #paketku #belanjaonline #kurirpaket #ekspedisi #tangerang #fyp
+```
+
+## 7c. YouTube Shorts (Jumat 6 Nov, sekitar 19.30 WIB)
+
+- Upload **file asli** `H8KI_Reel3_Tracking_v3.mp4` lewat aplikasi YouTube (Create, lalu Upload a Short) atau YouTube Studio.
+- **Altered or synthetic content: YES** (footage kurir dibuat dengan AI).
+- Audience: **No, it's not made for kids**. Kategori: **People & Blogs**. Bahasa: **Indonesian**. Komentar: aktif.
+- Thumbnail: pilih frame pertama (tulisan "Titik kurir diem 10 menit?").
+- Setelah tayang, tulis komentar pertama lalu **sematkan (Pin)**: *"Kamu tim 1 atau tim 2? 😄"*
+
+Judul (maksimal 100 karakter, salin persis):
+
+```
+Titik kurir diem 10 menit? Ini yang sebenarnya terjadi 😅📦 #shorts
+```
+
+Deskripsi (salin, lalu isi link WhatsApp Hoki):
+
+```
+Buat yang suka mantengin tracking paket: kadang titik kurir diem karena kurirnya lagi tanya warga, putar balik di gang buntu, atau cari "rumah pagar hitam sebelah warung". Tapi paketnya tetap sampai 📦
+
+Kamu tim mana?
+1️⃣ Refresh tracking tiap 5 menit
+2️⃣ Santai, nanti juga sampai
+Tulis di komentar 👇
+
+H8KI Logistik Lionindo, kurir & ekspedisi Tangerang. Cek resi, lacak paket, kirim paket.
+Order via WhatsApp: [ISI: link wa.me Hoki]
+Video dibuat dengan bantuan AI.
+
+#shorts #trackingpaket #kurir #belanjaonline #tangerang
 ```
 
 ## 8. Yang tidak boleh dilakukan

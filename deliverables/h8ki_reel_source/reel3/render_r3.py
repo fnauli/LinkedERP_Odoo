@@ -13,11 +13,13 @@ from common import clamp, lin, ease_io, ease_out
 import interp
 
 W, H, FPS = 1080, 1920, 24
-DUR = 15.6
+DUR = 16.0
 PANEL = 900                                  # top: the app; bottom: the reality
 INK, GREY, LINE = (24, 28, 40), (104, 112, 124), (226, 229, 235)
 RED, GREEN, BLUE, BG = (227, 24, 30), (4, 152, 68), (24, 119, 242), (244, 245, 248)
 END_T = 13.2
+TRANS = 0.6                                   # soft blur-to-white into the end card
+CARD_T = END_T + 0.55                         # end-card elements start once the white has settled
 
 # (t0, t1, clip, first src frame, last src frame, crop centre x, crop centre y, crop width)
 SHOTS = [
@@ -37,6 +39,8 @@ def raw(clip, i):
 
 
 def src(clip, p):
+    if clip == "h" and 60 <= p <= 63:                 # Kling's small jump at src 61/62: bridge it with flow
+        return interp.between(raw("h", 60), raw("h", 63), (p - 60) / 3)
     i0 = int(math.floor(p)); s = p - i0
     a = raw(clip, i0)
     return interp.between(a, raw(clip, i0 + 1), s) if s > 0.04 else a
@@ -278,37 +282,37 @@ def heart(size, col=RED):
 
 def end_card(t):
     img = Image.new("RGB", (W, H), (255, 255, 255))
-    p = ease_out(lin(t, END_T + 0.05, END_T + 0.45))
+    p = ease_out(lin(t, CARD_T + 0.05, CARD_T + 0.45))
     paste_layer(img, LOGO_M, W / 2, 610, p, 0.92 + 0.08 * back_in_out(p, 1.2))
-    a, s, dy = pop(t, END_T + 0.3, 0.5)
+    a, s, dy = pop(t, CARD_T + 0.3, 0.5)
     draw_text(img, "Kurir yang", font("xb", 88), W / 2, 930 + dy, INK, a, s, shadow=0.1, blur=10)
-    a, s, dy = pop(t, END_T + 0.5, 0.5)
+    a, s, dy = pop(t, CARD_T + 0.5, 0.5)
     draw_text(img, "nggak nyerah.", font("xb", 100), W / 2, 1040 + dy, RED, a, s, shadow=0.12, blur=10)
-    a, s, dy = pop(t, END_T + 0.8, 0.5)                 # ask for the like
+    a, s, dy = pop(t, CARD_T + 0.8, 0.5)                 # ask for the like
     if a > 0:
         f = font("b", 42); txt = "Tim nonton tracking? Tap"
         tw = f.getlength(txt)
         L = Image.new("RGBA", (int(tw) + 80, 80), (0, 0, 0, 0))
         ImageDraw.Draw(L).text((0, 10), txt, font=f, fill=INK)
-        beat = 1 + 0.12 * max(0.0, math.sin(max(0, t - END_T - 1.1) * 7)) ** 8
+        beat = 1 + 0.12 * max(0.0, math.sin(max(0, t - CARD_T - 1.1) * 7)) ** 8
         hz_ = heart(int(62 * beat))
         L.alpha_composite(hz_, (int(tw) + 14 + (62 - hz_.width) // 2, 8 + (62 - hz_.height) // 2))
         paste_layer(img, L, W / 2, 1215 + dy, a, s)
-    a, s, dy = pop(t, END_T + 1.1, 0.5)                 # and the follow
+    a, s, dy = pop(t, CARD_T + 1.1, 0.5)                 # and the follow
     if a > 0:
         f = font("b", 40); txt = "Follow buat cerita kurir berikutnya"
         tw = f.getlength(txt)
         L = Image.new("RGBA", (int(tw) + 90, 96), (0, 0, 0, 0))
         ImageDraw.Draw(L).rounded_rectangle((0, 0, L.width - 1, 95), 48, fill=GREEN + (255,))
         ImageDraw.Draw(L).text((45, 20), txt, font=f, fill=(255, 255, 255))
-        breathe = 1 + 0.02 * math.sin(max(0, t - END_T - 1.5) * 4.2)
+        breathe = 1 + 0.02 * math.sin(max(0, t - CARD_T - 1.5) * 4.2)
         paste_layer(img, L, W / 2, 1370 + dy, a, s * breathe)
     return img
 
 
 def frame(k):
     t = k / FPS
-    if t >= END_T + 0.25:
+    if t >= END_T + TRANS:
         return np.asarray(end_card(t))
     img = Image.new("RGBA", (W, H), BG + (255,))
     header(img, t)
@@ -323,9 +327,14 @@ def frame(k):
                         (0, PANEL))
     label(img, "KENYATAANNYA", 30, PANEL + 26, INK, (255, 255, 255, 235))
     out = img.convert("RGB")
-    if t >= END_T:                                     # quick white wipe into the end card
-        p = ease_io(lin(t, END_T, END_T + 0.25))
-        out = Image.blend(out, end_card(t), p)
+    if t >= END_T:                                     # soft blur + gentle push-in, dissolving into white
+        p = ease_io(lin(t, END_T, END_T + TRANS))
+        z = 1 + 0.04 * p
+        out = out.resize((int(W * z), int(H * z)), Image.BICUBIC).crop(
+            (int((W * z - W) / 2), int((H * z - H) / 2), int((W * z - W) / 2) + W, int((H * z - H) / 2) + H))
+        if p > 0.01:
+            out = out.filter(ImageFilter.GaussianBlur(14 * p))
+        out = Image.blend(out, Image.new("RGB", (W, H), (255, 255, 255)), p)
     return np.asarray(out)
 
 
