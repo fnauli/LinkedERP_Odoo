@@ -17,7 +17,7 @@ W, H, FPS = 1080, 1920, 24
 PANEL = 900
 INK, GREY = (24, 28, 40), (104, 112, 124)
 RED, GREEN, BLUE, BG, GOLD = (227, 24, 30), (4, 152, 68), (24, 119, 242), (244, 245, 248), (214, 140, 20)
-FULL_END, SPLIT_T = 0.9, 1.3                  # full-screen hook, then the app slides in
+FULL_END, SPLIT_T = 1.4, 1.8                  # full-screen hook (long enough to read), then the app slides in
 END_T = 14.4
 TRANS = 0.35
 CARD_T = END_T + 0.3
@@ -32,7 +32,7 @@ SHOTS = [
     (9.6, 11.4, "k2", 20, 64, 540, 880, 1080, 1.0),     # he bows and leaves, she opens the box
     (11.4, END_T, "k2", 64, 121, 540, 840, 1080, 1.0),  # the family photo comes out; she holds it close
 ]
-PH = [0.0, 1.8, 3.0, 5.4, 7.2]
+PH = [0.0, 2.2, 3.0, 5.4, 7.2]
 
 
 @lru_cache(maxsize=6)
@@ -210,7 +210,7 @@ PHASES = [
     ("alert", RED, "Alamat tidak ditemukan", "Patokan: pintu biru dekat masjid"),
     ("chat", (245, 150, 30), "Kurir bertanya ke warga", "Warga nunjukin jalannya"),
     ("route", BLUE, "Kurir menuju lokasimu", "Lewat masjid, ketemu arahnya"),
-    ("pin", RED, "Kurir di depan rumahmu", "Tok tok tok..."),
+    ("pin", RED, "Kurir di depan rumahmu", "Kiriman dari anaknya di Jakarta"),     # sets up the payoff
     ("check", GREEN, "Paket diterima", "Diterima oleh: Nenek"),
 ]
 
@@ -239,16 +239,28 @@ def label(img, txt, x, y, fg, bgc):
     img.alpha_composite(L, (x, y))
 
 
-def part_pill(img, cx, cy, alpha=1.0, scale=1.0):
-    f = font("xb", 30)
-    txt = "PART 2  ·  DI APLIKASI vs KENYATAANNYA"
-    L = Image.new("RGBA", (int(f.getlength(txt)) + 48, 58), (0, 0, 0, 0))
-    ImageDraw.Draw(L).rounded_rectangle((0, 0, L.width - 1, 57), 29, fill=RED + (255,))
-    ImageDraw.Draw(L).text((24, 9), txt, font=f, fill=(255, 255, 255))
+def part_pill(img, cx, cy, alpha=1.0, scale=1.0, size=34):
+    f = font("xb", size)
+    txt = "PART 2"
+    L = Image.new("RGBA", (int(f.getlength(txt)) + 56, int(size * 1.9)), (0, 0, 0, 0))
+    ImageDraw.Draw(L).rounded_rectangle((0, 0, L.width - 1, L.height - 1), L.height // 2, fill=RED + (255,))
+    ImageDraw.Draw(L).text((28, int(size * 0.32)), txt, font=f, fill=(255, 255, 255))
     paste_layer(img, L, cx, cy, alpha, scale)
 
 
 LOGO_S, LOGO_M = logo(170), logo(520)
+
+
+def send_icon(size, col=(255, 255, 255)):
+    """Instagram-style paper plane."""
+    S = size * 4
+    im = Image.new("RGBA", (S, S), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    w = int(S * 0.08)
+    d.line([(S * 0.08, S * 0.12), (S * 0.92, S * 0.12), (S * 0.5, S * 0.9), (S * 0.4, S * 0.48), (S * 0.08, S * 0.12)],
+           fill=col, width=w, joint="curve")
+    d.line([(S * 0.4, S * 0.48), (S * 0.92, S * 0.12)], fill=col, width=w)
+    return im.resize((size, size), Image.LANCZOS)
 
 
 def heart(size, col=RED):
@@ -295,14 +307,13 @@ def cta(img, t):
     img.alpha_composite(veil, (MX, MY))
     a, s, dy = pop(t, 12.6, 0.5)
     if a > 0:
-        f = font("b", 42); txt = "Ikut senyum? Tap"
+        f = font("b", 40); txt = "Kirim ke yang lagi jauh dari keluarga"     # sends: the strongest signal for new reach
         tw = f.getlength(txt)
         L = Image.new("RGBA", (int(tw) + 150, 96), (0, 0, 0, 0))
         ImageDraw.Draw(L).rounded_rectangle((0, 0, L.width - 1, 95), 48, fill=INK + (215,))
-        ImageDraw.Draw(L).text((40, 20), txt, font=f, fill=(255, 255, 255))
-        beat = 1 + 0.14 * max(0.0, math.sin(max(0, t - 13.0) * 7)) ** 8
-        hz_ = heart(int(60 * beat))
-        L.alpha_composite(hz_, (int(tw) + 58 + (60 - hz_.width) // 2, 18 + (60 - hz_.height) // 2))
+        ImageDraw.Draw(L).text((40, 21), txt, font=f, fill=(255, 255, 255))
+        nudge = 6 * max(0.0, math.sin(max(0, t - 13.0) * 6)) ** 6
+        L.alpha_composite(send_icon(56), (int(tw) + 62 + int(nudge), 20 - int(nudge * 0.6)))
         paste_layer(img, L, W / 2, MY + 105 + dy, a, s)
     a, s, dy = pop(t, 13.15, 0.5)
     if a > 0:
@@ -339,11 +350,11 @@ def end_card(t):
 def hook_overlay(img, t, alpha):
     """Full-screen hook: big white text over the two faces, readable from frame 1."""
     s = 1.1 - 0.1 * ease_out(lin(t, 0, 0.2))
-    part_pill(img, W / 2, 1140, alpha, s)
+    part_pill(img, W / 2, 1130, alpha, s, size=40)
     draw_text(img, "Alamatnya cuma", font("b", 64), W / 2, 1232, (255, 255, 255), alpha, s, shadow=0.85, blur=12)
     draw_text(img, "“pintu biru", font("xb", 100), W / 2, 1335, (255, 255, 255), alpha, s, shadow=0.9, blur=14)
     draw_text(img, "dekat masjid”", font("xb", 100), W / 2, 1445, (255, 214, 120), alpha, s, shadow=0.9, blur=14)
-    f = font("b", 36); txt = "GPS: alamat tidak ditemukan"
+    f = font("b", 38); txt = "GPS nyerah. Kurirnya bisa nemu?"
     L = Image.new("RGBA", (int(f.getlength(txt)) + 60, 72), (0, 0, 0, 0))
     ImageDraw.Draw(L).rounded_rectangle((0, 0, L.width - 1, 71), 36, fill=RED + (255,))
     ImageDraw.Draw(L).text((30, 13), txt, font=f, fill=(255, 255, 255))

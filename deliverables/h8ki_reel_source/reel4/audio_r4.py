@@ -90,7 +90,7 @@ for k, m in enumerate([76, 72]):
     s = np.sin(2 * np.pi * hz(m) * tt) + 0.25 * np.sign(np.sin(2 * np.pi * hz(m) * tt))
     put(lp(s * np.exp(-tt / 0.07), 4000), 0.08 + k * 0.14, 0.09)
 tt = T(0.5)
-put(hp(lp(rng.standard_normal(len(tt)), 3500), 400) * np.sin(np.pi * tt / 0.5) ** 2, 0.85, 0.06, -0.2)
+put(hp(lp(rng.standard_normal(len(tt)), 3500), 400) * np.sin(np.pi * tt / 0.5) ** 2, 1.35, 0.06, -0.2)
 
 if MUSIC:
     # ---------------- 1.2 - 11.4 s: light marimba groove (Am - F - G, C when she takes the parcel, F)
@@ -176,7 +176,7 @@ for k in range(6):                                   # cardboard: she opens the 
     put(lp(hp(rng.standard_normal(len(tt)), 700), 4000) * np.sin(np.pi * tt / L) ** 1.5, 10.4 + k * 0.16 + rng.uniform(0, 0.05), 0.07, 0.1)
 
 # ---------------- UI pings, delivered chime, punchline pops, the photo shimmer, asks
-for t, m in [(1.8, 76), (3.0, 79), (5.4, 81)]:
+for t, m in [(2.2, 76), (3.0, 79), (5.4, 81)]:
     tt = T(0.25)
     put(np.sin(2 * np.pi * hz(m) * tt) * np.exp(-tt * 18) + 0.3 * np.sin(2 * np.pi * hz(m + 12) * tt) * np.exp(-tt * 30), t, 0.13)
 for k, m in enumerate([84, 88, 91, 96]):
