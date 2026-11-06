@@ -6,19 +6,19 @@ Instagram + Facebook · **Senin, 9 November 2026, pukul 19.30 WIB** (setelah Isy
 
 | Hal | Isi |
 | --- | --- |
-| Video yang diposting | **`H8KI_Reel4_MisiKurir_v1_NO_MUSIC.mp4`** (15,7 detik, vertikal 9:16). Hanya efek suara, **musiknya memakai lagu trending dari Instagram**. |
-| Video cadangan | `H8KI_Reel4_MisiKurir_v1.mp4` (sudah ada musik kami: ceria lalu haru di bagian foto). Dipakai kalau tidak ada lagu trending yang cocok. |
+| Video yang diposting | **`H8KI_Reel4_MisiKurir_v2.mp4`** (18,6 detik, vertikal 9:16) **dengan musik piano bawaan**. Musiknya membesar tepat saat foto keluar dari kardus, jadi **jangan diganti lagu trending**. |
+| Versi tanpa musik | `H8KI_Reel4_MisiKurir_v2_NO_MUSIC.mp4` (hanya efek suara). Hanya kalau tim ingin memakai lagu trending; tidak disarankan untuk Reels ini. |
 | Sampul | `COVER_H8KI_Reel4_MisiKurir.jpg` |
-| Cerita | Format baru (beda dari Reels #3): video layar penuh dengan **kartu misi ala game**. Misinya: antar paket ke "pintu biru dekat masjid". Empat tugas tercentang satu per satu (+100 XP): tanya warga, cari masjid, temukan pintu biru, paket diterima, lalu **"MISI SELESAI"**. Setelah itu tampilan game hilang dan muncul hadiah yang sebenarnya: **foto cucu yang belum pernah Nenek peluk**. Awal seri baru **"MISI KURIR"**. |
+| Cerita | Video layar penuh dengan **kartu misi ala game** (beda dari Reels #3). Misinya: antar paket ke "pintu biru dekat masjid". Sejak awal ditulis **"Paket dari anaknya. Sudah 3 Lebaran nggak pulang."** Empat tugas tercentang (+100 XP), lalu **"MISI SELESAI · Hadiah misi: ???"**. Tampilan game hilang, Nenek membuka kardus: **"Isinya bukan barang..." → "Isinya foto cucu yang belum pernah ia peluk."** (musik piano membesar tepat di sini), lalu **"Hadiah misinya: senyum Nenek."** Penutup: **"Ada yang menunggu di ujung setiap alamat."** |
 | Hook (3 detik pertama) | **Wajah kurir dan bapak warga** yang tersenyum menunjuk jalan, langsung dengan **kartu misi besar**: "MISI KURIR #1", kesulitan ★★★★★, **"Antar paket ke: 'pintu biru dekat masjid'"**, chip merah "GPS: alamat tidak ditemukan". Bunyi "misi dimulai" ala game + bunyi error GPS. Semua bunyi (langkah kaki, ketukan pintu, pintu dibuka, kardus) pas dengan gambarnya. |
-| Ajakan di video | **"Kirim ke yang lagi jauh dari keluarga"** (ikon kirim) dan **"Follow buat Misi #2"**. Kiriman lewat DM adalah sinyal terkuat Instagram untuk menjangkau orang baru. |
+| Ajakan di video | Di kartu penutup (tidak mengganggu momen haru): **"Kirim ke yang lagi jauh dari keluarga"** (ikon kirim) dan **"Follow buat Misi #2"**. Kiriman lewat DM adalah sinyal terkuat Instagram untuk menjangkau orang baru. |
 | Target 7 hari | Lebih dari **1.000 views** (Instagram + Facebook), skip rate **di bawah 50%**, **minimal 5 follower baru** |
 
 ## 2. Siapa mengerjakan apa
 
 | Peran | Tugas |
 | --- | --- |
-| **Admin Instagram** | Lagu trending, posting, sampul, caption, komentar pertama, balas komentar, Story, laporan |
+| **Admin Instagram** | Posting, sampul, caption, komentar pertama, balas komentar, Story, laporan |
 | **Admin cadangan** | Siaga pukul 19.15 sampai 20.45 |
 | **Koordinator grup** | Kirim link ke grup paling lambat 19.32 |
 | **Kepala cabang** | Teruskan pesan ke staf dan kurir cabang |
@@ -28,7 +28,7 @@ Instagram + Facebook · **Senin, 9 November 2026, pukul 19.30 WIB** (setelah Isy
 
 | Kapan | Kegiatan | Siapa |
 | --- | --- | --- |
-| Sabtu-Minggu 7-8 Nov | Rapikan profil (bagian 4), pilih dan simpan lagu trending (bagian 5) | Admin |
+| Sabtu-Minggu 7-8 Nov | Rapikan profil (bagian 4) | Admin |
 | Minggu 8 Nov, malam | Pesan persiapan ke grup dan kepala cabang (bagian 11) | Koordinator |
 | Minggu 8 Nov, malam | Balas komentar sematan di Reels #3: *"Video baru besok malam jam 19.30: MISI KURIR #1 🎯 Follow biar nggak ketinggalan!"* | Admin |
 | Senin 9 Nov, 18.30 | Cek akhir (bagian 6), setelah Maghrib | Admin |
@@ -60,19 +60,16 @@ Kirim paket & dokumen Kota Tangerang
 - [ ] Cek highlight **Testimoni** sudah ada.
 - [ ] (Opsional) Nama profil: `Hoki Logistik | Kurir Ekspedisi Tangerang` (nama hanya bisa diganti 2 kali dalam 14 hari).
 
-## 5. Memilih lagu trending (Sabtu-Minggu)
+## 5. Lagu trending (tidak dipakai untuk Reels ini)
 
-1. Buka tab **Reels**, cari lagu dengan **tanda panah naik ↗** (sedang trending), tekan nama lagunya, lalu **Simpan audio**.
-2. Simpan **2-3 lagu**. Untuk Reels #4, pilih lagu yang **hangat atau menyentuh tapi tetap ringan** (misalnya akustik, piano, atau lagu ceria yang lembut), karena akhir videonya mengharukan. Hindari lagu sedih yang terlalu berat, lagu dengan lirik kasar, atau lagu yang tidak pantas untuk brand.
-3. Akun bisnis hanya bisa memakai lagu dari koleksi komersial Instagram. Kalau lagu tidak bisa dipilih, pilih lagu lain.
-4. Lagu yang disimpan ada di menu **Audio, tab Disimpan** saat posting.
+Reels #4 memakai musik piano bawaan video yang sudah diatur mengikuti gambar. Simpan lagu trending untuk Reels berikutnya.
 
 ## 6. Cek akhir (Senin, 18.30)
 
 - [ ] Baterai di atas 70% dan sedang di-charge, Wi-Fi atau sinyal kuat.
-- [ ] Video `v1_NO_MUSIC`, cadangan `v1`, dan sampul ada di galeri (dikirim lewat Google Drive, bukan WhatsApp).
-- [ ] Putar `v1_NO_MUSIC` sekali: terdengar getar HP, bunyi error GPS, langkah kaki, ketukan pintu. Tidak ada musik, itu memang benar.
-- [ ] Caption dan komentar di bagian 7 dan 8 siap di Catatan HP. Lagu trending tersimpan.
+- [ ] Video `H8KI_Reel4_MisiKurir_v2.mp4` dan sampul ada di galeri (dikirim lewat Google Drive, bukan WhatsApp).
+- [ ] Putar videonya sekali dengan suara: piano terdengar dari awal, ketukan pintu pas dengan tangan, musik membesar saat foto keluar.
+- [ ] Caption dan komentar di bagian 7 dan 8 siap di Catatan HP.
 - [ ] Admin cadangan siap.
 
 ## 7. Posting di Instagram (Senin, tepat 19.30)
@@ -80,18 +77,16 @@ Kirim paket & dokumen Kota Tangerang
 **A. Pilih video**
 
 1. Buka Instagram, tekan **+**, pilih **Reel**.
-2. Pilih **`H8KI_Reel4_MisiKurir_v1_NO_MUSIC.mp4`**, tekan **Berikutnya**.
+2. Pilih **`H8KI_Reel4_MisiKurir_v2.mp4`** (dengan musik piano), tekan **Berikutnya**.
 
-**B. Tambahkan lagu trending**
+**B. Suara: pakai musik bawaan video (disarankan)**
 
-3. Tekan ikon **Audio** (ikon not musik), buka tab **Disimpan**, pilih lagu.
-4. Geser bagian lagu sehingga bagian yang paling dikenal mulai di **detik 0**. Tekan **Selesai**.
-5. Tekan **Kontrol / Volume**: **Audio asli 100%**, **musik 35-45%**.
-6. Putar dari awal: getar HP dan bunyi error GPS di detik pertama, serta ketukan pintu, harus tetap terdengar.
-6b. (Opsional, disarankan) **Voiceover**: tekan Audio, lalu **Voiceover**, letakkan di detik 0, ucapkan dengan nada penasaran: *"Alamatnya cuma pintu biru dekat masjid... bisa ketemu nggak ya?"* Volume voiceover 100%, musik sekitar 30%.
-7. **Jangan** memotong video, jangan menambah filter, teks, atau stiker. Tekan **Berikutnya**.
+3. Untuk Reels ini **jangan tambah lagu dari Instagram**. Musik piano di video sudah diatur supaya bagian yang paling menyentuh (musiknya membesar) jatuh **tepat saat foto keluar dari kardus**. Lagu lain akan menghilangkan momen itu.
+4. Tekan nama audio, **ganti nama audio** menjadi `Misi Kurir #1 · H8KI`.
+5. (Opsional, disarankan) **Voiceover**: tekan Audio, lalu **Voiceover**, letakkan di detik 0, ucapkan dengan nada penasaran: *"Alamatnya cuma pintu biru dekat masjid... bisa ketemu nggak ya?"* Volume voiceover 100%, audio asli sekitar 70%.
+6. **Jangan** memotong video, jangan menambah filter, teks, atau stiker. Tekan **Berikutnya**.
 
-Kalau dalam 5 menit tidak ada lagu yang cocok: pakai **`H8KI_Reel4_MisiKurir_v1.mp4`** (sudah ada musik kami), lewati langkah 3-6, dan ganti nama audionya menjadi `Misi Kurir #1 · H8KI`. **Jangan** menambah lagu Instagram ke file `v1.mp4`.
+(Pilihan lain, hanya kalau tim ingin memakai lagu trending: pakai `H8KI_Reel4_MisiKurir_v2_NO_MUSIC.mp4`, tambahkan lagu lewat **Audio** dengan volume audio asli 100% dan musik 35-45%. Momen musik yang pas dengan foto akan hilang, jadi pilihan ini tidak disarankan untuk Reels #4.)
 
 **C. Caption, sampul, dan pengaturan**
 
@@ -155,7 +150,7 @@ Video baru sudah tayang: MISI KURIR #1 🎯 Cek Reels terbaru kami ya 👀
 1. Buka Halaman Facebook Hoki (atau Meta Business Suite), menu **Reels**.
 2. Pastikan Reels #4 ikut tayang, **suaranya ada**, caption benar.
 3. Tulis komentar pertama yang sama dan balas komentar di Facebook juga.
-4. **Kalau tidak muncul atau suaranya dibisukan** (lagu trending belum tentu berlisensi untuk Facebook): buka Meta Business Suite, **Buat Reel** untuk Halaman Facebook, upload **`H8KI_Reel4_MisiKurir_v1.mp4`** (musik kami), caption yang sama, bagikan paling lambat 19.50.
+4. **Kalau tidak muncul atau suaranya dibisukan** (biasanya tidak terjadi karena musiknya bawaan video): buka Meta Business Suite, **Buat Reel** untuk Halaman Facebook, upload **`H8KI_Reel4_MisiKurir_v2.mp4`**, caption yang sama, bagikan paling lambat 19.50.
 
 ## 10. Jam pertama: membalas komentar (19.30 sampai 20.30)
 
@@ -206,7 +201,7 @@ Terima kasih banyak!
 - Membeli like, view, atau followers, atau ikut grup "saling like".
 - Spam link ke grup yang tidak berhubungan.
 - Menghapus lalu memposting ulang video.
-- Memotong video, atau menambah lagu ke file `v1.mp4` (yang sudah ada musik).
+- Memotong video, atau menambah lagu Instagram ke file `v2.mp4` (yang sudah ada musik).
 
 ## 14. Laporan ke LinkedERP
 
@@ -216,16 +211,16 @@ Terima kasih banyak!
 | **Selasa 10 Nov, 19.30** (24 jam) | Sama |
 | **Kamis 12 Nov, 19.30** (72 jam) | Sama, plus **Account insights 7 hari terakhir** dan screenshot **profil** |
 
-Sebutkan juga **judul lagu trending** yang dipakai.
+Sebutkan juga apakah voiceover dipakai.
 
 ## 15. Kalau terjadi masalah
 
 | Masalah | Yang dilakukan |
 | --- | --- |
-| Lagu tidak bisa dipilih | Pilih lagu lain yang tersimpan, atau pakai `v1.mp4` (sudah ada musik). |
+| Suara video tidak terdengar | Pastikan HP tidak dalam mode senyap dan volume audio asli 100%. |
 | Efek suara tertutup lagu | Turunkan musik sampai sekitar 35%, audio asli tetap 100%. |
 | Upload gagal | Pindah ke Wi-Fi, coba lagi. Jangan upload dua kali. |
-| Facebook tidak tayang atau tanpa suara | Upload `v1.mp4` lewat Meta Business Suite (bagian 9). |
+| Facebook tidak tayang atau tanpa suara | Upload `v2.mp4` lewat Meta Business Suite (bagian 9). |
 | Salah ketik caption | Edit caption. Jangan hapus video. |
 | Lupa label AI | Edit, aktifkan label AI kalau ada. Caption sudah menyebut "Video dibuat dengan bantuan AI". |
 | Views pelan di jam pertama | Normal. Teruskan Story, balas komentar, minta grup kirim lewat DM. |
@@ -233,8 +228,8 @@ Sebutkan juga **judul lagu trending** yang dipakai.
 ## 16. Checklist akhir (centang saat posting)
 
 - [ ] Profil sudah dirapikan (bio, link WhatsApp pertama, highlight Cerita Kurir)
-- [ ] `v1_NO_MUSIC`, `v2` (cadangan) dan sampul ada di galeri
-- [ ] Lagu trending dipasang, mulai di detik 0, volume audio asli 100% dan musik 35-45%
+- [ ] `H8KI_Reel4_MisiKurir_v2.mp4` dan sampul ada di galeri
+- [ ] Tidak menambah lagu Instagram, nama audio diganti `Misi Kurir #1 · H8KI`
 - [ ] Caption ditempel
 - [ ] Sampul dari rol kamera, kartu MISI KURIR #1 terlihat di kisi profil
 - [ ] Kolaborator diundang, akun cabang ditandai, lokasi Kota Tangerang
