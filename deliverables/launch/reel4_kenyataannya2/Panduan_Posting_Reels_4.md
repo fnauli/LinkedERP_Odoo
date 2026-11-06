@@ -232,7 +232,7 @@ Sebutkan juga **judul lagu trending** yang dipakai.
 ## 16. Checklist akhir (centang saat posting)
 
 - [ ] Profil sudah dirapikan (bio, link WhatsApp pertama, highlight Cerita Kurir)
-- [ ] `v2_NO_MUSIC`, `v1` (cadangan) dan sampul ada di galeri
+- [ ] `v2_NO_MUSIC`, `v2` (cadangan) dan sampul ada di galeri
 - [ ] Lagu trending dipasang, mulai di detik 0, volume audio asli 100% dan musik 35-45%
 - [ ] Caption ditempel
 - [ ] Sampul dari rol kamera, label PART 2 terlihat di kisi profil
