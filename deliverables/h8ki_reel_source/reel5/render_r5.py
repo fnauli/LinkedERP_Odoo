@@ -1,7 +1,8 @@
 """Reel #5 "200 KARDUS. 1 HARI." - the Hoki team's real job for MIDO Indonesia, told as a race against the clock.
 Real footage (stabilised, labels blurred, upscaled by prep.py) + a live clock and box counter, a dive into the
 cartons that turns into an animated map of where they went, and a thank-you to the customer.
-Every cut sits on the beat of the piano (0.68 s); its swell (track 50.74 s) lands on the map.
+v2: slower, so every line can be read; cut on the beat of "Life of Riley" (Kevin MacLeod, CC BY 4.0, 102 bpm),
+its new phrase (track 18.85 s) lands on the map.
   python3 render_r5.py OUT.mp4 [preview t ...]"""
 import sys, os, math, json, subprocess
 from multiprocessing import Pool
@@ -11,11 +12,17 @@ from gfx import font, paste_layer, draw_text, text_size, check_icon, pop, back_i
 from common import clamp, lin, ease_io, ease_out, ease_in
 
 W, H, FPS = 1080, 1920, 24
-DUR = 18.4
-BEAT = 0.68
-T_MAP = 8.4
-TRACK_SWELL = 50.74
-OFF = TRACK_SWELL - T_MAP
+BEAT = 0.58824
+T_HOOK = 6 * BEAT                      # 3.53
+T_B1 = 12 * BEAT                       # 7.06
+T_B2 = 16 * BEAT                       # 9.41
+T_MAP = 22 * BEAT                      # 12.94
+T_BACK = T_MAP + 12 * BEAT             # 20.00
+T_END = T_BACK + 5 * BEAT              # 22.94 closing card
+T_HOLD = T_BACK + 6 * BEAT             # 23.53
+DUR = 27.05
+TRACK_PHRASE = 18.847
+OFF = TRACK_PHRASE - T_MAP
 GOLD, RED, GREEN, NAVY = (255, 200, 50), (228, 30, 42), (37, 211, 102), (8, 14, 30)
 WHITE = (255, 255, 255)
 PRE = "../pre3/"
@@ -24,14 +31,13 @@ NFR = {"A": 235, "B": 166, "C": 334}
 
 # (t0, t1, clip, src0, src1)
 SHOTS = [
-    (0.00, 2.28, "C", 5.0, 7.3),       # hook: the yard full of cartons
-    (2.28, 5.00, "A", 3.0, 8.1),       # the team stacks the MIDO boxes (1.9x)
-    (5.00, 6.36, "B", 0.0, 1.9),       # arranging by the scale
-    (6.36, T_MAP, "B", 2.2, 4.4),      # close: labels on, boxes checked
-    (13.16, 15.8, "C", 7.4, 10.3),     # back to the yard, the pan ends on the Lion Parcel x H8KI sign
-    (15.8, DUR, "C", 10.3, 10.3),      # hold on the sign (slow push-in)
+    (0.00, T_HOOK, "C", 4.4, 7.3),     # hook: the yard full of cartons
+    (T_HOOK, T_B1, "A", 3.0, 8.1),     # the team stacks the MIDO boxes (1.45x)
+    (T_B1, T_B2, "B", 0.0, 1.9),       # arranging by the scale
+    (T_B2, T_MAP, "B", 2.2, 4.6),      # close: labels on, boxes checked
+    (T_BACK, T_HOLD, "C", 7.4, 10.3),  # back to the yard, the pan ends on the Lion Parcel x H8KI sign
+    (T_HOLD, DUR, "C", 10.3, 10.3),    # hold on the sign (slow push-in)
 ]
-T_END = 15.2                            # closing card
 
 
 # ------------------------------------------------------------------ footage
@@ -82,7 +88,7 @@ def footage(t):
             p = (t - t0) / (t1 - t0)
             s = s0 + (s1 - s0) * p
             speed = (s1 - s0) / (t1 - t0)
-            f = src_at(c, s, blur=(0.5 / FPS_SRC[c]) if speed > 1.3 else 0)
+            f = src_at(c, s, blur=(0.5 / FPS_SRC[c]) if speed > 1.6 else 0)
             return f, t0, t1
     return None, 0, 0
 
@@ -157,21 +163,21 @@ def build_base():
 BASE = None
 ORIGIN = (106.63, -6.13)                          # Lion Parcel Cabang Airport, Tangerang
 ISLANDS = [  # name, label lon/lat, arrival start, destination dots (no city names: addresses stay private)
-    ("JAWA", (110.2, -8.75), 9.08, [(108.3, -7.2), (110.4, -7.0), (112.6, -7.4), (114.0, -8.0), (111.6, -7.8)]),
-    ("SUMATERA", (99.6, 1.2), 9.76, [(104.8, -3.0), (101.4, 0.4), (98.7, 3.5), (105.3, -5.3), (100.4, -0.9)]),
-    ("KALIMANTAN", (113.6, 1.3), 10.44, [(109.3, -0.1), (114.6, -3.4), (116.9, -1.3), (113.9, -2.3), (117.1, 0.4)]),
+    ("JAWA", (110.2, -8.75), T_MAP + 0.9, [(108.3, -7.2), (110.4, -7.0), (112.6, -7.4), (114.0, -8.0), (111.6, -7.8)]),
+    ("SUMATERA", (99.6, 1.2), T_MAP + 1.8, [(104.8, -3.0), (101.4, 0.4), (98.7, 3.5), (105.3, -5.3), (100.4, -0.9)]),
+    ("KALIMANTAN", (113.6, 1.3), T_MAP + 2.7, [(109.3, -0.1), (114.6, -3.4), (116.9, -1.3), (113.9, -2.3), (117.1, 0.4)]),
 ]
-ARC_DUR = 0.9
+ARC_DUR = 1.1
 
 
 def cam(t):
     """Map camera: (centre lon, lat, px per degree in the output)."""
     p = ease_io(lin(t, T_MAP, T_MAP + 1.3))
-    q = ease_in(lin(t, 12.55, 13.16))                # dive back into Tangerang before the yard
+    q = ease_in(lin(t, T_BACK - 0.61, T_BACK))                # dive back into Tangerang before the yard
     lon = ORIGIN[0] + (107.6 - ORIGIN[0]) * p
     lat = ORIGIN[1] + (-1.6 - ORIGIN[1]) * p
     k = 120 * (1 - p) + 40.5 * p
-    k = k * (1 + 0.03 * lin(t, T_MAP + 1.3, 12.55))  # a slow drift-in while the arcs fly
+    k = k * (1 + 0.03 * lin(t, T_MAP + 1.3, T_BACK - 0.61))  # a slow drift-in while the arcs fly
     lon = lon + (ORIGIN[0] - lon) * q
     lat = lat + (ORIGIN[1] - lat) * q
     k = k * (1 + 5 * q * q)
@@ -263,7 +269,7 @@ def draw_map(t):
         pl = plane_icon(46, ang)
         pil.alpha_composite(pl, (int(px - 23), int(py - 23)))
     # labels
-    a, s_, dy = pop(t, T_MAP + 0.55, 0.5, 12.6, 0.3, rise=16)
+    a, s_, dy = pop(t, T_MAP + 0.55, 0.5, T_BACK - 0.56, 0.3, rise=16)
     ox, oy = o_xy(*ORIGIN, c)
     if a > 0:
         f = font("b", 30)
@@ -273,7 +279,7 @@ def draw_map(t):
         ImageDraw.Draw(L).text((22, 9), txt, font=f, fill=WHITE)
         paste_layer(pil, L, ox - 30, oy + 62 + dy, a, s_, anchor="r")
     for name, lab, ta, dests in ISLANDS:
-        a, s_, dy = pop(t, ta + 0.55, 0.5, 12.6, 0.3, rise=16)
+        a, s_, dy = pop(t, ta + 0.55, 0.5, T_BACK - 0.56, 0.3, rise=16)
         lx, ly = o_xy(*lab, c)
         draw_text(pil, name, font("xb", 42), lx, ly + dy, WHITE, a, s_, shadow=0.9, blur=10)
     return pil
@@ -319,7 +325,7 @@ def clock_face(size, hrs):
     return im.resize((size, size), Image.LANCZOS)
 
 
-T_C0, T_C1 = 2.28, 8.0                                     # clock 07.00 -> 21.00, counter 0 -> 200
+T_C0, T_C1 = T_HOOK, T_MAP - 0.6                                     # clock 07.00 -> 21.00, counter 0 -> 200
 
 
 def hours(t):
@@ -374,7 +380,7 @@ def hud_counter(img, t):
     paste_layer(img, bar, W / 2, 1560, a)
 
 
-CHECKS = [("Pickup", 6.36), ("Packing", 7.04), ("Loading", 7.72)]
+CHECKS = [("Pickup", T_B2), ("Packing", T_B2 + 1.5 * BEAT), ("Loading", T_B2 + 3 * BEAT)]
 
 
 def hud_checks(img, t):
@@ -390,10 +396,10 @@ def hud_checks(img, t):
 def hook(img, t):
     a, s = stamp(t, -1)
     draw_text(img, "200 KARDUS.", font("xb", 138), W / 2, 400, WHITE, a, s * (1 + 0.012 * t), shadow=0.9, blur=18)
-    a, s = stamp(t, 0.42)
+    a, s = stamp(t, 0.6)
     if a > 0:
         draw_text(img, "1 HARI.", font("xb", 138), W / 2, 560, GOLD, a, s, shadow=0.9, blur=18)
-    a, s = stamp(t, 0.95)
+    a, s = stamp(t, 1.3)
     if a > 0:
         L = pill("Bisa nggak?", font("xb", 62), RED + (255,), padx=46, h=118)
         L = L.rotate(-3, resample=Image.BICUBIC, expand=True)
@@ -439,65 +445,65 @@ def flash(t, t0, d=0.12):
 
 def frame(k):
     t = k / FPS
-    in_map = T_MAP <= t < 13.16
+    in_map = T_MAP <= t < T_BACK
     if not in_map:
         f, t0, t1 = footage(min(t, DUR - 1e-3))
         # punch-in on every cut, a slow push on the hook
         z = 1 + 0.035 * (1 - ease_out(lin(t, t0, t0 + 0.3)))
         if t0 == 0.0:
-            z = 1.0 + 0.10 * ease_io(lin(t, 0, 2.28))
-        if t0 == 13.16:
-            z = 1.0 + 0.06 * (1 - ease_out(lin(t, 13.16, 14.2)))
-        if t0 == 15.8:
-            z = 1.0 + 0.07 * ease_io(lin(t, 15.8, DUR))
+            z = 1.0 + 0.10 * ease_io(lin(t, 0, T_HOOK))
+        if t0 == T_BACK:
+            z = 1.0 + 0.06 * (1 - ease_out(lin(t, T_BACK, T_BACK + 1.0)))
+        if t0 == T_HOLD:
+            z = 1.0 + 0.07 * ease_io(lin(t, T_HOLD, DUR))
         # transition hook -> montage: zoom-blur punch over the cut
-        if 2.28 - 0.17 <= t < 2.28:
-            q = lin(t, 2.11, 2.28)
+        if T_HOOK - 0.17 <= t < T_HOOK:
+            q = lin(t, T_HOOK - 0.17, T_HOOK)
             f = zoom_blur(f, z * (1 + 0.25 * q * q), 0.12 * q)
-        elif 2.28 <= t < 2.45:
-            q = 1 - lin(t, 2.28, 2.45)
+        elif T_HOOK <= t < T_HOOK + 0.17:
+            q = 1 - lin(t, T_HOOK, T_HOOK + 0.17)
             f = zoom_blur(f, z * (1 + 0.25 * q * q), 0.12 * q)
         elif T_MAP - 0.42 <= t < T_MAP:                  # dive into the cartons...
             q = ease_in(lin(t, T_MAP - 0.42, T_MAP))
             f = zoom_blur(f, z * (1 + 1.6 * q), 0.25 * q)
-        elif 13.16 <= t < 13.4:                          # ...and out of the map into the yard
-            q = 1 - ease_out(lin(t, 13.16, 13.4))
+        elif T_BACK <= t < T_BACK + 0.24:                # ...and out of the map into the yard
+            q = 1 - ease_out(lin(t, T_BACK, T_BACK + 0.24))
             f = zoom_blur(f, z * (1 + 0.8 * q), 0.18 * q)
-        elif t0 == 15.8:
+        elif t0 == T_HOLD:
             f = zoom(f, z, 380, 640)
         else:
             f = zoom(f, z)
         # a touch of golden light through the long day
-        g = lin(t, 2.28, T_MAP) * (t < T_MAP)
+        g = lin(t, T_HOOK, T_MAP) * (t < T_MAP)
         f = f * np.array([1 + 0.05 * g, 1 + 0.01 * g, 1 - 0.06 * g], np.float32)
-        top = 1.0 if t < 2.28 else ease_out(lin(t, 2.28, 2.6)) * 0.55 if t < T_MAP else \
-            ease_out(lin(t, 13.4, 13.8)) * (1 - ease_io(lin(t, T_END - 0.3, T_END)))
-        bot = ease_out(lin(t, 2.28, 2.6)) * (t < T_MAP) * 0.85 + ease_out(lin(t, T_END, T_END + 0.5)) * (t >= T_END)
+        top = 1.0 if t < T_HOOK else ease_out(lin(t, T_HOOK, T_HOOK + 0.32)) * 0.55 if t < T_MAP else \
+            ease_out(lin(t, T_BACK + 0.24, T_BACK + 0.64)) * (1 - ease_io(lin(t, T_END - 0.3, T_END)))
+        bot = ease_out(lin(t, T_HOOK, T_HOOK + 0.32)) * (t < T_MAP) * 0.85 + ease_out(lin(t, T_END, T_END + 0.5)) * (t >= T_END)
         f = f * (1 - 0.6 * top * SCRIM_TOP) * (1 - 0.72 * bot * SCRIM_BOT) * vignette()
-        fl = flash(t, 2.28, 0.08) * 0.35 + flash(t, T_C1, 0.12) * 0.18
+        fl = flash(t, T_HOOK, 0.08) * 0.35 + flash(t, T_C1, 0.12) * 0.18
         if fl > 0:
             f = f + (255 - f) * fl
         img = Image.fromarray(np.clip(f, 0, 255).astype(np.uint8)).convert("RGBA")
-        if t < 2.28:
+        if t < T_HOOK:
             hook(img, t)
         hud_clock(img, t)
         hud_counter(img, t)
         hud_checks(img, t)
-        caption(img, t, "Terima kasih, MIDO Indonesia,", "atas kepercayaannya.", 13.45, 13.85, T_END - 0.05, y=300, s1=54, s2=72)
+        caption(img, t, "Terima kasih, MIDO Indonesia,", "atas kepercayaannya.", T_BACK + 0.3, T_BACK + 0.75, T_END - 0.05, y=300, s1=54, s2=72)
         if t >= T_END:
             closing(img, t)
     else:
         img = draw_map(t)
         q = 1 - ease_out(lin(t, T_MAP, T_MAP + 0.25))     # arrive out of the white of the dive
-        q2 = ease_in(lin(t, 12.95, 13.16))
+        q2 = ease_in(lin(t, T_BACK - 0.21, T_BACK))
         if q > 0 or q2 > 0:
             arr = np.asarray(img.convert("RGB"), np.float32)
             arr = arr + (255 - arr) * max(q * 0.6, q2 * 0.5)
             img = Image.fromarray(arr.astype(np.uint8)).convert("RGBA")
-        caption(img, t, "Malam itu,", "200 kardus siap berangkat.", T_MAP + 0.2, T_MAP + 0.55, 10.9, y=300, s1=58, s2=66)
-        caption(img, t, "Ke 3 pulau,", "dalam 1 hari kerja.", 11.05, 11.4, 12.85, y=300, s1=58, s2=74)
+        caption(img, t, "Malam itu,", "200 kardus siap berangkat.", T_MAP + 0.2, T_MAP + 0.6, T_MAP + 3.7, y=300, s1=58, s2=66)
+        caption(img, t, "Ke 3 pulau,", "dalam 1 hari kerja.", T_MAP + 3.85, T_MAP + 4.25, T_BACK - 0.3, y=300, s1=58, s2=74)
         for j, (big, small) in enumerate((("200", "kardus"), ("1", "hari"), ("3", "pulau"))):
-            a, s, dy = pop(t, 11.55 + j * 0.17, 0.5, 12.85, 0.3)
+            a, s, dy = pop(t, T_MAP + 4.6 + j * 0.25, 0.5, T_BACK - 0.3, 0.3)
             if a > 0:
                 L = Image.new("RGBA", (260, 200), (0, 0, 0, 0))
                 dd = ImageDraw.Draw(L)
@@ -507,7 +513,7 @@ def frame(k):
                 fs = font("sb", 38)
                 dd.text((130 - fs.getlength(small) / 2, 126), small, font=fs, fill=WHITE)
                 paste_layer(img, L, W / 2 + (j - 1) * 290, 1400 + dy, a, s)
-        a, s, dy = pop(t, 11.25, 0.5, 12.85, 0.3)
+        a, s, dy = pop(t, T_MAP + 4.15, 0.5, T_BACK - 0.3, 0.3)
         if a > 0:
             paste_layer(img, pill("Dikirim via Lion Parcel", font("b", 40), RED + (255,), icon=plane_icon(52, 0), padx=34, h=96),
                         W / 2, 520 + dy, a, s)

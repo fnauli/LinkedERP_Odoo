@@ -6,7 +6,7 @@ Instagram + Facebook · **Senin, 16 November 2026, pukul 19.30 WIB** (setelah Is
 
 | Hal | Isi |
 | --- | --- |
-| Video yang diposting | **`H8KI_Reel5_200Kardus.mp4`** (18,4 detik, vertikal 9:16) **dengan musik piano bawaan**. Musiknya membesar tepat saat peta muncul, jadi sebaiknya **tidak diganti lagu trending**. |
+| Video yang diposting | **`H8KI_Reel5_200Kardus_v2.mp4`** (27 detik, vertikal 9:16) dengan musik ceria **"Life of Riley" (Kevin MacLeod)**. Setiap potongan gambar jatuh di ketukan musik. **Wajib** mencantumkan kredit musik di caption (sudah ada di caption bagian 6). |
 | Versi tanpa musik | `H8KI_Reel5_200Kardus_NO_MUSIC.mp4` (suara asli lokasi + efek suara). Hanya kalau tim ingin memakai lagu trending. |
 | Sampul | `COVER_H8KI_Reel5_200Kardus.jpg` |
 | Cerita | **Video asli tim Hoki** (bukan animasi) untuk pekerjaan nyata: kiriman **MIDO Indonesia**. Hook: **"200 KARDUS. 1 HARI. Bisa nggak?"**. Lalu jam berjalan **07.00 pagi sampai 21.00 malam** dan penghitung **0 sampai 200 kardus** sambil tim menyusun kardus. Tercentang **Pickup, Packing, Loading**. Kamera "masuk" ke tumpukan kardus dan berubah menjadi **peta Indonesia**: jalur emas dari **Tangerang** ke **Jawa, Sumatera, Kalimantan**, "Dikirim via Lion Parcel", angka **200 kardus · 1 hari · 3 pulau**. Kembali ke halaman: **"Terima kasih, MIDO Indonesia, atas kepercayaannya."** Penutup di papan Lion Parcel × H8KI: **"Kirim banyak? Serahkan ke kami."** |
@@ -57,7 +57,7 @@ Reels #5 memakai **musik piano bawaan** yang sudah diatur mengikuti gambar: seti
 **A. Pilih video**
 
 1. Buka Instagram, tekan **+**, pilih **Reel**.
-2. Pilih **`H8KI_Reel5_200Kardus.mp4`**, tekan **Berikutnya**.
+2. Pilih **`H8KI_Reel5_200Kardus_v2.mp4`**, tekan **Berikutnya**.
 
 **B. Suara**
 
@@ -97,6 +97,8 @@ Kamu pernah kirim paket paling banyak berapa sekaligus? Tulis angkanya di koment
 Punya kiriman banyak (toko online, kantor, pabrik)? Chat WhatsApp kami, link di bio.
 
 H8KI Logistik Lionindo, agen Lion Parcel Cabang Airport, Tangerang. Video asli tim kami, diedit dengan bantuan AI.
+
+Musik: "Life of Riley" oleh Kevin MacLeod (incompetech.com), lisensi Creative Commons: By Attribution 4.0
 
 #ekspedisi #kirimpaket #lionparcel #ekspedisitangerang #H8KI #behindthescenes
 ```
